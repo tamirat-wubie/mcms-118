@@ -9,11 +9,16 @@ from mcms.elements import (
     TransitionBehaviorKernel,
     build_element_receipt,
     build_snapshot_receipt,
+    compare_outer_shell_similarity,
+    explain_configuration_choice,
+    get_f_block_expansion_profile,
     get_seed_element,
     get_snapshot_record,
+    list_f_block_expansion_profiles,
     list_full_snapshot_records,
     list_seed_elements,
     validate_configuration_audit,
+    validate_f_block_expansion_profiles,
     validate_full_snapshot,
     validate_seed_pack,
 )
@@ -181,6 +186,66 @@ def test_phase_2_transition_behavior_flags_are_separate_from_measured_properties
     assert zinc.state.transition_behavior_kernel.magnetic_relevance is False
     assert krypton.state.transition_behavior_kernel is None
     assert cobalt.state.first_ionization_energy_source_key == "pubchem_periodic_table_properties"
+
+
+def test_phase_2_explains_chromium_configuration_exception():
+    reasoning = explain_configuration_choice("Cr").to_dict()
+    assert reasoning["reasoning_status"] == "configuration_choice_explained"
+    assert reasoning["subject_symbols"] == ["Cr"]
+    assert reasoning["evidence"]["configuration_audit"]["simple_aufbau_candidate"] == (
+        "[Ar] 3d^4 4s^2"
+    )
+    assert reasoning["evidence"]["configuration_audit"]["source_backed_configuration"] == (
+        "[Ar] 3d^5 4s^1"
+    )
+    assert reasoning["evidence"]["identity"]["proton_count"] == 24
+    assert "simple Aufbau filling as a candidate" in reasoning["answer_lines"][0]
+
+
+def test_phase_2_compares_copper_and_potassium_outer_shell_similarity():
+    reasoning = compare_outer_shell_similarity("Cu", "K").to_dict()
+    assert reasoning["reasoning_status"] == "outer_shell_similarity_explained"
+    assert reasoning["subject_symbols"] == ["Cu", "K"]
+    assert reasoning["evidence"]["surface_similarity"] is True
+    assert reasoning["evidence"]["deep_similarity"] is False
+    assert reasoning["evidence"]["Cu"]["d_shell"] == "3d^10"
+    assert reasoning["evidence"]["K"]["d_shell"] is None
+    assert reasoning["answer_lines"][0] == "Partially, but not deeply."
+
+
+def test_phase_3_f_block_profiles_are_bounded_snapshot_overlays():
+    profiles = list_f_block_expansion_profiles()
+    validation = validate_f_block_expansion_profiles(profiles)
+    lanthanum = get_f_block_expansion_profile("La")
+    promethium = get_f_block_expansion_profile("Pm")
+    uranium = get_f_block_expansion_profile("U")
+    assert len(profiles) == 30
+    assert validation.validation_status == "f_block_expansion_profiles_validated"
+    assert validation.lanthanide_count == 15
+    assert validation.actinide_count == 15
+    assert lanthanum.series == "lanthanide"
+    assert lanthanum.f_shell_family == "4f"
+    assert lanthanum.group is None
+    assert promethium.radioactive_decay_relevance is True
+    assert promethium.nuclear_state_extension_required is True
+    assert uranium.series == "actinide"
+    assert uranium.f_shell_family == "5f"
+    assert uranium.actinide_instability_relevance is True
+
+
+def test_phase_3_f_block_validation_rejects_fractured_profile():
+    uranium = get_f_block_expansion_profile("U")
+    fractured_profile = replace(
+        uranium,
+        series="lanthanide",
+        f_shell_family="4f",
+        actinide_instability_relevance=True,
+    )
+    validation = validate_f_block_expansion_profiles((fractured_profile,))
+    errors = fractured_profile.validate()
+    assert validation.validation_status == "f_block_expansion_profiles_rejected"
+    assert validation.invalid_profiles == ("U",)
+    assert any("actinide instability flag" in error for error in errors)
 
 
 def test_d_block_valence_validation_rejects_out_of_range_seed_state():

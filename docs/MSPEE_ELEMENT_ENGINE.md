@@ -14,7 +14,8 @@ The engine does not claim full chemistry prediction, legal certification, produc
 readiness, or autonomous physical action. It currently provides a Level 1 canonical
 seed pack for the first 36 elements, sourced Level 2 oxidation-state and Pauling
 electronegativity values for the first 36 elements, and an identity/weight source
-snapshot for all 118 named elements.
+snapshot for all 118 named elements. It also provides Phase 3 f-block expansion
+profiles for lanthanides and actinides as bounded relevance and uncertainty flags.
 
 ## Architecture
 
@@ -34,7 +35,7 @@ snapshot for all 118 named elements.
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
 | Level 2 | Oxidation states, electronegativity, ionization energy, transition frontier, configuration audit, bond tendency, reaction-family behavior | Oxidation-state, Pauling electronegativity, first-ionization-energy, PubChem GroupBlock-derived bond tendency, transition frontier, and configuration-audit values implemented for Z=1..36 |
-| Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
+| Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Phase 3 f-block relevance flags implemented; exact isotope, half-life, spectra, and solid-state values remain planned |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
 overclaiming while creating the causal spine required for later chemistry and
@@ -115,6 +116,37 @@ explicit d-shell and a transition behavior kernel. For Ga through Kr, validation
 requires the filled `3d^10` core to remain present in the frontier signature even
 though the active outer shell is `4s 4p`.
 
+## Phase 3 F-Block Expansion Kernel
+
+Phase 3 adds a standalone f-block profile layer over the existing 118-element
+snapshot. It covers the 15 lanthanides and 15 actinides:
+
+```text
+lanthanides := La..Lu
+actinides := Ac..Lr
+```
+
+The profile is intentionally bounded. It records f-block context and future
+physics requirements without inventing isotope-specific half-lives or exact
+f-orbital occupancies.
+
+| Field | Meaning |
+| --- | --- |
+| `series` | `lanthanide` or `actinide` |
+| `f_shell_family` | `4f` for lanthanides and `5f` for actinides |
+| `standard_atomic_weight_status` | Snapshot atomic-weight model type, such as `single` or `unavailable` |
+| `lanthanide_contraction_relevance` | Series-level flag for lanthanide contraction handling |
+| `radioactive_decay_relevance` | Nuclear decay relevance flag; not a half-life claim |
+| `actinide_instability_relevance` | Actinide-only instability flag |
+| `nuclear_state_extension_required` | True when nuclear-state modeling is required before deeper claims |
+| `heavy_element_uncertainty` | True for actinides and unavailable-weight f-block records |
+| `relativistic_effect_relevance` | Heavy-element relativity relevance flag |
+
+Validation requires every f-block profile to keep `group = null`, `block = "f"`,
+and the correct f-shell family for its series. Radioactive profiles must require
+nuclear-state extension, and heavy-element uncertainty must be paired with a
+relativistic-effect relevance flag.
+
 ## Level 2 Boundary Fields
 
 The element state contract now includes Level 2 boundary fields and sourced partial
@@ -188,7 +220,12 @@ Input:
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
 
-6. Emit:
+6. Validate Phase 3 f-block profiles:
+   lanthanide and actinide counts are 15 each
+   f-block profiles preserve snapshot identity and unset group assignment
+   radioactive and heavy-element uncertainty flags require the matching extension flags
+
+7. Emit:
    JSON object, human view, graph node, validation receipt
 ```
 
@@ -217,6 +254,7 @@ The repository verifier now checks the MSPEE seed pack and full snapshot shape:
 ```powershell
 python scripts/verify_repo.py
 python -m pytest tests/test_symbolic_elements.py -q
+python -m pytest tests/test_element_phase3.py -q
 python -m pytest tests/test_element_snapshot_drift.py -q
 ```
 
@@ -236,6 +274,14 @@ The full snapshot is valid only when:
 2. Every record validates identity, position, weight model, and source keys.
 3. Unavailable atomic weights are explicit.
 4. The first 36 snapshot records link to available Level 1 seed records.
+
+The Phase 3 f-block profile set is valid only when:
+
+1. It contains exactly 30 profiles: La..Lu and Ac..Lr.
+2. Lanthanide and actinide counts are exactly 15 each.
+3. Lanthanides use `4f`; actinides use `5f`.
+4. Radioactive profiles require nuclear-state extension.
+5. Heavy-element uncertainty requires relativistic-effect relevance.
 
 ## JSON Schema Export
 
@@ -298,9 +344,54 @@ Routes:
 | `GET /graph?symbol=Zn&relation=same_block` | Filtered graph query |
 | `GET /dashboard` | Dashboard-facing overview payload |
 | `GET /dashboard?symbol=Zn&relation=same_block` | Selected element dashboard payload |
+| `GET /reasoning/configuration/Cr` | Phase 2 configuration-choice explanation |
+| `GET /reasoning/similarity?left=Cu&right=K` | Phase 2 outer-shell similarity explanation |
+| `GET /phase3/f-block` | Phase 3 f-block profile list and validation summary |
+| `GET /phase3/f-block/{symbol}` | Single f-block expansion profile |
 
 Unknown routes, unknown symbols, invalid relation types, and non-GET methods
 return explicit JSON error payloads.
+
+## Phase 2 Reasoning Examples
+
+The element engine exposes deterministic reasoning helpers for the two Phase 2
+questions in the source document:
+
+```powershell
+@'
+from mcms.elements import compare_outer_shell_similarity, explain_configuration_choice
+
+print(explain_configuration_choice("Cr").to_dict())
+print(compare_outer_shell_similarity("Cu", "K").to_dict())
+'@ | python -
+```
+
+The configuration explanation reports simple Aufbau as a candidate, keeps the
+NIST-backed configuration as authority, records Cr/Cu conflicts as exceptions,
+and preserves identity through proton count. The similarity explanation can mark
+Cu and K as superficially similar through `4s^1` while separating copper's filled
+`3d^10` transition-metal frontier from potassium's main-group frontier.
+
+## Phase 3 F-Block Profiles
+
+The Phase 3 f-block layer is a bounded overlay on the 118-element snapshot for
+the lanthanides and actinides. It adds series-level frontier flags, radioactive
+relevance, nuclear-state extension requirements, heavy-element uncertainty, and
+relativistic-effect relevance without assigning exact isotope half-lives or exact
+f-orbital occupancies.
+
+```powershell
+@'
+from mcms.elements import get_f_block_expansion_profile, validate_f_block_expansion_profiles
+
+print(validate_f_block_expansion_profiles().to_dict())
+print(get_f_block_expansion_profile("U").to_dict())
+'@ | python -
+```
+
+The validation contract expects 30 profiles: 15 lanthanides and 15 actinides.
+Promethium and the actinides carry radioactive relevance. Actinide profiles also
+carry nuclear-state extension and heavy-element uncertainty flags.
 
 ## Dashboard View Model
 
@@ -379,6 +470,7 @@ Drift statuses:
 | Simple Aufbau output -> configuration audit | Cr and Cu store both simple candidates and NIST-backed corrected states |
 | Outer-shell-only transition rule -> frontier kernel | Sc through Zn now expose outer ns plus inner 3d structure |
 | Period-4 p-block shell view -> filled d-core context | Ga through Kr preserve `3d^10` behind the `4s 4p` frontier |
+| Planned f-block expansion -> bounded Phase 3 profiles | Lanthanides and actinides now expose f-shell, nuclear, uncertainty, and relativity relevance flags |
 
 ## Fracture Deltas Avoided
 
@@ -391,6 +483,7 @@ Drift statuses:
 | Silent Aufbau failure | Candidate/source conflict is stored as a configuration exception |
 | Flattening d-block elements into one family | Frontier signatures distinguish open, half-filled, and filled d-shell states |
 | Claiming universal magnetism or catalysis | Transition behavior fields are relevance flags, not guaranteed compound behavior |
+| Inventing unsupported f-block precision | Phase 3 flags do not assign exact isotope half-lives or exact f-orbital occupancies |
 
 ## Source Boundary
 
@@ -404,8 +497,7 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. MSPEE-118 Phase 3: Lanthanide-Actinide Expansion Kernel.
-2. Add f-orbital behavior, lanthanide contraction, radioactive decay handling,
-   actinide instability, nuclear-state extension, heavy-element uncertainty, and
-   relativistic-effect flags.
+1. Promote Phase 3 from relevance flags to source-backed f-block state records
+   where authoritative configuration and isotope data are available.
+2. Add sourced isotope, half-life, decay-mode, and nuclear-state extensions.
 3. Continue sourced Level 2 chemistry values beyond Krypton.

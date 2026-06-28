@@ -1,6 +1,6 @@
-"""Purpose: local read-only HTTP API for MCMS/MSPEE element surfaces.
+"""Purpose: local read-only HTTP API for MSPEE element surfaces.
 
-Governance scope: exposes existing validated element, snapshot, schema, and graph contracts.
+Project scope: exposes existing validated element, snapshot, schema, graph, and reasoning contracts.
 Dependencies: Python standard-library HTTP server and local MSPEE APIs.
 Invariants: API routes do not mutate state; every error response carries causal context.
 """
@@ -21,13 +21,18 @@ from mcms.elements import (
     build_element_receipt,
     build_element_relation_graph,
     build_snapshot_receipt,
+    compare_outer_shell_similarity,
     element_schema_bundle,
     element_seed_json_schema,
     element_snapshot_json_schema,
+    explain_configuration_choice,
+    get_f_block_expansion_profile,
     get_seed_element,
     get_snapshot_record,
+    list_f_block_expansion_profiles,
     list_full_snapshot_records,
     list_seed_elements,
+    validate_f_block_expansion_profiles,
     validate_full_snapshot,
     validate_seed_pack,
 )
@@ -79,6 +84,10 @@ def _index_payload() -> dict[str, Any]:
             "GET /graph?symbol=Zn&relation=same_block",
             "GET /dashboard",
             "GET /dashboard?symbol=Zn&relation=same_block",
+            "GET /reasoning/configuration/Cr",
+            "GET /reasoning/similarity?left=Cu&right=K",
+            "GET /phase3/f-block",
+            "GET /phase3/f-block/U",
         ],
         "relation_types": sorted(VALID_RELATION_TYPES),
     }
@@ -126,6 +135,32 @@ def _dashboard_payload(identifier: str | None, relation_type: str | None) -> dic
         relation_type=relation_type,
     )
     return {"api_status": API_STATUS, "dashboard": dashboard.to_dict()}
+
+
+def _configuration_reasoning_payload(identifier: str) -> dict[str, Any]:
+    reasoning = explain_configuration_choice(identifier)
+    return {"api_status": API_STATUS, "reasoning": reasoning.to_dict()}
+
+
+def _similarity_reasoning_payload(left: str | None, right: str | None) -> dict[str, Any]:
+    if left is None or right is None:
+        raise ValueError("reasoning similarity requires left and right query values.")
+    reasoning = compare_outer_shell_similarity(left, right)
+    return {"api_status": API_STATUS, "reasoning": reasoning.to_dict()}
+
+
+def _f_block_list_payload() -> dict[str, Any]:
+    profiles = list_f_block_expansion_profiles()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_f_block_expansion_profiles(profiles).to_dict(),
+        "profiles": [profile.to_dict() for profile in profiles],
+    }
+
+
+def _f_block_profile_payload(identifier: str) -> dict[str, Any]:
+    profile = get_f_block_expansion_profile(identifier)
+    return {"api_status": API_STATUS, "profile": profile.to_dict()}
 
 
 def handle_api_request(method: str, raw_target: str) -> ApiResponse:
@@ -214,6 +249,23 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                     relation_type=_first_query_value(query, "relation"),
                 ),
             )
+        if len(path_parts) == 3 and path_parts[:2] == ["reasoning", "configuration"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _configuration_reasoning_payload(path_parts[2]),
+            )
+        if path_parts == ["reasoning", "similarity"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _similarity_reasoning_payload(
+                    left=_first_query_value(query, "left"),
+                    right=_first_query_value(query, "right"),
+                ),
+            )
+        if path_parts == ["phase3", "f-block"]:
+            return ApiResponse(HTTPStatus.OK, _f_block_list_payload())
+        if len(path_parts) == 3 and path_parts[:2] == ["phase3", "f-block"]:
+            return ApiResponse(HTTPStatus.OK, _f_block_profile_payload(path_parts[2]))
     except KeyError as error:
         return _error_response(HTTPStatus.NOT_FOUND, "not_found", str(error))
     except ValueError as error:

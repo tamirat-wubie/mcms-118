@@ -55,7 +55,7 @@ M8 = production-engineering-ready
 15. Ionization-energy and bond-tendency boundary contracts
 16. Sourced first-ionization-energy values for the first 36 elements
 17. Transition-metal exception kernel and elements 21-36 frontier audits
-18. Lanthanide-actinide expansion kernel
+18. Lanthanide-actinide expansion kernel with bounded f-block relevance flags
 19. Source-backed bond-tendency classifications for the first 36 elements
 20. Extend sourced Level 2 chemistry values beyond Krypton
 21. Real provider adapters
