@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from mcms.api import handle_api_request  # noqa: E402
 from mcms.elements import (  # noqa: E402
+    build_element_dashboard_view_model,
     build_element_relation_graph,
     element_seed_json_schema,
     element_snapshot_json_schema,
@@ -69,10 +70,17 @@ def main() -> None:
     assert zinc_block_graph.query["edge_count"] == 9, zinc_block_graph.query
     api_health = handle_api_request("GET", "/health")
     api_graph = handle_api_request("GET", "/graph?symbol=Zn&relation=same_block")
+    api_dashboard = handle_api_request("GET", "/dashboard/Zn?relation=same_block")
+    dashboard = build_element_dashboard_view_model("Zn", relation_type="same_block")
     assert api_health.status_code == 200, api_health
     assert api_health.payload["seed_count"] == 36, api_health.payload
     assert api_graph.status_code == 200, api_graph
     assert api_graph.payload["graph"]["query"]["edge_count"] == 9, api_graph.payload
+    assert api_dashboard.status_code == 200, api_dashboard
+    assert api_dashboard.payload["dashboard"]["selected_element"]["symbol"] == "Zn", api_dashboard.payload
+    assert dashboard.dashboard_status == "element_dashboard_view_model_ready", dashboard
+    assert dashboard.selected_element is not None, dashboard
+    assert dashboard.graph["query"]["edge_count"] == 9, dashboard.graph
     for phase in phases:
         missing = REQUIRED_KEYS - set(phase)
         assert not missing, (phase["phase"], sorted(missing))

@@ -126,6 +126,7 @@ python -m mcms.cli elements --schema snapshot
 python -m mcms.cli elements --schema bundle
 python -m mcms.cli elements --graph
 python -m mcms.cli elements --graph --symbol Zn --relation same_block
+python -m mcms.cli elements --dashboard --symbol Zn --relation same_block
 python -m mcms.cli api --host 127.0.0.1 --port 8765
 ```
 
@@ -212,9 +213,26 @@ Routes:
 | `GET /schemas/{seed\|snapshot\|bundle}` | JSON Schema export |
 | `GET /graph` | Full Level 1 relation graph |
 | `GET /graph?symbol=Zn&relation=same_block` | Filtered graph query |
+| `GET /dashboard` | Dashboard-facing overview payload |
+| `GET /dashboard?symbol=Zn&relation=same_block` | Selected element dashboard payload |
 
 Unknown routes, unknown symbols, invalid relation types, and non-GET methods
 return explicit JSON error payloads.
+
+## Dashboard View Model
+
+The dashboard view model composes seed health, snapshot health, selected element
+or snapshot cards, schema cards, graph context, and API/CLI actions into one JSON
+payload for a future dashboard surface.
+
+| Query | Command | Result |
+| --- | --- | --- |
+| Overview | `python -m mcms.cli elements --dashboard` | Seed/snapshot summaries, schemas, full graph context |
+| Selected Level 1 element | `python -m mcms.cli elements --dashboard --symbol Zn --relation same_block` | Zinc card plus d-block graph |
+| Snapshot-only element | `python -m mcms.cli elements --dashboard --symbol Og` | Oganesson snapshot card and explicit unavailable graph state |
+
+The dashboard view is a projection. It does not mutate element, snapshot, schema,
+or graph records.
 
 ## Source Drift Check
 
@@ -253,6 +271,7 @@ Drift statuses:
 | Python object contract -> JSON Schema contract | Seed and snapshot records can now be exported and externally validated |
 | Embedded relation edges -> graph export | Element relation queries now produce deterministic node and edge payloads |
 | CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
+| Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
 
 ## Fracture Deltas Avoided
 
@@ -274,4 +293,4 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add a dashboard-facing view model for element lookup, schemas, and graph queries.
+2. Add Level 2 schema fields and tests for oxidation-state and electronegativity boundaries.

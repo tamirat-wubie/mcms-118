@@ -46,6 +46,7 @@ def test_element_graph_cli_prints_filtered_graph(capsys):
         full_snapshot=False,
         schema_name=None,
         graph_export=True,
+        dashboard_export=False,
         relation_type="same_block",
     )
     output = json.loads(capsys.readouterr().out)

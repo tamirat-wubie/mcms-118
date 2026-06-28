@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from mcms.elements import (
     VALID_RELATION_TYPES,
+    build_element_dashboard_view_model,
     build_element_receipt,
     build_element_relation_graph,
     build_snapshot_receipt,
@@ -76,6 +77,8 @@ def _index_payload() -> dict[str, Any]:
             "GET /schemas/{seed|snapshot|bundle}",
             "GET /graph",
             "GET /graph?symbol=Zn&relation=same_block",
+            "GET /dashboard",
+            "GET /dashboard?symbol=Zn&relation=same_block",
         ],
         "relation_types": sorted(VALID_RELATION_TYPES),
     }
@@ -115,6 +118,14 @@ def _schema_payload(schema_name: str) -> dict[str, Any]:
 def _graph_payload(identifier: str | None, relation_type: str | None) -> dict[str, Any]:
     graph = build_element_relation_graph(identifier=identifier, relation_type=relation_type)
     return {"api_status": API_STATUS, "graph": graph.to_dict()}
+
+
+def _dashboard_payload(identifier: str | None, relation_type: str | None) -> dict[str, Any]:
+    dashboard = build_element_dashboard_view_model(
+        identifier=identifier,
+        relation_type=relation_type,
+    )
+    return {"api_status": API_STATUS, "dashboard": dashboard.to_dict()}
 
 
 def handle_api_request(method: str, raw_target: str) -> ApiResponse:
@@ -171,6 +182,22 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             )
         if len(path_parts) == 2 and path_parts[0] == "schemas":
             return ApiResponse(HTTPStatus.OK, _schema_payload(path_parts[1]))
+        if path_parts == ["dashboard"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _dashboard_payload(
+                    identifier=_first_query_value(query, "symbol"),
+                    relation_type=_first_query_value(query, "relation"),
+                ),
+            )
+        if len(path_parts) == 2 and path_parts[0] == "dashboard":
+            return ApiResponse(
+                HTTPStatus.OK,
+                _dashboard_payload(
+                    identifier=path_parts[1],
+                    relation_type=_first_query_value(query, "relation"),
+                ),
+            )
         if path_parts == ["graph"]:
             return ApiResponse(
                 HTTPStatus.OK,

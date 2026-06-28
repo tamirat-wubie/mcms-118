@@ -49,5 +49,6 @@ M8 = production-engineering-ready
 9. Graph export for element relation queries
 10. Local API for element lookup, schemas, and graph queries
 11. Dashboard-facing view model
-12. Real provider adapters
+12. Level 2 chemical behavior fields for the first 20 elements
+13. Real provider adapters
 ```

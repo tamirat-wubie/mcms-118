@@ -8,6 +8,7 @@ from mcms.core.boundaries import compile_claim_boundary
 from mcms.core.phases import latest_phase, load_phase_registry
 from mcms.elements import (
     VALID_RELATION_TYPES,
+    build_element_dashboard_view_model,
     build_element_receipt,
     build_element_relation_graph,
     build_snapshot_receipt,
@@ -41,6 +42,7 @@ def cmd_elements(
     full_snapshot: bool,
     schema_name: str | None,
     graph_export: bool,
+    dashboard_export: bool,
     relation_type: str | None,
 ) -> None:
     if schema_name:
@@ -50,6 +52,13 @@ def cmd_elements(
             "bundle": element_schema_bundle,
         }
         print(json.dumps(schema_builders[schema_name](), indent=2, sort_keys=True))
+        return
+    if dashboard_export:
+        dashboard = build_element_dashboard_view_model(
+            identifier=symbol,
+            relation_type=relation_type,
+        )
+        print(json.dumps(dashboard.to_dict(), indent=2, sort_keys=True))
         return
     if graph_export:
         graph = build_element_relation_graph(identifier=symbol, relation_type=relation_type)
@@ -142,6 +151,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print the Level 1 element relation graph, optionally filtered by --symbol",
     )
     elements_parser.add_argument(
+        "--dashboard",
+        action="store_true",
+        help="Print a dashboard-facing element read model, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
         "--relation",
         choices=tuple(sorted(VALID_RELATION_TYPES)),
         help="Filter graph export by relation type",
@@ -154,7 +168,15 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "api":
         cmd_api(args.host, args.port)
     elif args.cmd == "elements":
-        cmd_elements(args.symbol, args.list, args.full, args.schema, args.graph, args.relation)
+        cmd_elements(
+            args.symbol,
+            args.list,
+            args.full,
+            args.schema,
+            args.graph,
+            args.dashboard,
+            args.relation,
+        )
 
 
 if __name__ == "__main__":

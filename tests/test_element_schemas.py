@@ -67,6 +67,7 @@ def test_element_schema_cli_prints_valid_bundle(capsys):
         full_snapshot=False,
         schema_name="bundle",
         graph_export=False,
+        dashboard_export=False,
         relation_type=None,
     )
     output = json.loads(capsys.readouterr().out)
