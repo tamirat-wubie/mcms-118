@@ -12,7 +12,11 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
     assert dashboard["selected_snapshot"]["level_1_seed_available"] is True
     assert dashboard["selected_element"]["oxidation_states"] == [2]
     assert dashboard["selected_element"]["electronegativity"]["value"] == 1.65
-    assert dashboard["selected_element"]["first_ionization_energy"]["value"] is None
+    assert dashboard["selected_element"]["first_ionization_energy"]["value"] == 9.394
+    assert (
+        dashboard["selected_element"]["first_ionization_energy"]["source_key"]
+        == "pubchem_periodic_table_properties"
+    )
     assert dashboard["selected_element"]["bond_tendency"]["tags"] == []
     assert dashboard["graph"]["query"]["edge_count"] == 9
     assert len(dashboard["schema_cards"]) == 3

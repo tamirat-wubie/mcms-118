@@ -200,10 +200,12 @@ def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     assert titanium.state.electronegativity_value == 1.54
     assert zinc.state.oxidation_states == (2,)
     assert zinc.state.electronegativity_value == 1.65
-    assert zinc.state.first_ionization_energy_ev is None
+    assert zinc.state.first_ionization_energy_ev == 9.394
+    assert zinc.state.first_ionization_energy_source_key == source_key
     assert zinc.state.bond_tendency_tags == ()
     assert krypton.state.oxidation_states == (0,)
     assert krypton.state.electronegativity_value == 3.00
+    assert krypton.state.first_ionization_energy_ev == 14.000
     assert all(get_seed_element(symbol).validate() == [] for symbol in seed_symbols)
 
 

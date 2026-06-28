@@ -134,6 +134,11 @@ def test_element_seed_schema_validates_promoted_seed_pack_level_2_record():
     assert zinc_payload["state"]["electronegativity_scale"] == "pauling"
     assert zinc_payload["state"]["electronegativity_value"] == 1.65
     assert zinc_payload["state"]["electronegativity_source_key"] == "pubchem_periodic_table_properties"
+    assert zinc_payload["state"]["first_ionization_energy_ev"] == 9.394
+    assert (
+        zinc_payload["state"]["first_ionization_energy_source_key"]
+        == "pubchem_periodic_table_properties"
+    )
 
 
 def test_snapshot_schema_validates_grouped_and_ungrouped_records():

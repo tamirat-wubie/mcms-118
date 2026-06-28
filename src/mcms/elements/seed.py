@@ -55,45 +55,186 @@ LEVEL_2_CHEMISTRY_SOURCE_REFERENCE = SourceReference(
 )
 
 _LEVEL_2_CHEMISTRY_BY_SYMBOL: dict[str, dict[str, Any]] = {
-    "H": {"oxidation_states": (1, -1), "electronegativity_value": 2.20},
-    "He": {"oxidation_states": (0,), "electronegativity_value": None},
-    "Li": {"oxidation_states": (1,), "electronegativity_value": 0.98},
-    "Be": {"oxidation_states": (2,), "electronegativity_value": 1.57},
-    "B": {"oxidation_states": (3,), "electronegativity_value": 2.04},
-    "C": {"oxidation_states": (4, 2, -4), "electronegativity_value": 2.55},
+    "H": {
+        "oxidation_states": (1, -1),
+        "electronegativity_value": 2.20,
+        "first_ionization_energy_ev": 13.598,
+    },
+    "He": {
+        "oxidation_states": (0,),
+        "electronegativity_value": None,
+        "first_ionization_energy_ev": 24.587,
+    },
+    "Li": {
+        "oxidation_states": (1,),
+        "electronegativity_value": 0.98,
+        "first_ionization_energy_ev": 5.392,
+    },
+    "Be": {
+        "oxidation_states": (2,),
+        "electronegativity_value": 1.57,
+        "first_ionization_energy_ev": 9.323,
+    },
+    "B": {
+        "oxidation_states": (3,),
+        "electronegativity_value": 2.04,
+        "first_ionization_energy_ev": 8.298,
+    },
+    "C": {
+        "oxidation_states": (4, 2, -4),
+        "electronegativity_value": 2.55,
+        "first_ionization_energy_ev": 11.260,
+    },
     "N": {
         "oxidation_states": (5, 4, 3, 2, 1, -1, -2, -3),
         "electronegativity_value": 3.04,
+        "first_ionization_energy_ev": 14.534,
     },
-    "O": {"oxidation_states": (-2,), "electronegativity_value": 3.44},
-    "F": {"oxidation_states": (-1,), "electronegativity_value": 3.98},
-    "Ne": {"oxidation_states": (0,), "electronegativity_value": None},
-    "Na": {"oxidation_states": (1,), "electronegativity_value": 0.93},
-    "Mg": {"oxidation_states": (2,), "electronegativity_value": 1.31},
-    "Al": {"oxidation_states": (3,), "electronegativity_value": 1.61},
-    "Si": {"oxidation_states": (4, 2, -4), "electronegativity_value": 1.90},
-    "P": {"oxidation_states": (5, 3, -3), "electronegativity_value": 2.19},
-    "S": {"oxidation_states": (6, 4, -2), "electronegativity_value": 2.58},
-    "Cl": {"oxidation_states": (7, 5, 1, -1), "electronegativity_value": 3.16},
-    "Ar": {"oxidation_states": (0,), "electronegativity_value": None},
-    "K": {"oxidation_states": (1,), "electronegativity_value": 0.82},
-    "Ca": {"oxidation_states": (2,), "electronegativity_value": 1.00},
-    "Sc": {"oxidation_states": (3,), "electronegativity_value": 1.36},
-    "Ti": {"oxidation_states": (4, 3, 2), "electronegativity_value": 1.54},
-    "V": {"oxidation_states": (5, 4, 3, 2), "electronegativity_value": 1.63},
-    "Cr": {"oxidation_states": (6, 3, 2), "electronegativity_value": 1.66},
-    "Mn": {"oxidation_states": (7, 4, 3, 2), "electronegativity_value": 1.55},
-    "Fe": {"oxidation_states": (3, 2), "electronegativity_value": 1.83},
-    "Co": {"oxidation_states": (3, 2), "electronegativity_value": 1.88},
-    "Ni": {"oxidation_states": (3, 2), "electronegativity_value": 1.91},
-    "Cu": {"oxidation_states": (2, 1), "electronegativity_value": 1.90},
-    "Zn": {"oxidation_states": (2,), "electronegativity_value": 1.65},
-    "Ga": {"oxidation_states": (3,), "electronegativity_value": 1.81},
-    "Ge": {"oxidation_states": (4, 2), "electronegativity_value": 2.01},
-    "As": {"oxidation_states": (5, 3, -3), "electronegativity_value": 2.18},
-    "Se": {"oxidation_states": (6, 4, -2), "electronegativity_value": 2.55},
-    "Br": {"oxidation_states": (5, 1, -1), "electronegativity_value": 2.96},
-    "Kr": {"oxidation_states": (0,), "electronegativity_value": 3.00},
+    "O": {
+        "oxidation_states": (-2,),
+        "electronegativity_value": 3.44,
+        "first_ionization_energy_ev": 13.618,
+    },
+    "F": {
+        "oxidation_states": (-1,),
+        "electronegativity_value": 3.98,
+        "first_ionization_energy_ev": 17.423,
+    },
+    "Ne": {
+        "oxidation_states": (0,),
+        "electronegativity_value": None,
+        "first_ionization_energy_ev": 21.565,
+    },
+    "Na": {
+        "oxidation_states": (1,),
+        "electronegativity_value": 0.93,
+        "first_ionization_energy_ev": 5.139,
+    },
+    "Mg": {
+        "oxidation_states": (2,),
+        "electronegativity_value": 1.31,
+        "first_ionization_energy_ev": 7.646,
+    },
+    "Al": {
+        "oxidation_states": (3,),
+        "electronegativity_value": 1.61,
+        "first_ionization_energy_ev": 5.986,
+    },
+    "Si": {
+        "oxidation_states": (4, 2, -4),
+        "electronegativity_value": 1.90,
+        "first_ionization_energy_ev": 8.152,
+    },
+    "P": {
+        "oxidation_states": (5, 3, -3),
+        "electronegativity_value": 2.19,
+        "first_ionization_energy_ev": 10.487,
+    },
+    "S": {
+        "oxidation_states": (6, 4, -2),
+        "electronegativity_value": 2.58,
+        "first_ionization_energy_ev": 10.360,
+    },
+    "Cl": {
+        "oxidation_states": (7, 5, 1, -1),
+        "electronegativity_value": 3.16,
+        "first_ionization_energy_ev": 12.968,
+    },
+    "Ar": {
+        "oxidation_states": (0,),
+        "electronegativity_value": None,
+        "first_ionization_energy_ev": 15.760,
+    },
+    "K": {
+        "oxidation_states": (1,),
+        "electronegativity_value": 0.82,
+        "first_ionization_energy_ev": 4.341,
+    },
+    "Ca": {
+        "oxidation_states": (2,),
+        "electronegativity_value": 1.00,
+        "first_ionization_energy_ev": 6.113,
+    },
+    "Sc": {
+        "oxidation_states": (3,),
+        "electronegativity_value": 1.36,
+        "first_ionization_energy_ev": 6.561,
+    },
+    "Ti": {
+        "oxidation_states": (4, 3, 2),
+        "electronegativity_value": 1.54,
+        "first_ionization_energy_ev": 6.828,
+    },
+    "V": {
+        "oxidation_states": (5, 4, 3, 2),
+        "electronegativity_value": 1.63,
+        "first_ionization_energy_ev": 6.746,
+    },
+    "Cr": {
+        "oxidation_states": (6, 3, 2),
+        "electronegativity_value": 1.66,
+        "first_ionization_energy_ev": 6.767,
+    },
+    "Mn": {
+        "oxidation_states": (7, 4, 3, 2),
+        "electronegativity_value": 1.55,
+        "first_ionization_energy_ev": 7.434,
+    },
+    "Fe": {
+        "oxidation_states": (3, 2),
+        "electronegativity_value": 1.83,
+        "first_ionization_energy_ev": 7.902,
+    },
+    "Co": {
+        "oxidation_states": (3, 2),
+        "electronegativity_value": 1.88,
+        "first_ionization_energy_ev": 7.881,
+    },
+    "Ni": {
+        "oxidation_states": (3, 2),
+        "electronegativity_value": 1.91,
+        "first_ionization_energy_ev": 7.640,
+    },
+    "Cu": {
+        "oxidation_states": (2, 1),
+        "electronegativity_value": 1.90,
+        "first_ionization_energy_ev": 7.726,
+    },
+    "Zn": {
+        "oxidation_states": (2,),
+        "electronegativity_value": 1.65,
+        "first_ionization_energy_ev": 9.394,
+    },
+    "Ga": {
+        "oxidation_states": (3,),
+        "electronegativity_value": 1.81,
+        "first_ionization_energy_ev": 5.999,
+    },
+    "Ge": {
+        "oxidation_states": (4, 2),
+        "electronegativity_value": 2.01,
+        "first_ionization_energy_ev": 7.900,
+    },
+    "As": {
+        "oxidation_states": (5, 3, -3),
+        "electronegativity_value": 2.18,
+        "first_ionization_energy_ev": 9.815,
+    },
+    "Se": {
+        "oxidation_states": (6, 4, -2),
+        "electronegativity_value": 2.55,
+        "first_ionization_energy_ev": 9.752,
+    },
+    "Br": {
+        "oxidation_states": (5, 1, -1),
+        "electronegativity_value": 2.96,
+        "first_ionization_energy_ev": 11.814,
+    },
+    "Kr": {
+        "oxidation_states": (0,),
+        "electronegativity_value": 3.00,
+        "first_ionization_energy_ev": 14.000,
+    },
 }
 
 
@@ -105,15 +246,20 @@ def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
             "electronegativity_scale": None,
             "electronegativity_value": None,
             "electronegativity_source_key": None,
+            "first_ionization_energy_ev": None,
+            "first_ionization_energy_source_key": None,
             "data_level": 1,
         }
     electronegativity_value = chemistry["electronegativity_value"]
+    first_ionization_energy_ev = chemistry["first_ionization_energy_ev"]
     if electronegativity_value is None:
         return {
             "oxidation_states": chemistry["oxidation_states"],
             "electronegativity_scale": None,
             "electronegativity_value": None,
             "electronegativity_source_key": None,
+            "first_ionization_energy_ev": first_ionization_energy_ev,
+            "first_ionization_energy_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
             "data_level": 2,
         }
     return {
@@ -121,6 +267,8 @@ def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
         "electronegativity_scale": "pauling",
         "electronegativity_value": electronegativity_value,
         "electronegativity_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
+        "first_ionization_energy_ev": first_ionization_energy_ev,
+        "first_ionization_energy_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
         "data_level": 2,
     }
 
@@ -640,7 +788,8 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
         "period/group/block -> relation graph seed inputs",
     ) + (
         (
-            "PubChem periodic table properties -> oxidation_states and Pauling electronegativity",
+            "PubChem periodic table properties -> oxidation_states, Pauling "
+            "electronegativity, and first_ionization_energy_ev",
         )
         if has_level_2_chemistry
         else ()
@@ -650,7 +799,8 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
         "Atomic weight intervals are stored as intervals, not collapsed constants.",
     ) + (
         (
-            "Level 2 chemistry values are limited to oxidation-state set and Pauling electronegativity.",
+            "Level 2 chemistry values are limited to oxidation-state set, Pauling "
+            "electronegativity, and first ionization energy.",
         )
         if has_level_2_chemistry
         else ()
@@ -684,6 +834,10 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
             electronegativity_scale=level_2_fields["electronegativity_scale"],
             electronegativity_value=level_2_fields["electronegativity_value"],
             electronegativity_source_key=level_2_fields["electronegativity_source_key"],
+            first_ionization_energy_ev=level_2_fields["first_ionization_energy_ev"],
+            first_ionization_energy_source_key=level_2_fields[
+                "first_ionization_energy_source_key"
+            ],
             behavior_tags=behavior_tags,
             data_level=level_2_fields["data_level"],
         ),

@@ -34,7 +34,7 @@ snapshot for all 118 named elements.
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
-| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state and Pauling electronegativity values implemented for Z=1..36; ionization-energy and bond-tendency boundaries implemented without sourced values |
+| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state, Pauling electronegativity, and first-ionization-energy values implemented for Z=1..36; bond-tendency boundaries implemented without sourced values |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
@@ -67,7 +67,8 @@ Elements H through Kr also include a partial Level 2 promotion:
 
 1. PubChem oxidation-state set.
 2. PubChem Pauling electronegativity value when the source publishes one.
-3. PubChem source reference in the element history.
+3. PubChem first-ionization-energy value in electronvolts.
+4. PubChem source reference in the element history.
 
 He, Ne, and Ar carry PubChem `0` oxidation state and no electronegativity value
 because the source leaves the electronegativity cell blank. Kr carries PubChem
@@ -88,7 +89,7 @@ Level 2 chemistry values for H through Kr:
 | `electronegativity_scale` | `null` or `pauling` |
 | `electronegativity_value` | `null` or number in `[0.0, 5.0]`; populated from PubChem when available |
 | `electronegativity_source_key` | Required when electronegativity value is present |
-| `first_ionization_energy_ev` | `null` or number in `[0.0, 30.0]`; source-backed value planned |
+| `first_ionization_energy_ev` | `null` or number in `[0.0, 30.0]`; populated from PubChem for Z=1..36 |
 | `first_ionization_energy_source_key` | Required when first ionization energy value is present |
 | `bond_tendency_tags` | Controlled tag list; empty until source-backed bond-tendency claims are added |
 | `bond_tendency_source_key` | Required when bond tendency tags are present |
@@ -283,8 +284,8 @@ python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
 The partial Level 2 chemistry layer has a separate PubChem drift checker. It
-compares promoted local oxidation-state and electronegativity values against the
-PubChem periodic-table CSV without mutating seed records.
+compares promoted local oxidation-state, electronegativity, and first-ionization-energy
+values against the PubChem periodic-table CSV without mutating seed records.
 
 ```powershell
 python scripts/check_element_level2_drift.py --fail-on-drift
@@ -324,8 +325,8 @@ Drift statuses:
 | CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
 | Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
 | Planned Level 2 fields -> bounded contract | Oxidation-state and electronegativity fields now reject invalid values |
-| Bounded Level 2 fields -> sourced first-36 values | H through Kr now carry PubChem-backed oxidation-state and electronegativity values |
-| Planned ionization/bond fields -> bounded contract | First-ionization-energy and bond-tendency claims now reject invalid or unsourced values |
+| Bounded Level 2 fields -> sourced first-36 values | H through Kr now carry PubChem-backed oxidation-state, electronegativity, and first-ionization-energy values |
+| Planned bond fields -> bounded contract | Bond-tendency claims now reject invalid or unsourced values |
 
 ## Fracture Deltas Avoided
 
@@ -348,5 +349,5 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Add sourced first-ionization-energy values for the first 36 seed elements.
-2. Add source-backed bond-tendency classifications.
+1. Add source-backed bond-tendency classifications.
+2. Extend sourced Level 2 chemistry values beyond Krypton.

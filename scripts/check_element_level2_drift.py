@@ -36,6 +36,7 @@ class SourceLevel2ChemistryRow:
     symbol: str
     oxidation_states: tuple[int, ...]
     electronegativity_value: float | None
+    first_ionization_energy_ev: float | None
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -73,9 +74,21 @@ def normalize_electronegativity(value: str) -> float | None:
     return float(value)
 
 
+def normalize_first_ionization_energy(value: str) -> float | None:
+    if not value.strip():
+        return None
+    return float(value)
+
+
 def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2ChemistryRow, ...]:
     reader = csv.DictReader(io.StringIO(csv_text))
-    required_fields = {"AtomicNumber", "Symbol", "OxidationStates", "Electronegativity"}
+    required_fields = {
+        "AtomicNumber",
+        "Symbol",
+        "OxidationStates",
+        "Electronegativity",
+        "IonizationEnergy",
+    }
     if reader.fieldnames is None or not required_fields <= set(reader.fieldnames):
         raise ValueError("PubChem CSV is missing required Level 2 chemistry columns.")
     source_rows: list[SourceLevel2ChemistryRow] = []
@@ -90,6 +103,9 @@ def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2Chemist
                 symbol=symbol,
                 oxidation_states=normalize_oxidation_states(row["OxidationStates"]),
                 electronegativity_value=normalize_electronegativity(row["Electronegativity"]),
+                first_ionization_energy_ev=normalize_first_ionization_energy(
+                    row["IonizationEnergy"]
+                ),
             )
         )
     return tuple(source_rows)
@@ -157,6 +173,11 @@ def compare_level_2_to_source(
                 "electronegativity_value",
                 local_element.state.electronegativity_value,
                 source_row.electronegativity_value,
+            ),
+            (
+                "first_ionization_energy_ev",
+                local_element.state.first_ionization_energy_ev,
+                source_row.first_ionization_energy_ev,
             ),
         )
         for field, local_value, source_value in comparison_fields:

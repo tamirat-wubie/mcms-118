@@ -17,13 +17,16 @@ build_drift_report = DRIFT_MODULE.build_drift_report
 parse_pubchem_periodic_table_csv = DRIFT_MODULE.parse_pubchem_periodic_table_csv
 
 
-def _fixture_csv(rows: list[tuple[str, str, str, str]]) -> str:
+def _fixture_csv(rows: list[tuple[str, str, str, str, str]]) -> str:
     body = "\n".join(
-        f'{atomic_number},"{symbol}","{electronegativity}","{oxidation_states}"'
-        for atomic_number, symbol, electronegativity, oxidation_states in rows
+        (
+            f'{atomic_number},"{symbol}","{electronegativity}",'
+            f'"{ionization_energy}","{oxidation_states}"'
+        )
+        for atomic_number, symbol, electronegativity, ionization_energy, oxidation_states in rows
     )
     return (
-        '"AtomicNumber","Symbol","Electronegativity","OxidationStates"\n'
+        '"AtomicNumber","Symbol","Electronegativity","IonizationEnergy","OxidationStates"\n'
         f"{body}\n"
     )
 
@@ -32,15 +35,17 @@ def test_parse_pubchem_rows_normalizes_oxidation_states_and_blank_electronegativ
     source_rows = parse_pubchem_periodic_table_csv(
         _fixture_csv(
             [
-                ("1", "H", "2.2", "+1, -1"),
-                ("18", "Ar", "", "0"),
+                ("1", "H", "2.2", "13.598", "+1, -1"),
+                ("18", "Ar", "", "15.760", "0"),
             ]
         )
     )
     assert len(source_rows) == 2
     assert source_rows[0].oxidation_states == (1, -1)
     assert source_rows[0].electronegativity_value == 2.2
+    assert source_rows[0].first_ionization_energy_ev == 13.598
     assert source_rows[1].electronegativity_value is None
+    assert source_rows[1].first_ionization_energy_ev == 15.760
 
 
 def test_level_2_drift_report_has_no_drift_for_fixture_rows():
@@ -51,6 +56,9 @@ def test_level_2_drift_report_has_no_drift_for_fixture_rows():
             symbol=symbol,
             oxidation_states=get_seed_element(symbol).state.oxidation_states,
             electronegativity_value=get_seed_element(symbol).state.electronegativity_value,
+            first_ionization_energy_ev=get_seed_element(
+                symbol
+            ).state.first_ionization_energy_ev,
         )
         for symbol in symbols
     )
@@ -73,6 +81,7 @@ def test_level_2_drift_report_detects_symbol_oxidation_and_electronegativity_cha
                 symbol="Ox",
                 oxidation_states=(-2, -1),
                 electronegativity_value=3.45,
+                first_ionization_energy_ev=13.619,
             ),
         ),
         source_url="fixture://pubchem",
@@ -80,8 +89,13 @@ def test_level_2_drift_report_detects_symbol_oxidation_and_electronegativity_cha
     )
     drift_fields = {drift["field"] for drift in report["drifts"]}
     assert report["drift_status"] == "element_level_2_chemistry_drift_detected"
-    assert report["drift_count"] == 3
-    assert drift_fields == {"symbol", "oxidation_states", "electronegativity_value"}
+    assert report["drift_count"] == 4
+    assert drift_fields == {
+        "symbol",
+        "oxidation_states",
+        "electronegativity_value",
+        "first_ionization_energy_ev",
+    }
     assert all(drift["atomic_number"] == 8 for drift in report["drifts"])
 
 
@@ -94,6 +108,7 @@ def test_level_2_drift_report_requires_complete_promoted_source_when_enabled():
                 symbol=hydrogen.identity.symbol,
                 oxidation_states=hydrogen.state.oxidation_states,
                 electronegativity_value=hydrogen.state.electronegativity_value,
+                first_ionization_energy_ev=hydrogen.state.first_ionization_energy_ev,
             ),
         ),
         source_url="fixture://pubchem",

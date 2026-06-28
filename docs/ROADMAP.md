@@ -54,5 +54,6 @@ M8 = production-engineering-ready
 14. Source drift check for Level 2 chemistry values
 15. Ionization-energy and bond-tendency boundary contracts
 16. Sourced first-ionization-energy values for the first 36 elements
-17. Real provider adapters
+17. Source-backed bond-tendency classifications
+18. Real provider adapters
 ```
