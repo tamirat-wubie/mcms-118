@@ -13,7 +13,8 @@ symbolic_element := identity + laws + state + exposure + history
 
 The engine does not claim full chemistry prediction, legal certification, production
 readiness, or autonomous physical action. It currently provides a Level 1 canonical
-seed pack for the first 20 elements.
+seed pack for the first 20 elements and an identity/weight source snapshot for all
+118 named elements.
 
 ## Architecture
 
@@ -30,12 +31,14 @@ seed pack for the first 20 elements.
 
 | Level | Scope | Status |
 | --- | --- | --- |
+| Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..20 |
 | Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Planned |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
-Level 1 is intentionally narrow. It prevents overclaiming while creating the causal
-spine required for later chemistry and physics surfaces.
+The 118-element snapshot is intentionally narrower than Level 1. It prevents
+overclaiming while creating the causal spine required for later chemistry and
+physics surfaces.
 
 ## Implemented Seed Pack
 
@@ -57,6 +60,21 @@ Every seed record includes:
 8. Same-group, same-period, and same-block relation edges.
 9. Source references and derivation trace.
 10. Validation receipt.
+
+## Full Source Snapshot
+
+The full snapshot contains all elements Z=1..118. It stores canonical identity,
+periodic position, CIAAW atomic-weight display, source keys, and snapshot status.
+Elements that do not have a CIAAW standard atomic weight use:
+
+```text
+atomic_weight_model.model_type = "unavailable"
+```
+
+This includes radioactive and superheavy elements where a standard atomic weight is
+not published. The snapshot does not invent electron configurations, oxidation
+states, isotope distributions, or reaction behavior for elements not yet promoted
+to Level 1 or higher.
 
 ## Algorithm
 
@@ -95,6 +113,8 @@ python -m mcms.cli elements
 python -m mcms.cli elements --list
 python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --symbol 20
+python -m mcms.cli elements --full --list
+python -m mcms.cli elements --full --symbol Og
 ```
 
 ## Validation
@@ -113,11 +133,19 @@ The seed pack is valid only when:
 3. Source references include CIAAW/IUPAC and NIST.
 4. Relation edges exist and are typed.
 
+The full snapshot is valid only when:
+
+1. It contains exactly Z=1..118 in order.
+2. Every record validates identity, position, weight model, and source keys.
+3. Unavailable atomic weights are explicit.
+4. The first 20 snapshot records link to available Level 1 seed records.
+
 ## Constructive Deltas
 
 | Delta | Result |
 | --- | --- |
-| Static table cell -> symbolic object | Element records now carry identity, laws, state, exposure, and history |
+| Static table cell -> symbolic object | Level 1 records now carry identity, laws, state, exposure, and history |
+| Partial seed pack -> full source snapshot | All 118 element identities are now queryable |
 | Atomic weight constant -> typed model | Interval weights stay intervals and single weights stay single values |
 | Position-only table -> relation graph | Elements now expose same-group, same-period, and same-block edges |
 | Unchecked data -> validation receipt | Every exposed seed can emit a stable hash and validation status |
@@ -142,7 +170,7 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add deterministic import tooling for the full 118-element source pack.
-3. Add JSON schema export for `MulluStandardSymbolicElement`.
-4. Add graph export for element relation queries.
-5. Add source drift checks that compare local seed records against pinned source snapshots.
+2. Add deterministic source-drift checks for the full snapshot.
+3. Promote Z=21..36 to Level 1 validated state.
+4. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
+5. Add graph export for element relation queries.

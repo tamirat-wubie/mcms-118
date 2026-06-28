@@ -48,6 +48,7 @@ src/mcms/release/
 src/mcms/elements/
   MSPEE-118 symbolic element contracts
   first-20 canonical element seed pack
+  full 118-element identity/weight source snapshot
   source-backed element validation receipts
   same-group / same-period / same-block relation edges
 
@@ -78,6 +79,7 @@ python scripts/verify_repo.py
 python -m pytest
 python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
+python -m mcms.cli elements --full --symbol Og
 ```
 
 On Windows PowerShell:
@@ -90,6 +92,7 @@ python scripts/verify_repo.py
 python -m pytest
 python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
+python -m mcms.cli elements --full --symbol Og
 ```
 
 ## Push to GitHub

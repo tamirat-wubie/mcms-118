@@ -4,8 +4,12 @@ import pytest
 
 from mcms.elements import (
     build_element_receipt,
+    build_snapshot_receipt,
     get_seed_element,
+    get_snapshot_record,
+    list_full_snapshot_records,
     list_seed_elements,
+    validate_full_snapshot,
     validate_seed_pack,
 )
 
@@ -63,3 +67,41 @@ def test_element_lookup_and_seed_pack_validation_reject_unknowns():
     assert result.relation_edge_count > 0
     with pytest.raises(KeyError):
         get_seed_element("Xx")
+
+
+def test_full_snapshot_contains_all_118_elements_in_order():
+    records = list_full_snapshot_records()
+    result = validate_full_snapshot(records)
+    assert len(records) == 118
+    assert [record.atomic_number for record in records] == list(range(1, 119))
+    assert records[0].symbol == "H"
+    assert records[-1].symbol == "Og"
+    assert result.validation_status == "full_element_snapshot_validated"
+
+
+def test_full_snapshot_keeps_unavailable_atomic_weights_explicit():
+    technetium = get_snapshot_record("Tc")
+    oganesson = get_snapshot_record(118)
+    assert technetium.atomic_weight_model.model_type == "unavailable"
+    assert oganesson.atomic_weight_model.model_type == "unavailable"
+    assert technetium.level_1_seed_available is False
+    assert oganesson.period == 7
+    assert oganesson.group == 18
+
+
+def test_snapshot_receipt_and_level_1_seed_linkage():
+    hydrogen_snapshot = get_snapshot_record("Hydrogen")
+    receipt = build_snapshot_receipt(hydrogen_snapshot)
+    assert hydrogen_snapshot.level_1_seed_available is True
+    assert hydrogen_snapshot.snapshot_status == "level_1_seed_available"
+    assert receipt["validation_status"] == "element_snapshot_validated"
+    assert "ciaaw_standard_atomic_weights_2024" in receipt["source_keys"]
+
+
+def test_full_snapshot_rejects_unknown_lookup():
+    result = validate_full_snapshot()
+    assert result.element_count == 118
+    assert result.level_1_seed_count == 20
+    assert result.unavailable_weight_count == 34
+    with pytest.raises(KeyError):
+        get_snapshot_record("Mx")

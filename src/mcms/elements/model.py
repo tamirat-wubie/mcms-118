@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass
 from hashlib import sha256
 
 VALID_BLOCKS = {"s", "p", "d", "f"}
-VALID_WEIGHT_MODEL_TYPES = {"interval", "single"}
+VALID_WEIGHT_MODEL_TYPES = {"interval", "single", "unavailable"}
 VALID_RELATION_TYPES = {"same_group", "same_period", "same_block"}
 
 
@@ -63,6 +63,8 @@ class AtomicWeightModel:
             errors.append("interval atomic weight requires lower and upper bounds.")
         if self.model_type == "single" and (self.lower_bound or self.upper_bound):
             errors.append("single atomic weight must not carry interval bounds.")
+        if self.model_type == "unavailable" and (self.lower_bound or self.upper_bound):
+            errors.append("unavailable atomic weight must not carry interval bounds.")
         if not self.source_key:
             errors.append("atomic weight source key is required.")
         return errors

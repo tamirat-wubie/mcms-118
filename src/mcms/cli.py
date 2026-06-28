@@ -7,8 +7,12 @@ from mcms.core.boundaries import compile_claim_boundary
 from mcms.core.phases import latest_phase, load_phase_registry
 from mcms.elements import (
     build_element_receipt,
+    build_snapshot_receipt,
     get_seed_element,
+    get_snapshot_record,
+    list_full_snapshot_records,
     list_seed_elements,
+    validate_full_snapshot,
     validate_seed_pack,
 )
 from mcms.release.robust_evidence_network import analyze_robust_evidence_network
@@ -25,7 +29,35 @@ def cmd_phases() -> None:
     print(json.dumps({"count": len(phases), "latest": latest_phase()}, indent=2))
 
 
-def cmd_elements(symbol: str | None, list_only: bool) -> None:
+def cmd_elements(symbol: str | None, list_only: bool, full_snapshot: bool) -> None:
+    if full_snapshot:
+        if list_only:
+            records = list_full_snapshot_records()
+            print(
+                json.dumps(
+                    {
+                        "count": len(records),
+                        "symbols": [record.symbol for record in records],
+                        "validation": validate_full_snapshot(records).to_dict(),
+                    },
+                    indent=2,
+                )
+            )
+            return
+        if symbol:
+            record = get_snapshot_record(symbol)
+            print(
+                json.dumps(
+                    {
+                        "snapshot": record.to_dict(),
+                        "receipt": build_snapshot_receipt(record),
+                    },
+                    indent=2,
+                )
+            )
+            return
+        print(json.dumps(validate_full_snapshot().to_dict(), indent=2))
+        return
     if list_only:
         elements = list_seed_elements()
         print(
@@ -62,13 +94,18 @@ def main(argv: list[str] | None = None) -> None:
     elements_parser = sub.add_parser("elements")
     elements_parser.add_argument("--symbol", help="Element symbol, name, or atomic number")
     elements_parser.add_argument("--list", action="store_true", help="List MSPEE seed elements")
+    elements_parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Use the full 118-element identity snapshot instead of the Level 1 seed pack",
+    )
     args = parser.parse_args(argv)
     if args.cmd == "demo":
         cmd_demo()
     elif args.cmd == "phases":
         cmd_phases()
     elif args.cmd == "elements":
-        cmd_elements(args.symbol, args.list)
+        cmd_elements(args.symbol, args.list, args.full)
 
 
 if __name__ == "__main__":
