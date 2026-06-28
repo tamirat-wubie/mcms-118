@@ -13,7 +13,7 @@ symbolic_element := identity + laws + state + exposure + history
 
 The engine does not claim full chemistry prediction, legal certification, production
 readiness, or autonomous physical action. It currently provides a Level 1 canonical
-seed pack for the first 20 elements and an identity/weight source snapshot for all
+seed pack for the first 36 elements and an identity/weight source snapshot for all
 118 named elements.
 
 ## Architecture
@@ -32,7 +32,7 @@ seed pack for the first 20 elements and an identity/weight source snapshot for a
 | Level | Scope | Status |
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
-| Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..20 |
+| Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
 | Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Planned |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
@@ -45,7 +45,8 @@ physics surfaces.
 The first seed pack contains:
 
 ```text
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
 ```
 
 Every seed record includes:
@@ -60,6 +61,10 @@ Every seed record includes:
 8. Same-group, same-period, and same-block relation edges.
 9. Source references and derivation trace.
 10. Validation receipt.
+
+D-block Level 1 records use the `(n-1)d ns` valence signature and allow up to 12
+tracked valence electrons. This keeps transition-metal structure explicit without
+collapsing d-block behavior into the s/p-block rule.
 
 ## Full Source Snapshot
 
@@ -99,6 +104,7 @@ Input:
    identity equals proton count
    neutral electron count equals atomic number
    weight model is typed
+   valence count is within the block-specific Level 1 bound
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
 
@@ -129,7 +135,7 @@ python -m pytest tests/test_element_snapshot_drift.py -q
 
 The seed pack is valid only when:
 
-1. It contains exactly Z=1..20 in order.
+1. It contains exactly Z=1..36 in order.
 2. Every element validates with no governance errors.
 3. Source references include CIAAW/IUPAC and NIST.
 4. Relation edges exist and are typed.
@@ -139,7 +145,7 @@ The full snapshot is valid only when:
 1. It contains exactly Z=1..118 in order.
 2. Every record validates identity, position, weight model, and source keys.
 3. Unavailable atomic weights are explicit.
-4. The first 20 snapshot records link to available Level 1 seed records.
+4. The first 36 snapshot records link to available Level 1 seed records.
 
 ## Source Drift Check
 
@@ -196,6 +202,5 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Promote Z=21..36 to Level 1 validated state.
-3. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
-4. Add graph export for element relation queries.
+2. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
+3. Add graph export for element relation queries.

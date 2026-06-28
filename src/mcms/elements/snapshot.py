@@ -357,6 +357,22 @@ _LEVEL_1_SEED_SYMBOLS = {
     "Ar",
     "K",
     "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
 }
 
 

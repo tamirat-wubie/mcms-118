@@ -166,8 +166,16 @@ class ElementState:
             errors.append("block must be one of s, p, d, f.")
         if not self.valence_shell:
             errors.append("valence shell is required.")
-        if self.valence_electrons < 1 or self.valence_electrons > 8:
-            errors.append("valence electron count must be in [1, 8] for Level 1 seeds.")
+        valence_upper_bound_by_block = {"s": 2, "p": 8, "d": 12, "f": 16}
+        valence_upper_bound = valence_upper_bound_by_block.get(self.block)
+        if (
+            valence_upper_bound is not None
+            and (self.valence_electrons < 1 or self.valence_electrons > valence_upper_bound)
+        ):
+            errors.append(
+                f"valence electron count must be in [1, {valence_upper_bound}] "
+                f"for Level 1 {self.block}-block seeds."
+            )
         if self.data_level not in {1, 2, 3}:
             errors.append("data level must be 1, 2, or 3.")
         errors.extend(self.atomic_weight_model.validate())

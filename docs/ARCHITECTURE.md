@@ -23,7 +23,7 @@ It turns each canonical element seed into:
 identity + laws + state + exposure + history
 ```
 
-The current implementation includes a Level 1 seed pack for the first 20 elements,
+The current implementation includes a Level 1 seed pack for the first 36 elements,
 a full 118-element identity/weight snapshot, plus validation receipts and relation
 edges for same group, same period, and same block traversal.
 

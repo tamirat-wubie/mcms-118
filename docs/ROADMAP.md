@@ -43,7 +43,7 @@ M8 = production-engineering-ready
 3. Phase registry
 4. Release evidence bundle
 5. Robust evidence network
-6. MSPEE first-20 element seed pack
+6. MSPEE first-36 element seed pack
 7. Full 118-element source snapshot workflow with source-drift check
 8. Local API
 9. Dashboard

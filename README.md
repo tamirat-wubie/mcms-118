@@ -47,7 +47,7 @@ src/mcms/release/
 
 src/mcms/elements/
   MSPEE-118 symbolic element contracts
-  first-20 canonical element seed pack
+  first-36 canonical element seed pack
   full 118-element identity/weight source snapshot
   source-backed element validation receipts
   same-group / same-period / same-block relation edges

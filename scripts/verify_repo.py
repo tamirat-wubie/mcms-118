@@ -41,7 +41,7 @@ def main() -> None:
     snapshot_result = validate_full_snapshot(snapshot_records)
     assert len(phases) == 135, len(phases)
     assert len(modules) >= 180, len(modules)
-    assert len(elements) == 20, len(elements)
+    assert len(elements) == 36, len(elements)
     assert len(snapshot_records) == 118, len(snapshot_records)
     assert element_seed_result.validation_status == "element_seed_pack_validated", element_seed_result
     assert not element_seed_result.invalid_elements, element_seed_result.invalid_elements
