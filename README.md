@@ -80,6 +80,7 @@ python -m pytest
 python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
+python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
 On Windows PowerShell:
@@ -93,6 +94,7 @@ python -m pytest
 python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
+python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
 ## Push to GitHub

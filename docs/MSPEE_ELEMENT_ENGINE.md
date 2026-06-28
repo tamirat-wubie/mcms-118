@@ -119,11 +119,12 @@ python -m mcms.cli elements --full --symbol Og
 
 ## Validation
 
-The repository verifier now checks the MSPEE seed pack:
+The repository verifier now checks the MSPEE seed pack and full snapshot shape:
 
 ```powershell
 python scripts/verify_repo.py
 python -m pytest tests/test_symbolic_elements.py -q
+python -m pytest tests/test_element_snapshot_drift.py -q
 ```
 
 The seed pack is valid only when:
@@ -140,6 +141,30 @@ The full snapshot is valid only when:
 3. Unavailable atomic weights are explicit.
 4. The first 20 snapshot records link to available Level 1 seed records.
 
+## Source Drift Check
+
+The snapshot has an explicit CIAAW drift checker. The checker compares the local
+atomic number, symbol, name, and atomic-weight display against the source table
+and emits JSON with a deterministic drift status.
+
+```powershell
+python scripts/check_element_snapshot_drift.py --fail-on-drift
+```
+
+Fixture mode supports offline review and CI-safe parser tests:
+
+```powershell
+python scripts/check_element_snapshot_drift.py --fixture-html path\to\ciaaw.html --fail-on-drift
+```
+
+Drift statuses:
+
+| Status | Meaning |
+| --- | --- |
+| `element_snapshot_no_drift` | Local snapshot matches the parsed source rows |
+| `element_snapshot_drift_detected` | At least one source/local field differs or a required row is missing |
+| `element_snapshot_source_unavailable` | The source could not be read; no local mutation was attempted |
+
 ## Constructive Deltas
 
 | Delta | Result |
@@ -149,6 +174,7 @@ The full snapshot is valid only when:
 | Atomic weight constant -> typed model | Interval weights stay intervals and single weights stay single values |
 | Position-only table -> relation graph | Elements now expose same-group, same-period, and same-block edges |
 | Unchecked data -> validation receipt | Every exposed seed can emit a stable hash and validation status |
+| Static source snapshot -> drift-checkable source boundary | CIAAW source changes now produce explicit drift reports |
 
 ## Fracture Deltas Avoided
 
@@ -170,7 +196,6 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add deterministic source-drift checks for the full snapshot.
-3. Promote Z=21..36 to Level 1 validated state.
-4. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
-5. Add graph export for element relation queries.
+2. Promote Z=21..36 to Level 1 validated state.
+3. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
+4. Add graph export for element relation queries.
