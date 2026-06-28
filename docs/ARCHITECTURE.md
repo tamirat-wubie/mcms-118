@@ -16,6 +16,17 @@ MCMS-118 is organized into four engines.
    CLI, API contracts, dashboard models, demos, docs
 ```
 
+MSPEE-118 is the element-engine profile inside the symbolic domain engine.
+It turns each canonical element seed into:
+
+```text
+identity + laws + state + exposure + history
+```
+
+The current implementation includes a Level 1 seed pack for the first 20 elements,
+plus validation receipts and relation edges for same group, same period, and same
+block traversal.
+
 The common symbolic object model is:
 
 ```text

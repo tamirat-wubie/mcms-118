@@ -45,6 +45,12 @@ src/mcms/release/
   environment snapshot replay
   robust evidence network
 
+src/mcms/elements/
+  MSPEE-118 symbolic element contracts
+  first-20 canonical element seed pack
+  source-backed element validation receipts
+  same-group / same-period / same-block relation edges
+
 src/mcms/metabolism/
   generated module contracts for Phases 118-135
 
@@ -71,6 +77,7 @@ pip install -e '.[dev]'
 python scripts/verify_repo.py
 python -m pytest
 python -m mcms.cli demo
+python -m mcms.cli elements --symbol H
 ```
 
 On Windows PowerShell:
@@ -82,6 +89,7 @@ pip install -e '.[dev]'
 python scripts/verify_repo.py
 python -m pytest
 python -m mcms.cli demo
+python -m mcms.cli elements --symbol H
 ```
 
 ## Push to GitHub
@@ -101,6 +109,7 @@ See `docs/PUSH_TO_GITHUB.md` for safer step-by-step instructions.
 
 ```text
 Chemistry claim input
+MSPEE element lookup
 → claim boundary compiler
 → evidence classification
 → receipt generation
@@ -120,6 +129,7 @@ docs/phase_metadata/phase_001.json ... phase_135.json
 docs/phases/phase_001.md ... phase_135.md
 docs/PHASE_METADATA_SCHEMA.json
 docs/PHASE_METADATA_INDEX.md
+docs/MSPEE_ELEMENT_ENGINE.md
 ```
 
 Each phase record includes identity, domain, layer, capability chain, previous/next links, artifacts, modules, tests, API endpoints, data tables, status vocabulary, evidence policy, blocked claims, invariants, risk profile, implementation truth, upgrade path, canonical project identity, and standards profile.

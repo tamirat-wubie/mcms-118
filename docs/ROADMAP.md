@@ -3,7 +3,8 @@
 ## Immediate target: one working vertical slice
 
 ```text
-Claim input
+Element-backed claim input
+MSPEE element lookup
 → claim boundary compiler
 → evidence classification
 → receipt generation
@@ -42,7 +43,9 @@ M8 = production-engineering-ready
 3. Phase registry
 4. Release evidence bundle
 5. Robust evidence network
-6. Local API
-7. Dashboard
-8. Real provider adapters
+6. MSPEE first-20 element seed pack
+7. Local API
+8. Dashboard
+9. Real provider adapters
+10. Full 118-element source snapshot workflow
 ```

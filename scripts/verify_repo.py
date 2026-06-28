@@ -7,8 +7,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from mcms.phase_registry import list_phases
-from mcms.module_registry import all_modules
+from mcms.elements import list_seed_elements, validate_seed_pack  # noqa: E402
+from mcms.module_registry import all_modules  # noqa: E402
+from mcms.phase_registry import list_phases  # noqa: E402
 
 REQUIRED_KEYS = {
     "phase", "phase_id", "slug", "title", "status", "maturity", "domain", "layer",
@@ -17,12 +18,25 @@ REQUIRED_KEYS = {
     "status_vocabulary", "inputs", "outputs", "implementation_truth", "upgrade_path", "audit_metadata",
 }
 
+STANDARD_FILES = (
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "docs/NAMING_STANDARD.md",
+    "docs/STANDARDS_PROFILE.md",
+)
+
 
 def main() -> None:
     phases = list_phases()
     modules = all_modules()
+    elements = list_seed_elements()
+    element_seed_result = validate_seed_pack(elements)
     assert len(phases) == 135, len(phases)
     assert len(modules) >= 180, len(modules)
+    assert len(elements) == 20, len(elements)
+    assert element_seed_result.validation_status == "element_seed_pack_validated", element_seed_result
+    assert not element_seed_result.invalid_elements, element_seed_result.invalid_elements
     for phase in phases:
         missing = REQUIRED_KEYS - set(phase)
         assert not missing, (phase["phase"], sorted(missing))
@@ -32,16 +46,19 @@ def main() -> None:
         assert path.exists(), path
         disk = json.loads(path.read_text())
         assert disk["phase"] == phase["phase"]
-    print(f"phases={len(phases)} modules={len(modules)} metadata_files={len(phases)}")
+    print(
+        f"phases={len(phases)} modules={len(modules)} "
+        f"metadata_files={len(phases)} element_seeds={len(elements)}"
+    )
+
+
+def verify_standard_files() -> None:
+    for standard_file in STANDARD_FILES:
+        if not Path(standard_file).exists():
+            raise SystemExit(f"missing standard file: {standard_file}")
+    print("standard_files=ok")
 
 
 if __name__ == "__main__":
     main()
-
-
-# Standard naming checks appended by package standardization.
-from pathlib import Path as _Path
-for _p in ["LICENSE", "SECURITY.md", "CONTRIBUTING.md", "docs/NAMING_STANDARD.md", "docs/STANDARDS_PROFILE.md"]:
-    if not _Path(_p).exists():
-        raise SystemExit(f"missing standard file: {_p}")
-print("standard_files=ok")
+    verify_standard_files()
