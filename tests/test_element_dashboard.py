@@ -16,6 +16,16 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
     assert len(dashboard["schema_cards"]) == 3
 
 
+def test_dashboard_view_model_surfaces_first_20_level_2_chemistry_fields():
+    dashboard = build_element_dashboard_view_model("O", relation_type="same_period").to_dict()
+    element_card = dashboard["selected_element"]
+    assert element_card["symbol"] == "O"
+    assert element_card["oxidation_states"] == [-2]
+    assert element_card["electronegativity"]["scale"] == "pauling"
+    assert element_card["electronegativity"]["value"] == 3.44
+    assert element_card["electronegativity"]["source_key"] == "pubchem_periodic_table_properties"
+
+
 def test_dashboard_view_model_preserves_snapshot_only_boundary():
     dashboard = build_element_dashboard_view_model("Og", relation_type="same_period").to_dict()
     assert dashboard["selected_element"] is None

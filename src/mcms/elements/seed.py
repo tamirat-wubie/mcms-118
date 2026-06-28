@@ -46,6 +46,68 @@ SOURCE_REFERENCES = (
     ),
 )
 
+LEVEL_2_CHEMISTRY_SOURCE_REFERENCE = SourceReference(
+    key="pubchem_periodic_table_properties",
+    authority="PubChem/NCBI",
+    title="PubChem Periodic Table of Elements CSV",
+    url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV",
+    version="source page observed 2026-06-28",
+)
+
+_LEVEL_2_CHEMISTRY_BY_SYMBOL: dict[str, dict[str, Any]] = {
+    "H": {"oxidation_states": (1, -1), "electronegativity_value": 2.20},
+    "He": {"oxidation_states": (0,), "electronegativity_value": None},
+    "Li": {"oxidation_states": (1,), "electronegativity_value": 0.98},
+    "Be": {"oxidation_states": (2,), "electronegativity_value": 1.57},
+    "B": {"oxidation_states": (3,), "electronegativity_value": 2.04},
+    "C": {"oxidation_states": (4, 2, -4), "electronegativity_value": 2.55},
+    "N": {
+        "oxidation_states": (5, 4, 3, 2, 1, -1, -2, -3),
+        "electronegativity_value": 3.04,
+    },
+    "O": {"oxidation_states": (-2,), "electronegativity_value": 3.44},
+    "F": {"oxidation_states": (-1,), "electronegativity_value": 3.98},
+    "Ne": {"oxidation_states": (0,), "electronegativity_value": None},
+    "Na": {"oxidation_states": (1,), "electronegativity_value": 0.93},
+    "Mg": {"oxidation_states": (2,), "electronegativity_value": 1.31},
+    "Al": {"oxidation_states": (3,), "electronegativity_value": 1.61},
+    "Si": {"oxidation_states": (4, 2, -4), "electronegativity_value": 1.90},
+    "P": {"oxidation_states": (5, 3, -3), "electronegativity_value": 2.19},
+    "S": {"oxidation_states": (6, 4, -2), "electronegativity_value": 2.58},
+    "Cl": {"oxidation_states": (7, 5, 1, -1), "electronegativity_value": 3.16},
+    "Ar": {"oxidation_states": (0,), "electronegativity_value": None},
+    "K": {"oxidation_states": (1,), "electronegativity_value": 0.82},
+    "Ca": {"oxidation_states": (2,), "electronegativity_value": 1.00},
+}
+
+
+def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
+    chemistry = _LEVEL_2_CHEMISTRY_BY_SYMBOL.get(symbol)
+    if chemistry is None:
+        return {
+            "oxidation_states": (),
+            "electronegativity_scale": None,
+            "electronegativity_value": None,
+            "electronegativity_source_key": None,
+            "data_level": 1,
+        }
+    electronegativity_value = chemistry["electronegativity_value"]
+    if electronegativity_value is None:
+        return {
+            "oxidation_states": chemistry["oxidation_states"],
+            "electronegativity_scale": None,
+            "electronegativity_value": None,
+            "electronegativity_source_key": None,
+            "data_level": 2,
+        }
+    return {
+        "oxidation_states": chemistry["oxidation_states"],
+        "electronegativity_scale": "pauling",
+        "electronegativity_value": electronegativity_value,
+        "electronegativity_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
+        "data_level": 2,
+    }
+
 
 def _weight_interval(display: str, lower_bound: str, upper_bound: str) -> AtomicWeightModel:
     return AtomicWeightModel(
@@ -540,11 +602,42 @@ _RAW_ELEMENT_SEEDS: tuple[dict[str, Any], ...] = (
 def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement:
     symbol = raw_seed["symbol"]
     atomic_number = raw_seed["z"]
+    level_2_fields = _level_2_chemistry_fields(symbol)
+    has_level_2_chemistry = symbol in _LEVEL_2_CHEMISTRY_BY_SYMBOL
+    behavior_level_tag = (
+        "mspee_level_2_chemistry_partial" if has_level_2_chemistry else "mspee_level_1_seed"
+    )
     behavior_tags = (
         f"period_{raw_seed['period']}",
         f"group_{raw_seed['group']}",
         f"{raw_seed['block']}_block",
-        "mspee_level_1_seed",
+        behavior_level_tag,
+    )
+    source_references = SOURCE_REFERENCES + (
+        (LEVEL_2_CHEMISTRY_SOURCE_REFERENCE,) if has_level_2_chemistry else ()
+    )
+    derivation_trace = (
+        "atomic_number -> proton_count",
+        "neutral atom -> electron_count = atomic_number",
+        "NIST electronic configurations -> neutral and first-cation configurations",
+        "CIAAW Standard Atomic Weights 2024 -> atomic_weight_model",
+        "period/group/block -> relation graph seed inputs",
+    ) + (
+        (
+            "PubChem periodic table properties -> oxidation_states and Pauling electronegativity",
+        )
+        if has_level_2_chemistry
+        else ()
+    )
+    audit_notes = (
+        "Level 1 seed does not claim full reaction prediction.",
+        "Atomic weight intervals are stored as intervals, not collapsed constants.",
+    ) + (
+        (
+            "Level 2 chemistry values are limited to oxidation-state set and Pauling electronegativity.",
+        )
+        if has_level_2_chemistry
+        else ()
     )
     human_view = (
         f"{raw_seed['name']} ({symbol}) is modeled as MSPEE element Z={atomic_number}: "
@@ -571,27 +664,25 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
             valence_shell=raw_seed["valence_shell"],
             valence_electrons=raw_seed["valence_electrons"],
             atomic_weight_model=raw_seed["weight"],
+            oxidation_states=level_2_fields["oxidation_states"],
+            electronegativity_scale=level_2_fields["electronegativity_scale"],
+            electronegativity_value=level_2_fields["electronegativity_value"],
+            electronegativity_source_key=level_2_fields["electronegativity_source_key"],
             behavior_tags=behavior_tags,
+            data_level=level_2_fields["data_level"],
         ),
         exposure=ElementExposure(
             human_view=human_view,
             graph_view=f"node:element/{symbol}",
         ),
         history=ElementHistory(
-            source_references=SOURCE_REFERENCES,
-            derivation_trace=(
-                "atomic_number -> proton_count",
-                "neutral atom -> electron_count = atomic_number",
-                "NIST electronic configurations -> neutral and first-cation configurations",
-                "CIAAW Standard Atomic Weights 2024 -> atomic_weight_model",
-                "period/group/block -> relation graph seed inputs",
-            ),
-            validation_status="seed_record_level_1",
+            source_references=source_references,
+            derivation_trace=derivation_trace,
+            validation_status="seed_record_level_2_partial"
+            if has_level_2_chemistry
+            else "seed_record_level_1",
             last_audit="2026-06-28",
-            audit_notes=(
-                "Level 1 seed does not claim full reaction prediction.",
-                "Atomic weight intervals are stored as intervals, not collapsed constants.",
-            ),
+            audit_notes=audit_notes,
         ),
     )
 

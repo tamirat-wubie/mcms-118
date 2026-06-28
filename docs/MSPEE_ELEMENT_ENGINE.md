@@ -13,8 +13,9 @@ symbolic_element := identity + laws + state + exposure + history
 
 The engine does not claim full chemistry prediction, legal certification, production
 readiness, or autonomous physical action. It currently provides a Level 1 canonical
-seed pack for the first 36 elements and an identity/weight source snapshot for all
-118 named elements.
+seed pack for the first 36 elements, sourced Level 2 oxidation-state and Pauling
+electronegativity values for the first 20 elements, and an identity/weight source
+snapshot for all 118 named elements.
 
 ## Architecture
 
@@ -33,7 +34,7 @@ seed pack for the first 36 elements and an identity/weight source snapshot for a
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
-| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Boundary fields implemented; sourced values planned |
+| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state and Pauling electronegativity values implemented for Z=1..20; broader fields planned |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
@@ -62,25 +63,35 @@ Every seed record includes:
 9. Source references and derivation trace.
 10. Validation receipt.
 
+Elements H through Ca also include a partial Level 2 promotion:
+
+1. PubChem oxidation-state set.
+2. PubChem Pauling electronegativity value when the source publishes one.
+3. PubChem source reference in the element history.
+
+He, Ne, and Ar carry PubChem `0` oxidation state and no electronegativity value
+because the source leaves the electronegativity cell blank.
+
 D-block Level 1 records use the `(n-1)d ns` valence signature and allow up to 12
 tracked valence electrons. This keeps transition-metal structure explicit without
 collapsing d-block behavior into the s/p-block rule.
 
 ## Level 2 Boundary Fields
 
-The element state contract now includes Level 2 boundary fields without claiming
-sourced Level 2 chemistry values for the current seed pack:
+The element state contract now includes Level 2 boundary fields and sourced partial
+Level 2 chemistry values for H through Ca:
 
 | Field | Boundary |
 | --- | --- |
-| `oxidation_states` | Unique integers in `[-8, 9]`; empty for Level 1 records |
+| `oxidation_states` | Unique integers in `[-8, 9]`; populated from PubChem for Z=1..20, empty for unpromoted Level 1 records |
 | `electronegativity_scale` | `null` or `pauling` |
-| `electronegativity_value` | `null` or number in `[0.0, 5.0]` |
+| `electronegativity_value` | `null` or number in `[0.0, 5.0]`; populated from PubChem when available |
 | `electronegativity_source_key` | Required when electronegativity value is present |
 
 Electronegativity is accepted only as a complete sourced tuple: scale, value, and
-source key must all be present together or all be absent. The JSON Schema export
-and Python validator enforce the same boundary.
+source key must all be present together or all be absent. Oxidation states are
+source-backed through the element history. The JSON Schema export and Python
+validator enforce the same boundary.
 
 ## Full Source Snapshot
 
@@ -122,6 +133,7 @@ Input:
    weight model is typed
    valence count is within the block-specific Level 1 bound
    Level 2 fields stay inside oxidation/electronegativity boundaries
+   first-20 Level 2 records carry PubChem lineage
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
 
@@ -163,6 +175,7 @@ The seed pack is valid only when:
 2. Every element validates with no governance errors.
 3. Source references include CIAAW/IUPAC and NIST.
 4. Relation edges exist and are typed.
+5. First-20 Level 2 chemistry records validate and carry PubChem lineage.
 
 The full snapshot is valid only when:
 

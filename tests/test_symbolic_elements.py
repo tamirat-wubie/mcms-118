@@ -129,6 +129,61 @@ def test_level_2_chemistry_boundaries_validate_oxidation_and_electronegativity_f
     assert any("[0.0, 5.0]" in error for error in out_of_range_electronegativity.validate())
 
 
+def test_first_20_seed_records_carry_source_backed_level_2_chemistry_values():
+    source_key = "pubchem_periodic_table_properties"
+    first_20_symbols = [
+        "H",
+        "He",
+        "Li",
+        "Be",
+        "B",
+        "C",
+        "N",
+        "O",
+        "F",
+        "Ne",
+        "Na",
+        "Mg",
+        "Al",
+        "Si",
+        "P",
+        "S",
+        "Cl",
+        "Ar",
+        "K",
+        "Ca",
+    ]
+    hydrogen = get_seed_element("H")
+    oxygen = get_seed_element("O")
+    chlorine = get_seed_element("Cl")
+    argon = get_seed_element("Ar")
+    calcium = get_seed_element("Ca")
+    assert all(get_seed_element(symbol).state.data_level == 2 for symbol in first_20_symbols)
+    assert all(source_key in get_seed_element(symbol).source_keys() for symbol in first_20_symbols)
+    assert hydrogen.state.oxidation_states == (1, -1)
+    assert hydrogen.state.electronegativity_value == 2.20
+    assert oxygen.state.oxidation_states == (-2,)
+    assert oxygen.state.electronegativity_value == 3.44
+    assert chlorine.state.oxidation_states == (7, 5, 1, -1)
+    assert chlorine.state.electronegativity_value == 3.16
+    assert argon.state.oxidation_states == (0,)
+    assert argon.state.electronegativity_value is None
+    assert calcium.state.oxidation_states == (2,)
+    assert calcium.state.electronegativity_value == 1.00
+    assert all(get_seed_element(symbol).validate() == [] for symbol in first_20_symbols)
+
+
+def test_level_2_values_are_not_claimed_for_remaining_level_1_seed_tail():
+    scandium = get_seed_element("Sc")
+    zinc = get_seed_element("Zn")
+    krypton = get_seed_element("Kr")
+    assert scandium.state.data_level == 1
+    assert scandium.state.oxidation_states == ()
+    assert zinc.state.electronegativity_value is None
+    assert krypton.state.electronegativity_source_key is None
+    assert "pubchem_periodic_table_properties" not in zinc.source_keys()
+
+
 def test_full_snapshot_contains_all_118_elements_in_order():
     records = list_full_snapshot_records()
     result = validate_full_snapshot(records)

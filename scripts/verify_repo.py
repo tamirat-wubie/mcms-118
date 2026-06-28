@@ -63,6 +63,13 @@ def main() -> None:
     Draft202012Validator.check_schema(element_schema)
     Draft202012Validator.check_schema(snapshot_schema)
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
+    oxygen = get_seed_element("O")
+    calcium = get_seed_element("Ca")
+    assert oxygen.state.data_level == 2, oxygen.state
+    assert oxygen.state.oxidation_states == (-2,), oxygen.state
+    assert oxygen.state.electronegativity_value == 3.44, oxygen.state
+    assert "pubchem_periodic_table_properties" in oxygen.source_keys(), oxygen.source_keys()
+    assert calcium.state.oxidation_states == (2,), calcium.state
     level_2_zinc_payload = json.loads(json.dumps(get_seed_element("Zn").to_dict()))
     level_2_zinc_payload["state"]["oxidation_states"] = [-2, 0, 2]
     level_2_zinc_payload["state"]["electronegativity_scale"] = "pauling"
