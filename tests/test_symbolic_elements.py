@@ -129,37 +129,20 @@ def test_level_2_chemistry_boundaries_validate_oxidation_and_electronegativity_f
     assert any("[0.0, 5.0]" in error for error in out_of_range_electronegativity.validate())
 
 
-def test_first_20_seed_records_carry_source_backed_level_2_chemistry_values():
+def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     source_key = "pubchem_periodic_table_properties"
-    first_20_symbols = [
-        "H",
-        "He",
-        "Li",
-        "Be",
-        "B",
-        "C",
-        "N",
-        "O",
-        "F",
-        "Ne",
-        "Na",
-        "Mg",
-        "Al",
-        "Si",
-        "P",
-        "S",
-        "Cl",
-        "Ar",
-        "K",
-        "Ca",
-    ]
+    seed_symbols = [element.identity.symbol for element in list_seed_elements()]
     hydrogen = get_seed_element("H")
     oxygen = get_seed_element("O")
     chlorine = get_seed_element("Cl")
     argon = get_seed_element("Ar")
     calcium = get_seed_element("Ca")
-    assert all(get_seed_element(symbol).state.data_level == 2 for symbol in first_20_symbols)
-    assert all(source_key in get_seed_element(symbol).source_keys() for symbol in first_20_symbols)
+    titanium = get_seed_element("Ti")
+    zinc = get_seed_element("Zn")
+    krypton = get_seed_element("Kr")
+    assert len(seed_symbols) == 36
+    assert all(get_seed_element(symbol).state.data_level == 2 for symbol in seed_symbols)
+    assert all(source_key in get_seed_element(symbol).source_keys() for symbol in seed_symbols)
     assert hydrogen.state.oxidation_states == (1, -1)
     assert hydrogen.state.electronegativity_value == 2.20
     assert oxygen.state.oxidation_states == (-2,)
@@ -170,18 +153,13 @@ def test_first_20_seed_records_carry_source_backed_level_2_chemistry_values():
     assert argon.state.electronegativity_value is None
     assert calcium.state.oxidation_states == (2,)
     assert calcium.state.electronegativity_value == 1.00
-    assert all(get_seed_element(symbol).validate() == [] for symbol in first_20_symbols)
-
-
-def test_level_2_values_are_not_claimed_for_remaining_level_1_seed_tail():
-    scandium = get_seed_element("Sc")
-    zinc = get_seed_element("Zn")
-    krypton = get_seed_element("Kr")
-    assert scandium.state.data_level == 1
-    assert scandium.state.oxidation_states == ()
-    assert zinc.state.electronegativity_value is None
-    assert krypton.state.electronegativity_source_key is None
-    assert "pubchem_periodic_table_properties" not in zinc.source_keys()
+    assert titanium.state.oxidation_states == (4, 3, 2)
+    assert titanium.state.electronegativity_value == 1.54
+    assert zinc.state.oxidation_states == (2,)
+    assert zinc.state.electronegativity_value == 1.65
+    assert krypton.state.oxidation_states == (0,)
+    assert krypton.state.electronegativity_value == 3.00
+    assert all(get_seed_element(symbol).validate() == [] for symbol in seed_symbols)
 
 
 def test_full_snapshot_contains_all_118_elements_in_order():

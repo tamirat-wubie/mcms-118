@@ -50,8 +50,8 @@ M8 = production-engineering-ready
 10. Local API for element lookup, schemas, and graph queries
 11. Dashboard-facing view model
 12. Level 2 oxidation-state and electronegativity boundaries
-13. Sourced Level 2 chemistry values for the first 20 elements
+13. Sourced Level 2 chemistry values for the first 36 elements
 14. Source drift check for Level 2 chemistry values
-15. Extend Level 2 chemistry values beyond Calcium
+15. Extend Level 2 chemistry values beyond Krypton
 16. Real provider adapters
 ```

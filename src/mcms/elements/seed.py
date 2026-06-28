@@ -78,6 +78,22 @@ _LEVEL_2_CHEMISTRY_BY_SYMBOL: dict[str, dict[str, Any]] = {
     "Ar": {"oxidation_states": (0,), "electronegativity_value": None},
     "K": {"oxidation_states": (1,), "electronegativity_value": 0.82},
     "Ca": {"oxidation_states": (2,), "electronegativity_value": 1.00},
+    "Sc": {"oxidation_states": (3,), "electronegativity_value": 1.36},
+    "Ti": {"oxidation_states": (4, 3, 2), "electronegativity_value": 1.54},
+    "V": {"oxidation_states": (5, 4, 3, 2), "electronegativity_value": 1.63},
+    "Cr": {"oxidation_states": (6, 3, 2), "electronegativity_value": 1.66},
+    "Mn": {"oxidation_states": (7, 4, 3, 2), "electronegativity_value": 1.55},
+    "Fe": {"oxidation_states": (3, 2), "electronegativity_value": 1.83},
+    "Co": {"oxidation_states": (3, 2), "electronegativity_value": 1.88},
+    "Ni": {"oxidation_states": (3, 2), "electronegativity_value": 1.91},
+    "Cu": {"oxidation_states": (2, 1), "electronegativity_value": 1.90},
+    "Zn": {"oxidation_states": (2,), "electronegativity_value": 1.65},
+    "Ga": {"oxidation_states": (3,), "electronegativity_value": 1.81},
+    "Ge": {"oxidation_states": (4, 2), "electronegativity_value": 2.01},
+    "As": {"oxidation_states": (5, 3, -3), "electronegativity_value": 2.18},
+    "Se": {"oxidation_states": (6, 4, -2), "electronegativity_value": 2.55},
+    "Br": {"oxidation_states": (5, 1, -1), "electronegativity_value": 2.96},
+    "Kr": {"oxidation_states": (0,), "electronegativity_value": 3.00},
 }
 
 

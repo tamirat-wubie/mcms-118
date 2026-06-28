@@ -82,16 +82,16 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
         validator.validate(out_of_range_electronegativity_payload)
 
 
-def test_element_seed_schema_validates_promoted_first_20_level_2_record():
+def test_element_seed_schema_validates_promoted_seed_pack_level_2_record():
     schema = element_seed_json_schema()
     validator = Draft202012Validator(schema)
-    oxygen_payload = _json_payload(get_seed_element("O").to_dict())
-    validator.validate(oxygen_payload)
-    assert oxygen_payload["state"]["data_level"] == 2
-    assert oxygen_payload["state"]["oxidation_states"] == [-2]
-    assert oxygen_payload["state"]["electronegativity_scale"] == "pauling"
-    assert oxygen_payload["state"]["electronegativity_value"] == 3.44
-    assert oxygen_payload["state"]["electronegativity_source_key"] == "pubchem_periodic_table_properties"
+    zinc_payload = _json_payload(get_seed_element("Zn").to_dict())
+    validator.validate(zinc_payload)
+    assert zinc_payload["state"]["data_level"] == 2
+    assert zinc_payload["state"]["oxidation_states"] == [2]
+    assert zinc_payload["state"]["electronegativity_scale"] == "pauling"
+    assert zinc_payload["state"]["electronegativity_value"] == 1.65
+    assert zinc_payload["state"]["electronegativity_source_key"] == "pubchem_periodic_table_properties"
 
 
 def test_snapshot_schema_validates_grouped_and_ungrouped_records():

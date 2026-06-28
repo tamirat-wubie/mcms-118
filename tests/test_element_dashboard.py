@@ -10,13 +10,13 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
     assert dashboard["dashboard_status"] == "element_dashboard_view_model_ready"
     assert dashboard["selected_element"]["symbol"] == "Zn"
     assert dashboard["selected_snapshot"]["level_1_seed_available"] is True
-    assert dashboard["selected_element"]["oxidation_states"] == []
-    assert dashboard["selected_element"]["electronegativity"]["value"] is None
+    assert dashboard["selected_element"]["oxidation_states"] == [2]
+    assert dashboard["selected_element"]["electronegativity"]["value"] == 1.65
     assert dashboard["graph"]["query"]["edge_count"] == 9
     assert len(dashboard["schema_cards"]) == 3
 
 
-def test_dashboard_view_model_surfaces_first_20_level_2_chemistry_fields():
+def test_dashboard_view_model_surfaces_seed_pack_level_2_chemistry_fields():
     dashboard = build_element_dashboard_view_model("O", relation_type="same_period").to_dict()
     element_card = dashboard["selected_element"]
     assert element_card["symbol"] == "O"

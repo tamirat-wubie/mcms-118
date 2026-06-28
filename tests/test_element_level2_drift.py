@@ -62,7 +62,7 @@ def test_level_2_drift_report_has_no_drift_for_fixture_rows():
     assert report["drift_status"] == "element_level_2_chemistry_no_drift"
     assert report["drift_count"] == 0
     assert report["source_count"] == 4
-    assert report["local_count"] == 20
+    assert report["local_count"] == 36
 
 
 def test_level_2_drift_report_detects_symbol_oxidation_and_electronegativity_changes():
@@ -102,5 +102,5 @@ def test_level_2_drift_report_requires_complete_promoted_source_when_enabled():
     missing_fields = {drift["field"] for drift in report["drifts"]}
     assert report["drift_status"] == "element_level_2_chemistry_drift_detected"
     assert report["source_count"] == 1
-    assert report["drift_count"] == 19
+    assert report["drift_count"] == 35
     assert missing_fields == {"missing_source_record"}
