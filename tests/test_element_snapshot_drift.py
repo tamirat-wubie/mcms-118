@@ -1,9 +1,22 @@
+import sys
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+
 from mcms.elements import get_snapshot_record, list_full_snapshot_records
-from scripts.check_element_snapshot_drift import (
-    SourceSnapshotRow,
-    build_drift_report,
-    parse_ciaaw_atomic_weight_rows,
+
+SCRIPT_PATH = (
+    Path(__file__).resolve().parents[1] / "scripts" / "check_element_snapshot_drift.py"
 )
+SPEC = spec_from_file_location("check_element_snapshot_drift", SCRIPT_PATH)
+assert SPEC is not None
+assert SPEC.loader is not None
+DRIFT_MODULE = module_from_spec(SPEC)
+sys.modules[SPEC.name] = DRIFT_MODULE
+SPEC.loader.exec_module(DRIFT_MODULE)
+
+SourceSnapshotRow = DRIFT_MODULE.SourceSnapshotRow
+build_drift_report = DRIFT_MODULE.build_drift_report
+parse_ciaaw_atomic_weight_rows = DRIFT_MODULE.parse_ciaaw_atomic_weight_rows
 
 
 def _fixture_html(rows: list[tuple[str, str, str, str]]) -> str:
