@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "MCMS-118 — Causal Matter Standard"
+message: "If you use this repository, cite it as MCMS-118."
+type: software
+authors:
+  - family-names: "Wube"
+    given-names: "Tamirat"
+version: "0.1.0"
+license: "Apache-2.0"
+repository-code: "https://github.com/tamirat-wubie/mcms-118"

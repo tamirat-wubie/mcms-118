@@ -1,0 +1,294 @@
+{
+  "phase": 119,
+  "phase_id": "MCMS-118-P119",
+  "slug": "multi-release-site-active-zone-vesicle-position-grid-cav-subtype-specificity-monte-carlo-release-trace-and-postsynaptic-",
+  "title": "Multi-Release-Site Active Zone, Vesicle Position Grid, CaV Subtype Specificity, Monte Carlo Release Trace, and Postsynaptic Waveform Coupling",
+  "status": "module scaffold included",
+  "maturity": {
+    "level": "M1/M2",
+    "description": "module contracts/scaffolds included and registry-tested",
+    "test_state": "contract import/evaluation tests included for generated module families",
+    "ladder": {
+      "M0": "concept / blueprint documented",
+      "M1": "module contract or scaffold implemented",
+      "M2": "tests pass for contract behavior",
+      "M3": "persisted with receipts",
+      "M4": "signed / governed",
+      "M5": "API exposed",
+      "M6": "dashboard visible",
+      "M7": "demo-ready",
+      "M8": "production-engineering-ready"
+    }
+  },
+  "domain": "neurosymbolic spike, circuit, recurrent graph, and closed-loop modeling",
+  "layer": "active zones, receptor chains, inhibition, chloride, and spike trains",
+  "objective": "Model, govern, and audit: Multi-Release-Site Active Zone \u2192 Vesicle Position Grid \u2192 CaV Subtype Specificity \u2192 Monte Carlo Release Trace \u2192 and Postsynaptic Waveform Coupling.",
+  "capability_chain": [
+    "Multi-Release-Site Active Zone",
+    "Vesicle Position Grid",
+    "CaV Subtype Specificity",
+    "Monte Carlo Release Trace",
+    "and Postsynaptic Waveform Coupling"
+  ],
+  "keywords": [
+    "multi-release-site",
+    "active",
+    "zone",
+    "vesicle",
+    "position",
+    "grid",
+    "cav",
+    "subtype",
+    "specificity",
+    "monte",
+    "carlo",
+    "release",
+    "trace",
+    "and",
+    "postsynaptic",
+    "waveform",
+    "coupling"
+  ],
+  "relationships": {
+    "previous_phase": 118,
+    "next_phase": 120,
+    "depends_on": [
+      118
+    ],
+    "unlocks": [
+      120
+    ]
+  },
+  "boundary": "Symbolic matter, biochemical/bioelectrical graph, governance, release-evidence, and deployment-engineering modeling only. This phase does not claim medical, neurological, cognitive, diagnostic, treatment, legal compliance, security certification, customer readiness, financial-operation readiness, or autonomous real-world-action approval.",
+  "blocked_claims": [
+    "medical_claim",
+    "neurological_or_cognitive_claim",
+    "diagnostic_or_treatment_claim",
+    "legal_compliance_claim",
+    "security_certified_claim",
+    "production_customer_ready_claim",
+    "financial_operation_claim",
+    "autonomous_real_world_action_claim"
+  ],
+  "invariants": [
+    "Evidence cannot silently upgrade itself.",
+    "Computed values cannot be emitted as measured facts.",
+    "Predictions remain predictions until separately verified.",
+    "Unknown or weak evidence remains unresolved.",
+    "Receipts are append-only and hash-addressed.",
+    "High-risk actions require policy, approval, and receipt gates.",
+    "Protected traces cannot be silently forgotten.",
+    "Secrets must not be materialized into receipts or logs.",
+    "Blocked claims stay blocked even when modules succeed.",
+    "Demo readiness and production readiness are separate states."
+  ],
+  "claim_types": [
+    "observed_fact",
+    "source_backed_claim",
+    "computed_result",
+    "symbolic_simulation",
+    "prediction",
+    "proposal",
+    "governance_marker",
+    "blocked_claim",
+    "unknown"
+  ],
+  "evidence_policy": {
+    "minimum_source_backed_evidence_strength": 0.7,
+    "weak_evidence_status": "evidence_required",
+    "computed_result_rule": "computed results cannot be promoted to measured facts without source-backed evidence",
+    "prediction_rule": "predictions remain predictions until separate observation/verification receipts exist",
+    "secret_rule": "secret values must never be written into receipts, logs, docs, or exports"
+  },
+  "risk_profile": {
+    "primary_risk": "biological/cognitive overclaiming and symbolic-vs-real-world confusion",
+    "default_posture": "deny high-risk claims/actions by default",
+    "requires_review_when": [
+      "evidence_strength < 0.7",
+      "risk_score >= 0.8",
+      "action is high-risk",
+      "signature/checkpoint/restore evidence is missing",
+      "output attempts a blocked claim"
+    ]
+  },
+  "artifacts": {
+    "phase_doc": "docs/phases/phase_119.md",
+    "phase_metadata_json": "docs/phase_metadata/phase_119.json",
+    "registry": "docs/PHASE_REGISTRY.json",
+    "modules": [
+      "src/mcms/metabolism/multi_release_site_active_zone.py",
+      "src/mcms/metabolism/vesicle_position_grid.py",
+      "src/mcms/metabolism/cav_subtype_specificity.py",
+      "src/mcms/metabolism/monte_carlo_release_trace.py",
+      "src/mcms/metabolism/postsynaptic_waveform_coupling.py",
+      "src/mcms/metabolism/multi_site_release_boundary.py"
+    ],
+    "tests": [
+      "tests/test_multi_release_site_active_zone.py",
+      "tests/test_vesicle_position_grid.py",
+      "tests/test_cav_subtype_specificity.py",
+      "tests/test_monte_carlo_release_trace.py",
+      "tests/test_postsynaptic_waveform_coupling.py",
+      "tests/test_multi_site_release_boundary.py"
+    ],
+    "api_endpoints": [
+      "GET /v1/mcms/phases/119",
+      "GET /v1/mcms/phases/119/modules",
+      "POST /v1/mcms/phases/119/multi-release-site-active-zone",
+      "POST /v1/mcms/phases/119/vesicle-position-grid",
+      "POST /v1/mcms/phases/119/cav-subtype-specificity",
+      "POST /v1/mcms/phases/119/monte-carlo-release-trace",
+      "POST /v1/mcms/phases/119/postsynaptic-waveform-coupling",
+      "POST /v1/mcms/phases/119/multi-site-release-boundary"
+    ],
+    "data_tables": [
+      "phase_119_receipts",
+      "phase_119_evidence",
+      "phase_119_claims",
+      "phase_119_audit_events",
+      "phase_119_multi_release_site_active_zone_runs",
+      "phase_119_vesicle_position_grid_runs",
+      "phase_119_cav_subtype_specificity_runs",
+      "phase_119_monte_carlo_release_trace_runs",
+      "phase_119_postsynaptic_waveform_coupling_runs",
+      "phase_119_multi_site_release_boundary_runs"
+    ]
+  },
+  "modules": [
+    "multi_release_site_active_zone.py",
+    "vesicle_position_grid.py",
+    "cav_subtype_specificity.py",
+    "monte_carlo_release_trace.py",
+    "postsynaptic_waveform_coupling.py",
+    "multi_site_release_boundary.py"
+  ],
+  "module_count": 6,
+  "status_vocabulary": [
+    "supported",
+    "evidence_required",
+    "insufficient_data",
+    "safety_boundary",
+    "conflict_detected",
+    "review_required",
+    "blocked_claim",
+    "multi_release_site_active_zone_supported",
+    "multi_release_site_active_zone_evidence_required",
+    "multi_release_site_active_zone_conflict",
+    "multi_release_site_active_zone_safety_boundary",
+    "multi_release_site_active_zone_insufficient_data",
+    "vesicle_position_grid_supported",
+    "vesicle_position_grid_evidence_required",
+    "vesicle_position_grid_conflict",
+    "vesicle_position_grid_safety_boundary",
+    "vesicle_position_grid_insufficient_data",
+    "cav_subtype_specificity_supported",
+    "cav_subtype_specificity_evidence_required",
+    "cav_subtype_specificity_conflict",
+    "cav_subtype_specificity_safety_boundary",
+    "cav_subtype_specificity_insufficient_data",
+    "monte_carlo_release_trace_supported",
+    "monte_carlo_release_trace_evidence_required",
+    "monte_carlo_release_trace_conflict",
+    "monte_carlo_release_trace_safety_boundary",
+    "monte_carlo_release_trace_insufficient_data",
+    "postsynaptic_waveform_coupling_supported",
+    "postsynaptic_waveform_coupling_evidence_required",
+    "postsynaptic_waveform_coupling_conflict",
+    "postsynaptic_waveform_coupling_safety_boundary",
+    "postsynaptic_waveform_coupling_insufficient_data",
+    "multi_site_release_boundary_supported",
+    "multi_site_release_boundary_evidence_required",
+    "multi_site_release_boundary_conflict",
+    "multi_site_release_boundary_safety_boundary",
+    "multi_site_release_boundary_insufficient_data"
+  ],
+  "inputs": {
+    "minimum_common_fields": [
+      "subject_key",
+      "evidence_strength",
+      "risk_score",
+      "payload"
+    ],
+    "phase_specific_inputs": [
+      "Multi-Release-Site Active Zone",
+      "Vesicle Position Grid",
+      "CaV Subtype Specificity",
+      "Monte Carlo Release Trace",
+      "and Postsynaptic Waveform Coupling"
+    ]
+  },
+  "outputs": {
+    "minimum_common_fields": [
+      "phase",
+      "module",
+      "status",
+      "allowed_claim",
+      "blocked_claims",
+      "evidence_strength",
+      "payload_hash",
+      "explanation"
+    ],
+    "phase_specific_outputs": [
+      "multi-release-site-active-zone-vesicle-position-grid-cav-subtype-specificity-monte-carlo-release-trace-and-postsynaptic-_marker",
+      "multi-release-site-active-zone-vesicle-position-grid-cav-subtype-specificity-monte-carlo-release-trace-and-postsynaptic-_boundary",
+      "multi-release-site-active-zone-vesicle-position-grid-cav-subtype-specificity-monte-carlo-release-trace-and-postsynaptic-_receipt"
+    ]
+  },
+  "implementation_truth": "Generated module-contract phase: module files, importable scaffolds, registry metadata, and contract tests are included; deep domain implementation can replace scaffolds without changing metadata contracts.",
+  "upgrade_path": [
+    "replace scaffold logic with domain-specific implementation",
+    "add focused invariant tests",
+    "add persistence receipts",
+    "add signature/governance checks",
+    "expose API endpoint",
+    "surface dashboard card",
+    "create demo fixture",
+    "run release evidence gate before promotion"
+  ],
+  "audit_metadata": {
+    "metadata_schema_version": "1.0.0",
+    "generated_at": "2026-06-28T00:00:00-04:00",
+    "source": "MCMS-118 conversation phase compilation",
+    "package": "mcms-118-standard-github",
+    "maintainer_note": "All metadata is explicit so future implementations can be audited against the phase contract.",
+    "naming_standard_version": "NS-1.0.0"
+  },
+  "project_identity": {
+    "project_code": "MCMS-118",
+    "canonical_name": "MCMS-118 \u2014 Causal Matter Standard",
+    "formal_name": "Mullusi Causal Matter Standard",
+    "short_name": "MCMS-118",
+    "repository_name": "mcms-118",
+    "distribution_name": "mcms-118",
+    "python_import_namespace": "mcms",
+    "cli_name": "mcms",
+    "organization": "Mullusi",
+    "owner": "Tamirat Wube",
+    "default_branch": "main",
+    "license": "Apache-2.0",
+    "version": "0.1.0",
+    "naming_standard_version": "NS-1.0.0"
+  },
+  "standards_profile": {
+    "metadata_schema_version": "1.1.0",
+    "phase_id_pattern": "MCMS-118-P{phase:03d}",
+    "phase_doc_pattern": "docs/phases/phase_{phase:03d}.md",
+    "phase_metadata_pattern": "docs/phase_metadata/phase_{phase:03d}.json",
+    "module_path_pattern": "src/mcms/{domain}/{snake_case_module}.py",
+    "test_path_pattern": "tests/test_{snake_case_module}.py",
+    "receipt_policy": "append-only hash-addressed receipts",
+    "policy_posture": "deny by default for high-risk actions and blocked claims",
+    "claim_boundary": "claim type must be explicit: observed_fact, source_backed_claim, computed_result, symbolic_simulation, prediction, proposal, governance_marker, blocked_claim, unknown",
+    "demo_vs_production": "demo-ready and production-engineering-ready are separate states",
+    "secret_policy": "secret values must never be materialized into docs, logs, receipts, or exported evidence",
+    "code_style": "PEP 8, type hints where useful, pytest tests, src-layout package",
+    "docs_style": "Markdown docs, JSON metadata, machine-readable registries"
+  },
+  "canonical_identifiers": {
+    "phase_id": "MCMS-118-P119",
+    "phase_doc": "docs/phases/phase_119.md",
+    "phase_metadata_json": "docs/phase_metadata/phase_119.json",
+    "api_metadata_endpoint": "GET /v1/mcms/phases/119/metadata",
+    "receipt_table": "phase_119_receipts"
+  }
+}

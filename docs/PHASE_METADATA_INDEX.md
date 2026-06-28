@@ -1,0 +1,137 @@
+# Phase Metadata Index
+
+- [Phase 001: Canonical Element Symbolic Standard](phase_metadata/phase_001.json) — `MCMS-118-P001`
+- [Phase 002: Transition Metal Exception Kernel](phase_metadata/phase_002.json) — `MCMS-118-P002`
+- [Phase 003: Lanthanide/Actinide and Nuclear Kernel](phase_metadata/phase_003.json) — `MCMS-118-P003`
+- [Phase 004: Full 118 Element Completion Kernel](phase_metadata/phase_004.json) — `MCMS-118-P004`
+- [Phase 005: Computable Element Comparison Engine](phase_metadata/phase_005.json) — `MCMS-118-P005`
+- [Phase 006: Symbolic Reaction Engine](phase_metadata/phase_006.json) — `MCMS-118-P006`
+- [Phase 007: Symbolic Compound Engine](phase_metadata/phase_007.json) — `MCMS-118-P007`
+- [Phase 008: Symbolic Matter State Engine](phase_metadata/phase_008.json) — `MCMS-118-P008`
+- [Phase 009: Symbolic Matter Search and Discovery Engine](phase_metadata/phase_009.json) — `MCMS-118-P009`
+- [Phase 010: Symbolic Matter Learning and Experiment Planner](phase_metadata/phase_010.json) — `MCMS-118-P010`
+- [Phase 011: Knowledge Graph and Causal Memory](phase_metadata/phase_011.json) — `MCMS-118-P011`
+- [Phase 012: API, UI, Agent Interface](phase_metadata/phase_012.json) — `MCMS-118-P012`
+- [Phase 013: MVP Blueprint](phase_metadata/phase_013.json) — `MCMS-118-P013`
+- [Phase 014: Git-Ready MVP Repository Contents](phase_metadata/phase_014.json) — `MCMS-118-P014`
+- [Phase 015: Evidence Adapter and Persistent Causal Graph Kernel](phase_metadata/phase_015.json) — `MCMS-118-P015`
+- [Phase 016: Graph Query and Explanation Engine](phase_metadata/phase_016.json) — `MCMS-118-P016`
+- [Phase 017: Graph Path Scoring and SQLite Query Integration](phase_metadata/phase_017.json) — `MCMS-118-P017`
+- [Phase 018: Explicit State Node Expansion](phase_metadata/phase_018.json) — `MCMS-118-P018`
+- [Phase 019: State-Level Evidence Attachment and Conflict Detection](phase_metadata/phase_019.json) — `MCMS-118-P019`
+- [Phase 020: Conflict Repair and Evidence Downgrade Engine](phase_metadata/phase_020.json) — `MCMS-118-P020`
+- [Phase 021: Human Approval and Repair Governance Workflow](phase_metadata/phase_021.json) — `MCMS-118-P021`
+- [Phase 022: Repair Action Registry and Multi-Step Repair Workflow](phase_metadata/phase_022.json) — `MCMS-118-P022`
+- [Phase 023: Transactional Workflow Rollback and Failure Recovery](phase_metadata/phase_023.json) — `MCMS-118-P023`
+- [Phase 024: Semantic Rollback, Stale Conflict Marking, Retry Strategy](phase_metadata/phase_024.json) — `MCMS-118-P024`
+- [Phase 025: Lifecycle-Aware Conflict Query and Recovery Console API](phase_metadata/phase_025.json) — `MCMS-118-P025`
+- [Phase 026: Retry Workflow Builder and Operator Console MVP](phase_metadata/phase_026.json) — `MCMS-118-P026`
+- [Phase 027: Operator Identity, Permissions, Auth Boundary](phase_metadata/phase_027.json) — `MCMS-118-P027`
+- [Phase 028: Tamper-Evident Audit Ledger and Receipt Hash Chain](phase_metadata/phase_028.json) — `MCMS-118-P028`
+- [Phase 029: Signed Receipts and External Ledger Checkpoints](phase_metadata/phase_029.json) — `MCMS-118-P029`
+- [Phase 030: Multi-Signature Approval and High-Risk Repair Notarization](phase_metadata/phase_030.json) — `MCMS-118-P030`
+- [Phase 031: Signed Vote Receipts and Multisig Session UI](phase_metadata/phase_031.json) — `MCMS-118-P031`
+- [Phase 032: Operator-Key Signatures and Personal Approval Cryptography](phase_metadata/phase_032.json) — `MCMS-118-P032`
+- [Phase 033: Browser Signing UX and Operator Key Lifecycle](phase_metadata/phase_033.json) — `MCMS-118-P033`
+- [Phase 034: Hardware-Backed Approval and WebAuthn Governance](phase_metadata/phase_034.json) — `MCMS-118-P034`
+- [Phase 035: Production WebAuthn Verification and Credential Recovery Policy](phase_metadata/phase_035.json) — `MCMS-118-P035`
+- [Phase 036: Deployment Configuration, Secret Hygiene, and Production Boundary](phase_metadata/phase_036.json) — `MCMS-118-P036`
+- [Phase 037: Deployment Packaging, Health Checks, Migration Runner, and Backup Boundary](phase_metadata/phase_037.json) — `MCMS-118-P037`
+- [Phase 038: Scheduled Backup, Restore Drill, and External Object Storage Adapter](phase_metadata/phase_038.json) — `MCMS-118-P038`
+- [Phase 039: Monitoring, Alerting, and Operational Incident Engine](phase_metadata/phase_039.json) — `MCMS-118-P039`
+- [Phase 040: Metrics, SLOs, Alert Deduplication, and Notification Adapters](phase_metadata/phase_040.json) — `MCMS-118-P040`
+- [Phase 041: Operator Dashboard UI and Governance Control Surface](phase_metadata/phase_041.json) — `MCMS-118-P041`
+- [Phase 042: Governance Action Queue and Audit-Safe Command Center](phase_metadata/phase_042.json) — `MCMS-118-P042`
+- [Phase 043: Guided Action Wizards and Trusted Payload Builder](phase_metadata/phase_043.json) — `MCMS-118-P043`
+- [Phase 044: Action Deduplication, Cancellation, Retry Policy, and Incident-to-Action Automation](phase_metadata/phase_044.json) — `MCMS-118-P044`
+- [Phase 045: Working Matter Intelligence MVP and Demo Slice](phase_metadata/phase_045.json) — `MCMS-118-P045`
+- [Phase 046: Five Demo Matter Cases and Plain-English Query Layer](phase_metadata/phase_046.json) — `MCMS-118-P046`
+- [Phase 047: Source-Grounded Evidence Adapter and Claim Validation Layer](phase_metadata/phase_047.json) — `MCMS-118-P047`
+- [Phase 048: Official Source Adapter Contracts and Evidence Upgrade Pipeline](phase_metadata/phase_048.json) — `MCMS-118-P048`
+- [Phase 049: Evidence Conflict Detection and Multi-Source Reconciliation](phase_metadata/phase_049.json) — `MCMS-118-P049`
+- [Phase 050: Unit Normalization, Context-Aware Claims, and Measurement Conditions](phase_metadata/phase_050.json) — `MCMS-118-P050`
+- [Phase 051: Uncertainty, Error Bars, Ranges, and Approximate Agreement](phase_metadata/phase_051.json) — `MCMS-118-P051`
+- [Phase 052: Dimensional Analysis, Quantity Ontology, and Unit Safety](phase_metadata/phase_052.json) — `MCMS-118-P052`
+- [Phase 053: Formula Parser, Compound Identity, and Stoichiometric Reasoning](phase_metadata/phase_053.json) — `MCMS-118-P053`
+- [Phase 054: Element Symbol Validation, Auto-Balancing, and Redox Foundations](phase_metadata/phase_054.json) — `MCMS-118-P054`
+- [Phase 055: Ionic Equations, Net Ionic Reasoning, and Precipitation Rules](phase_metadata/phase_055.json) — `MCMS-118-P055`
+- [Phase 056: Acid-Base Neutralization, Strong/Weak Electrolytes, and pH Foundations](phase_metadata/phase_056.json) — `MCMS-118-P056`
+- [Phase 057: Equilibrium Foundations, Ka/Kb, Buffers, and Titration Reasoning](phase_metadata/phase_057.json) — `MCMS-118-P057`
+- [Phase 058: Equilibrium Solver, ICE Tables, and Polyprotic Acid Expansion](phase_metadata/phase_058.json) — `MCMS-118-P058`
+- [Phase 059: Titration Curve Generator and Equivalence-Point Hydrolysis Refinement](phase_metadata/phase_059.json) — `MCMS-118-P059`
+- [Phase 060: Reaction Intelligence UI, Curve Visualization, and Learning Demo Page](phase_metadata/phase_060.json) — `MCMS-118-P060`
+- [Phase 061: Evidence-Aware Learning Cards and Guided Chemistry Tutor Mode](phase_metadata/phase_061.json) — `MCMS-118-P061`
+- [Phase 062: Adaptive Practice, Learner Memory, and Concept Mastery Graph](phase_metadata/phase_062.json) — `MCMS-118-P062`
+- [Phase 063: Visual Concept Graph, Ion Diagrams, and Misconception Repair Mode](phase_metadata/phase_063.json) — `MCMS-118-P063`
+- [Phase 064: Spaced Review Scheduler, Repair Effectiveness Analytics, and Long-Term Learning Loop](phase_metadata/phase_064.json) — `MCMS-118-P064`
+- [Phase 065: Source-Grounded Chemistry Evidence, Citation Cards, and Official Data Adapter Layer](phase_metadata/phase_065.json) — `MCMS-118-P065`
+- [Phase 066: Evidence Review Console, Source Import Governance, and Citation Coverage Dashboard](phase_metadata/phase_066.json) — `MCMS-118-P066`
+- [Phase 067: Official Source Adapter Implementation, Freshness Policy, and Evidence Aging](phase_metadata/phase_067.json) — `MCMS-118-P067`
+- [Phase 068: Snapshot Diffing, Evidence Change Receipts, and Immutable Trust Ledger](phase_metadata/phase_068.json) — `MCMS-118-P068`
+- [Phase 069: Thermodynamic Feasibility, Formation Data, and Reaction Direction Engine](phase_metadata/phase_069.json) — `MCMS-118-P069`
+- [Phase 070: Reaction Kinetics, Activation Energy, Rate Laws, and Catalyst Reasoning](phase_metadata/phase_070.json) — `MCMS-118-P070`
+- [Phase 071: Experimental Rate Law Fitting, Reaction Order Discovery, and Kinetic Model Selection](phase_metadata/phase_071.json) — `MCMS-118-P071`
+- [Phase 072: Enzyme Kinetics, Michaelis-Menten Modeling, and Saturation Curve Reasoning](phase_metadata/phase_072.json) — `MCMS-118-P072`
+- [Phase 073: Cooperative Binding, Hill Equation, Allostery, and Sigmoidal Enzyme Behavior](phase_metadata/phase_073.json) — `MCMS-118-P073`
+- [Phase 074: Metabolic Pathway Modeling, Flux Balance, and Biochemical Network Reasoning](phase_metadata/phase_074.json) — `MCMS-118-P074`
+- [Phase 075: Dynamic Metabolic Simulation, Time-Course Flux, and Pathway Visualization](phase_metadata/phase_075.json) — `MCMS-118-P075`
+- [Phase 076: Energy Currency, Cofactor Balance, and Thermodynamic Flux Constraints](phase_metadata/phase_076.json) — `MCMS-118-P076`
+- [Phase 077: Respiration, Fermentation, Electron Transport, and Cofactor Regeneration](phase_metadata/phase_077.json) — `MCMS-118-P077`
+- [Phase 078: Proton Motive Force, Oxidative Phosphorylation, and ATP Synthase Modeling](phase_metadata/phase_078.json) — `MCMS-118-P078`
+- [Phase 079: Mitochondrial Compartments, Shuttle Systems, Proton Leak, and Uncoupling](phase_metadata/phase_079.json) — `MCMS-118-P079`
+- [Phase 080: ROS, Electron Leak, Oxidative Stress, and Antioxidant Defense](phase_metadata/phase_080.json) — `MCMS-118-P080`
+- [Phase 081: Redox Signaling, Glutathione Cycle, NADPH Defense, and Cell Fate Boundary](phase_metadata/phase_081.json) — `MCMS-118-P081`
+- [Phase 082: Stress Response Networks, NRF2/KEAP1, Thioredoxin, and Redox-Sensitive Switches](phase_metadata/phase_082.json) — `MCMS-118-P082`
+- [Phase 083: Lipid Peroxidation, Membrane Damage, Ferroptosis Boundary, and Repair Systems](phase_metadata/phase_083.json) — `MCMS-118-P083`
+- [Phase 084: Lipid Species Ontology, Membrane Composition, and Chain-Breaking Antioxidant Defense](phase_metadata/phase_084.json) — `MCMS-118-P084`
+- [Phase 085: Cardiolipin, Mitochondrial Membrane Specialization, Lipid Remodeling, and Bioenergetic Coupling](phase_metadata/phase_085.json) — `MCMS-118-P085`
+- [Phase 086: Mitochondrial Quality Control, Dynamics, Mitophagy, and Damage Recovery](phase_metadata/phase_086.json) — `MCMS-118-P086`
+- [Phase 087: Mitochondrial Biogenesis, Lysosomal Capacity, Mitophagy Flux, and Network Renewal](phase_metadata/phase_087.json) — `MCMS-118-P087`
+- [Phase 088: Energy-Demand Sensing, AMPK/mTOR/PGC-1α Biogenesis Control, and Cellular Adaptation](phase_metadata/phase_088.json) — `MCMS-118-P088`
+- [Phase 089: NAD+/SIRT1 Control, Metabolic State, Circadian Coupling, and Biogenesis Fine-Tuning](phase_metadata/phase_089.json) — `MCMS-118-P089`
+- [Phase 090: NAD Consumption Competition, PARP/CD38-Like Load, DNA Repair Demand, and Sirtuin Tradeoff](phase_metadata/phase_090.json) — `MCMS-118-P090`
+- [Phase 091: NAD Compartmentalization, Salvage Pathway, NAMPT/NMN Flow, and Organelle-Specific NAD Pools](phase_metadata/phase_091.json) — `MCMS-118-P091`
+- [Phase 092: NAD Redox Microdomains, NADH Shuttle Coupling, Precursor Branches, and Local Redox Control](phase_metadata/phase_092.json) — `MCMS-118-P092`
+- [Phase 093: Lactate/Pyruvate Redox Fallback, LDH Coupling, NAD+ Regeneration, and Glycolytic Continuity](phase_metadata/phase_093.json) — `MCMS-118-P093`
+- [Phase 094: Lactate Export, Monocarboxylate Transport, pH Coupling, and Intercellular Lactate Shuttle](phase_metadata/phase_094.json) — `MCMS-118-P094`
+- [Phase 095: MCT Isoforms, Cell-Type Lactate Roles, Cori Cycle, and Lactate Signaling Boundary](phase_metadata/phase_095.json) — `MCMS-118-P095`
+- [Phase 096: Astrocyte-Neuron Lactate Shuttle, Brain Energy Coupling, and Local Support Networks](phase_metadata/phase_096.json) — `MCMS-118-P096`
+- [Phase 097: Synaptic Activity, Glutamate Uptake, Astrocyte Na+ Load, and Lactate Production Trigger](phase_metadata/phase_097.json) — `MCMS-118-P097`
+- [Phase 098: Glutamate-Glutamine Cycle, Astrocyte Recycling, Nitrogen Handling, and Excitotoxicity Boundary](phase_metadata/phase_098.json) — `MCMS-118-P098`
+- [Phase 099: GABA-Glutamine Branch, Excitation/Inhibition Balance, Vesicle Recycling, and Receptor Safety Boundary](phase_metadata/phase_099.json) — `MCMS-118-P099`
+- [Phase 100: Synaptic Plasticity, Calcium Gate, LTP/LTD Boundary, and Evidence-Gated Learning Trace](phase_metadata/phase_100.json) — `MCMS-118-P100`
+- [Phase 101: Spike-Timing Plasticity, Metaplasticity Threshold, Neuromodulator Gate, and Late-LTP Boundary](phase_metadata/phase_101.json) — `MCMS-118-P101`
+- [Phase 102: Synaptic Tagging and Capture, Local Protein Synthesis, Spine Remodeling, and Consolidation Boundary](phase_metadata/phase_102.json) — `MCMS-118-P102`
+- [Phase 103: Cross-Capture, Dendritic Branch Competition, Plasticity Resource Allocation, and Homeostatic Scaling](phase_metadata/phase_103.json) — `MCMS-118-P103`
+- [Phase 104: Dendritic Spatial Graph, Synaptic Clustering, Local Calcium Spread, and Branch-Specific Plasticity Domains](phase_metadata/phase_104.json) — `MCMS-118-P104`
+- [Phase 105: Multicompartment Dendritic Tree, Voltage Attenuation, Branch Bifurcation, and Electrical Integration](phase_metadata/phase_105.json) — `MCMS-118-P105`
+- [Phase 106: Temporal Summation, Back-Propagating Action Potentials, Conductance Synapses, and Dendritic Spike Classes](phase_metadata/phase_106.json) — `MCMS-118-P106`
+- [Phase 107: Conductance Kinetics, Membrane Capacitance, Cable Equation Approximation, and Ion Channel Distribution](phase_metadata/phase_107.json) — `MCMS-118-P107`
+- [Phase 108: Hodgkin-Huxley Gate Approximation, Channel State Variables, Calcium Buffering, and Multi-Compartment Solver](phase_metadata/phase_108.json) — `MCMS-118-P108`
+- [Phase 109: Calcium Diffusion, Buffer Mobility, Spine-Neck Compartmentalization, and Local Biochemical Coupling](phase_metadata/phase_109.json) — `MCMS-118-P109`
+- [Phase 110: CaMKII/Calcineurin Switch, Spine Apparatus Calcium Stores, Actin Remodeling, and AMPA Stabilization](phase_metadata/phase_110.json) — `MCMS-118-P110`
+- [Phase 111: PSD Scaffold, AMPA Lateral Diffusion, Receptor Trapping, Synaptic Strength Timer, and Maintenance Boundary](phase_metadata/phase_111.json) — `MCMS-118-P111`
+- [Phase 112: AMPAR Subunits, TARPs/Stargazin, Endocytosis/Exocytosis, Perisynaptic Reserve Pool, and Maintenance Feedback](phase_metadata/phase_112.json) — `MCMS-118-P112`
+- [Phase 113: GluA2/GRIP/PICK1 Trafficking, Recycling Endosomes, PKMζ-Like Maintenance, and Heterosynaptic Receptor Competition](phase_metadata/phase_113.json) — `MCMS-118-P113`
+- [Phase 114: Arc/Arg3.1 Endocytosis, Homeostatic Synaptic Scaling, Receptor Nanodomains, and Spine-Neighborhood Coupling](phase_metadata/phase_114.json) — `MCMS-118-P114`
+- [Phase 115: Arc mRNA Local Translation, Clathrin/AP2 Endocytic Route, Retinoic-Acid/TNF Scaling Signals, and Nanocolumn Alignment](phase_metadata/phase_115.json) — `MCMS-118-P115`
+- [Phase 116: Presynaptic Vesicle Release Probability, Nanocolumn Efficacy, Astrocyte/Microglia Scaling Source Separation, and Synapse-to-Branch Outcome Reconciliation](phase_metadata/phase_116.json) — `MCMS-118-P116`
+- [Phase 117: SNARE/Synaptotagmin Vesicle Fusion, Short-Term Facilitation/Depression, Synchronous/Asynchronous Release, and Tripartite Energy Coupling](phase_metadata/phase_117.json) — `MCMS-118-P117`
+- [Phase 118: Active Zone Scaffold, Munc13/Munc18 Priming, RIM/RIM-BP/CaV Coupling, Vesicle Stochasticity, and Quantal Release Variability](phase_metadata/phase_118.json) — `MCMS-118-P118`
+- [Phase 119: Multi-Release-Site Active Zone, Vesicle Position Grid, CaV Subtype Specificity, Monte Carlo Release Trace, and Postsynaptic Waveform Coupling](phase_metadata/phase_119.json) — `MCMS-118-P119`
+- [Phase 120: Neurotransmitter Cleft Diffusion, AMPA/NMDA Receptor Binding Kinetics, Stochastic Receptor Activation, and Postsynaptic Current/Voltage Waveform Split](phase_metadata/phase_120.json) — `MCMS-118-P120`
+- [Phase 121: Receptor-State Markov Chains, PSD Spatial Receptor Field, AMPA Desensitization Recovery, NMDA Subunit Kinetics, and Dendritic Cable Waveform Propagation](phase_metadata/phase_121.json) — `MCMS-118-P121`
+- [Phase 122: Inhibitory GABA-A/GABA-B Receptor-State Chains, Chloride Gradient, Shunting Inhibition, Excitation/Inhibition Waveform Balance, and Soma-to-Axon Spike Initiation Boundary](phase_metadata/phase_122.json) — `MCMS-118-P122`
+- [Phase 123: Chloride Transporters, KCC2/NKCC1 Homeostasis, Perisomatic/Dendritic/AIS Inhibition Placement, Refractory Period, and Spike-Train Generation](phase_metadata/phase_123.json) — `MCMS-118-P123`
+- [Phase 124: Interneuron Subtype Routing, PV/SOM/VIP/Chandelier Circuit Motifs, Conductance-Based Spike Waveform, Sodium Inactivation, Potassium Recovery, and Axonal Propagation](phase_metadata/phase_124.json) — `MCMS-118-P124`
+- [Phase 125: Recurrent E/I Circuit Loop, Layer-Specific Routing, Synaptic Delay, Node-of-Ranvier Propagation, Axon Collateral Branching, and Population Firing Boundary](phase_metadata/phase_125.json) — `MCMS-118-P125`
+- [Phase 126: Recurrent Graph Simulator, Edge-Specific Synaptic Weights, STDP-Like Timing Plasticity, Neuromodulator Gain Control, Population Homeostasis, and Oscillation Band Classifier](phase_metadata/phase_126.json) — `MCMS-118-P126`
+- [Phase 127: Multi-Timescale Plasticity Stack, Structural Rewiring, Sleep/Replay Offline Phase, Sensory Input Stream Adapter, and Closed-Loop Action Policy Boundary](phase_metadata/phase_127.json) — `MCMS-118-P127`
+- [Phase 128: Persistent Graph Memory, Trace Compression/Forgotten-State Policy, Conflict-Aware Replay Selection, Action-Effect Feedback Receipts, Environment State Model, and Closed-Loop Governance Ledger](phase_metadata/phase_128.json) — `MCMS-118-P128`
+- [Phase 129: Storage Adapter Layer, SQLite/Postgres/Object Store Persistence, Cryptographic Signatures, Multi-Operator Approval, Ledger Checkpoints, Restore Drill, Conflict Repair Workflow, and Audit Dashboard](phase_metadata/phase_129.json) — `MCMS-118-P129`
+- [Phase 130: RBAC Security Boundary, Migration Runner CLI, Backup Scheduler, Restore Sandbox Isolation, WebAuthn Operator Signing, Health Checks, Deployment Readiness, and Audit Dashboard UI](phase_metadata/phase_130.json) — `MCMS-118-P130`
+- [Phase 131: Session Management, Credential Recovery, ABAC Policy Engine, Rate-Limit/Abuse Protection, Secret Rotation, Deployment Manifests, Container Health Probes, and Release Promotion Pipeline](phase_metadata/phase_131.json) — `MCMS-118-P131`
+- [Phase 132: Policy Language Adapter, OPA/Rego Bridge, Secret Manager Integration, CI/CD Provider Adapter, Signed Artifact/SBOM Gate, Incident Response Workflow, and Release Evidence Bundle](phase_metadata/phase_132.json) — `MCMS-118-P132`
+- [Phase 133: Real OPA Eval Adapter, Secret Manager Connectors, GitHub Actions Adapter, Sigstore/Cosign Verification, SBOM Schema Validation, SARIF Ingestion, Waiver Workflow, SLSA Provenance Classifier, and Evidence Bundle Export](phase_metadata/phase_133.json) — `MCMS-118-P133`
+- [Phase 134: Adapter Execution Runtime, Provider Client Implementations, JSON Schema Validator, SARIF Rule Suppression Mapping, Persistent Waiver Ledger, Signed Evidence Archive Writer, Release Evidence UI, and Promotion Replay Simulator](phase_metadata/phase_134.json) — `MCMS-118-P134`
+- [Phase 135: Adapter Sandbox Policy, HTTP Retry/Backoff Client, GitHub Pagination/ETag Cache, Structured Cosign Output Parser, Full JSONSchema Binding, SARIF Severity Taxonomy, Signed Waiver Entries, Compressed Evidence Archive, and Environment Snapshot Replay](phase_metadata/phase_135.json) — `MCMS-118-P135`

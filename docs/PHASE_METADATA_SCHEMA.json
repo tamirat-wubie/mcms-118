@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/mcms/phase-metadata.schema.json",
+  "title": "MCMS Phase Metadata",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_id",
+    "slug",
+    "title",
+    "status",
+    "maturity",
+    "domain",
+    "layer",
+    "objective",
+    "capability_chain",
+    "boundary",
+    "blocked_claims",
+    "invariants",
+    "claim_types",
+    "evidence_policy",
+    "risk_profile",
+    "artifacts",
+    "modules",
+    "module_count",
+    "status_vocabulary",
+    "inputs",
+    "outputs",
+    "implementation_truth",
+    "upgrade_path",
+    "audit_metadata",
+    "project_identity",
+    "standards_profile",
+    "canonical_identifiers"
+  ],
+  "properties": {
+    "phase": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "phase_id": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "maturity": {
+      "type": "object"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "layer": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "capability_chain": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "boundary": {
+      "type": "string"
+    },
+    "blocked_claims": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "claim_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts": {
+      "type": "object"
+    },
+    "project_identity": {
+      "type": "object"
+    },
+    "standards_profile": {
+      "type": "object"
+    },
+    "canonical_identifiers": {
+      "type": "object"
+    }
+  }
+}

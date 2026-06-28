@@ -1,0 +1,219 @@
+{
+  "phase": 78,
+  "phase_id": "MCMS-118-P078",
+  "slug": "proton-motive-force-oxidative-phosphorylation-and-atp-synthase-modeling",
+  "title": "Proton Motive Force, Oxidative Phosphorylation, and ATP Synthase Modeling",
+  "status": "documented blueprint",
+  "maturity": {
+    "level": "M0",
+    "description": "blueprint metadata documented",
+    "test_state": "not module-tested in this scaffold",
+    "ladder": {
+      "M0": "concept / blueprint documented",
+      "M1": "module contract or scaffold implemented",
+      "M2": "tests pass for contract behavior",
+      "M3": "persisted with receipts",
+      "M4": "signed / governed",
+      "M5": "API exposed",
+      "M6": "dashboard visible",
+      "M7": "demo-ready",
+      "M8": "production-engineering-ready"
+    }
+  },
+  "domain": "thermodynamics, kinetics, metabolism, redox, and bioenergetics",
+  "layer": "bioenergetic redox, oxidative stress, lipids, and mitochondrial quality",
+  "objective": "Model, govern, and audit: Proton Motive Force \u2192 Oxidative Phosphorylation \u2192 and ATP Synthase Modeling.",
+  "capability_chain": [
+    "Proton Motive Force",
+    "Oxidative Phosphorylation",
+    "and ATP Synthase Modeling"
+  ],
+  "keywords": [
+    "proton",
+    "motive",
+    "force",
+    "oxidative",
+    "phosphorylation",
+    "and",
+    "atp",
+    "synthase",
+    "modeling"
+  ],
+  "relationships": {
+    "previous_phase": 77,
+    "next_phase": 79,
+    "depends_on": [
+      77
+    ],
+    "unlocks": [
+      79
+    ]
+  },
+  "boundary": "Symbolic matter, biochemical/bioelectrical graph, governance, release-evidence, and deployment-engineering modeling only. This phase does not claim medical, neurological, cognitive, diagnostic, treatment, legal compliance, security certification, customer readiness, financial-operation readiness, or autonomous real-world-action approval.",
+  "blocked_claims": [
+    "medical_claim",
+    "neurological_or_cognitive_claim",
+    "diagnostic_or_treatment_claim",
+    "legal_compliance_claim",
+    "security_certified_claim",
+    "production_customer_ready_claim",
+    "financial_operation_claim",
+    "autonomous_real_world_action_claim"
+  ],
+  "invariants": [
+    "Evidence cannot silently upgrade itself.",
+    "Computed values cannot be emitted as measured facts.",
+    "Predictions remain predictions until separately verified.",
+    "Unknown or weak evidence remains unresolved.",
+    "Receipts are append-only and hash-addressed.",
+    "High-risk actions require policy, approval, and receipt gates.",
+    "Protected traces cannot be silently forgotten.",
+    "Secrets must not be materialized into receipts or logs.",
+    "Blocked claims stay blocked even when modules succeed.",
+    "Demo readiness and production readiness are separate states."
+  ],
+  "claim_types": [
+    "observed_fact",
+    "source_backed_claim",
+    "computed_result",
+    "symbolic_simulation",
+    "prediction",
+    "proposal",
+    "governance_marker",
+    "blocked_claim",
+    "unknown"
+  ],
+  "evidence_policy": {
+    "minimum_source_backed_evidence_strength": 0.7,
+    "weak_evidence_status": "evidence_required",
+    "computed_result_rule": "computed results cannot be promoted to measured facts without source-backed evidence",
+    "prediction_rule": "predictions remain predictions until separate observation/verification receipts exist",
+    "secret_rule": "secret values must never be written into receipts, logs, docs, or exports"
+  },
+  "risk_profile": {
+    "primary_risk": "biological/cognitive overclaiming and symbolic-vs-real-world confusion",
+    "default_posture": "deny high-risk claims/actions by default",
+    "requires_review_when": [
+      "evidence_strength < 0.7",
+      "risk_score >= 0.8",
+      "action is high-risk",
+      "signature/checkpoint/restore evidence is missing",
+      "output attempts a blocked claim"
+    ]
+  },
+  "artifacts": {
+    "phase_doc": "docs/phases/phase_078.md",
+    "phase_metadata_json": "docs/phase_metadata/phase_078.json",
+    "registry": "docs/PHASE_REGISTRY.json",
+    "modules": [],
+    "tests": [],
+    "api_endpoints": [
+      "GET /v1/mcms/phases/078",
+      "GET /v1/mcms/phases/078/metadata"
+    ],
+    "data_tables": [
+      "phase_078_receipts",
+      "phase_078_evidence",
+      "phase_078_claims",
+      "phase_078_audit_events"
+    ]
+  },
+  "modules": [],
+  "module_count": 0,
+  "status_vocabulary": [
+    "supported",
+    "evidence_required",
+    "insufficient_data",
+    "safety_boundary",
+    "conflict_detected",
+    "review_required",
+    "blocked_claim"
+  ],
+  "inputs": {
+    "minimum_common_fields": [
+      "subject_key",
+      "evidence_strength",
+      "risk_score",
+      "payload"
+    ],
+    "phase_specific_inputs": [
+      "Proton Motive Force",
+      "Oxidative Phosphorylation",
+      "and ATP Synthase Modeling"
+    ]
+  },
+  "outputs": {
+    "minimum_common_fields": [
+      "phase",
+      "module",
+      "status",
+      "allowed_claim",
+      "blocked_claims",
+      "evidence_strength",
+      "payload_hash",
+      "explanation"
+    ],
+    "phase_specific_outputs": [
+      "proton-motive-force-oxidative-phosphorylation-and-atp-synthase-modeling_marker",
+      "proton-motive-force-oxidative-phosphorylation-and-atp-synthase-modeling_boundary",
+      "proton-motive-force-oxidative-phosphorylation-and-atp-synthase-modeling_receipt"
+    ]
+  },
+  "implementation_truth": "Blueprint phase: metadata, boundary, and traceability are included; implementation modules are intentionally not generated in this scaffold.",
+  "upgrade_path": [
+    "replace scaffold logic with domain-specific implementation",
+    "add focused invariant tests",
+    "add persistence receipts",
+    "add signature/governance checks",
+    "expose API endpoint",
+    "surface dashboard card",
+    "create demo fixture",
+    "run release evidence gate before promotion"
+  ],
+  "audit_metadata": {
+    "metadata_schema_version": "1.0.0",
+    "generated_at": "2026-06-28T00:00:00-04:00",
+    "source": "MCMS-118 conversation phase compilation",
+    "package": "mcms-118-standard-github",
+    "maintainer_note": "All metadata is explicit so future implementations can be audited against the phase contract.",
+    "naming_standard_version": "NS-1.0.0"
+  },
+  "project_identity": {
+    "project_code": "MCMS-118",
+    "canonical_name": "MCMS-118 \u2014 Causal Matter Standard",
+    "formal_name": "Mullusi Causal Matter Standard",
+    "short_name": "MCMS-118",
+    "repository_name": "mcms-118",
+    "distribution_name": "mcms-118",
+    "python_import_namespace": "mcms",
+    "cli_name": "mcms",
+    "organization": "Mullusi",
+    "owner": "Tamirat Wube",
+    "default_branch": "main",
+    "license": "Apache-2.0",
+    "version": "0.1.0",
+    "naming_standard_version": "NS-1.0.0"
+  },
+  "standards_profile": {
+    "metadata_schema_version": "1.1.0",
+    "phase_id_pattern": "MCMS-118-P{phase:03d}",
+    "phase_doc_pattern": "docs/phases/phase_{phase:03d}.md",
+    "phase_metadata_pattern": "docs/phase_metadata/phase_{phase:03d}.json",
+    "module_path_pattern": "src/mcms/{domain}/{snake_case_module}.py",
+    "test_path_pattern": "tests/test_{snake_case_module}.py",
+    "receipt_policy": "append-only hash-addressed receipts",
+    "policy_posture": "deny by default for high-risk actions and blocked claims",
+    "claim_boundary": "claim type must be explicit: observed_fact, source_backed_claim, computed_result, symbolic_simulation, prediction, proposal, governance_marker, blocked_claim, unknown",
+    "demo_vs_production": "demo-ready and production-engineering-ready are separate states",
+    "secret_policy": "secret values must never be materialized into docs, logs, receipts, or exported evidence",
+    "code_style": "PEP 8, type hints where useful, pytest tests, src-layout package",
+    "docs_style": "Markdown docs, JSON metadata, machine-readable registries"
+  },
+  "canonical_identifiers": {
+    "phase_id": "MCMS-118-P078",
+    "phase_doc": "docs/phases/phase_078.md",
+    "phase_metadata_json": "docs/phase_metadata/phase_078.json",
+    "api_metadata_endpoint": "GET /v1/mcms/phases/078/metadata",
+    "receipt_table": "phase_078_receipts"
+  }
+}
