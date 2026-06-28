@@ -61,7 +61,14 @@ def test_schema_bundle_exposes_both_contracts():
 
 
 def test_element_schema_cli_prints_valid_bundle(capsys):
-    cmd_elements(symbol=None, list_only=False, full_snapshot=False, schema_name="bundle")
+    cmd_elements(
+        symbol=None,
+        list_only=False,
+        full_snapshot=False,
+        schema_name="bundle",
+        graph_export=False,
+        relation_type=None,
+    )
     output = json.loads(capsys.readouterr().out)
     assert output["$id"].endswith("/schema-bundle.json")
     assert "mullu_standard_symbolic_element" in output["schemas"]

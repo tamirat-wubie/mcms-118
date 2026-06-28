@@ -81,6 +81,7 @@ python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
 python -m mcms.cli elements --schema bundle
+python -m mcms.cli elements --graph --symbol Zn --relation same_block
 python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
@@ -96,6 +97,7 @@ python -m mcms.cli demo
 python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
 python -m mcms.cli elements --schema bundle
+python -m mcms.cli elements --graph --symbol Zn --relation same_block
 python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 

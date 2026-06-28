@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from mcms.elements import (  # noqa: E402
+    build_element_relation_graph,
     element_seed_json_schema,
     element_snapshot_json_schema,
     get_seed_element,
@@ -61,6 +62,10 @@ def main() -> None:
     Draft202012Validator.check_schema(snapshot_schema)
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
     snapshot_schema_validator.validate(json.loads(json.dumps(get_snapshot_record("La").to_dict())))
+    zinc_block_graph = build_element_relation_graph("Zn", relation_type="same_block")
+    assert zinc_block_graph.graph_status == "element_relation_graph_exported", zinc_block_graph
+    assert zinc_block_graph.query["node_count"] == 10, zinc_block_graph.query
+    assert zinc_block_graph.query["edge_count"] == 9, zinc_block_graph.query
     for phase in phases:
         missing = REQUIRED_KEYS - set(phase)
         assert not missing, (phase["phase"], sorted(missing))

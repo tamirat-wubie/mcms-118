@@ -124,6 +124,8 @@ python -m mcms.cli elements --full --symbol Og
 python -m mcms.cli elements --schema seed
 python -m mcms.cli elements --schema snapshot
 python -m mcms.cli elements --schema bundle
+python -m mcms.cli elements --graph
+python -m mcms.cli elements --graph --symbol Zn --relation same_block
 ```
 
 ## Validation
@@ -169,6 +171,22 @@ python scripts/verify_repo.py
 python -m pytest tests/test_element_schemas.py -q
 ```
 
+## Relation Graph Export
+
+The element engine exports Level 1 relation graphs from declared same-group,
+same-period, and same-block edges. Graph export is source-bounded to seed records;
+snapshot-only elements are not assigned inferred graph edges.
+
+| Query | Command | Result |
+| --- | --- | --- |
+| Full Level 1 graph | `python -m mcms.cli elements --graph` | All seed nodes and declared edges |
+| Element graph | `python -m mcms.cli elements --graph --symbol Zn` | Zinc plus directly related target nodes |
+| Typed relation graph | `python -m mcms.cli elements --graph --symbol Zn --relation same_block` | Zinc d-block neighborhood |
+
+The repository verifier checks the Zinc same-block graph query, and focused graph
+tests cover full graph export, filtered export, rejection of unknown relation
+types, and CLI JSON output.
+
 ## Source Drift Check
 
 The snapshot has an explicit CIAAW drift checker. The checker compares the local
@@ -204,6 +222,7 @@ Drift statuses:
 | Unchecked data -> validation receipt | Every exposed seed can emit a stable hash and validation status |
 | Static source snapshot -> drift-checkable source boundary | CIAAW source changes now produce explicit drift reports |
 | Python object contract -> JSON Schema contract | Seed and snapshot records can now be exported and externally validated |
+| Embedded relation edges -> graph export | Element relation queries now produce deterministic node and edge payloads |
 
 ## Fracture Deltas Avoided
 
@@ -225,4 +244,4 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add graph export for element relation queries.
+2. Add a local API surface for element lookup, schemas, and graph queries.

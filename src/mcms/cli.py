@@ -6,7 +6,9 @@ import json
 from mcms.core.boundaries import compile_claim_boundary
 from mcms.core.phases import latest_phase, load_phase_registry
 from mcms.elements import (
+    VALID_RELATION_TYPES,
     build_element_receipt,
+    build_element_relation_graph,
     build_snapshot_receipt,
     element_schema_bundle,
     element_seed_json_schema,
@@ -37,6 +39,8 @@ def cmd_elements(
     list_only: bool,
     full_snapshot: bool,
     schema_name: str | None,
+    graph_export: bool,
+    relation_type: str | None,
 ) -> None:
     if schema_name:
         schema_builders = {
@@ -45,6 +49,10 @@ def cmd_elements(
             "bundle": element_schema_bundle,
         }
         print(json.dumps(schema_builders[schema_name](), indent=2, sort_keys=True))
+        return
+    if graph_export:
+        graph = build_element_relation_graph(identifier=symbol, relation_type=relation_type)
+        print(json.dumps(graph.to_dict(), indent=2, sort_keys=True))
         return
     if full_snapshot:
         if list_only:
@@ -120,13 +128,23 @@ def main(argv: list[str] | None = None) -> None:
         choices=("seed", "snapshot", "bundle"),
         help="Print the JSON Schema contract for seed records, snapshot records, or both",
     )
+    elements_parser.add_argument(
+        "--graph",
+        action="store_true",
+        help="Print the Level 1 element relation graph, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
+        "--relation",
+        choices=tuple(sorted(VALID_RELATION_TYPES)),
+        help="Filter graph export by relation type",
+    )
     args = parser.parse_args(argv)
     if args.cmd == "demo":
         cmd_demo()
     elif args.cmd == "phases":
         cmd_phases()
     elif args.cmd == "elements":
-        cmd_elements(args.symbol, args.list, args.full, args.schema)
+        cmd_elements(args.symbol, args.list, args.full, args.schema, args.graph, args.relation)
 
 
 if __name__ == "__main__":

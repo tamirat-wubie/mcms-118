@@ -5,7 +5,14 @@ Dependencies: local dataclass models and deterministic seed-pack builders.
 Invariants: element identity is proton-count anchored; validation never mutates records.
 """
 
+from mcms.elements.graph import (
+    ElementGraphEdge,
+    ElementGraphNode,
+    ElementRelationGraph,
+    build_element_relation_graph,
+)
 from mcms.elements.model import (
+    VALID_RELATION_TYPES,
     AtomicWeightModel,
     ElementExposure,
     ElementHistory,
@@ -40,17 +47,22 @@ from mcms.elements.snapshot import (
 __all__ = [
     "AtomicWeightModel",
     "ElementExposure",
+    "ElementGraphEdge",
+    "ElementGraphNode",
     "ElementHistory",
     "ElementIdentity",
     "ElementLaws",
     "ElementRelationEdge",
+    "ElementRelationGraph",
     "ElementSeedPackValidationResult",
     "ElementSnapshotValidationResult",
     "ElementState",
     "ElementSourceSnapshotRecord",
     "MulluStandardSymbolicElement",
     "SourceReference",
+    "VALID_RELATION_TYPES",
     "build_element_receipt",
+    "build_element_relation_graph",
     "build_snapshot_receipt",
     "element_schema_bundle",
     "element_seed_json_schema",

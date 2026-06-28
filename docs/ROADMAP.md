@@ -46,8 +46,8 @@ M8 = production-engineering-ready
 6. MSPEE first-36 element seed pack
 7. Full 118-element source snapshot workflow with source-drift check
 8. JSON Schema export for element and snapshot records
-9. Local API
-10. Dashboard
-11. Real provider adapters
-12. Graph export for element relation queries
+9. Graph export for element relation queries
+10. Local API
+11. Dashboard
+12. Real provider adapters
 ```
