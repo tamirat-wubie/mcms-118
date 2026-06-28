@@ -52,6 +52,7 @@ M8 = production-engineering-ready
 12. Level 2 oxidation-state and electronegativity boundaries
 13. Sourced Level 2 chemistry values for the first 36 elements
 14. Source drift check for Level 2 chemistry values
-15. Extend Level 2 chemistry values beyond Krypton
-16. Real provider adapters
+15. Ionization-energy and bond-tendency boundary contracts
+16. Sourced first-ionization-energy values for the first 36 elements
+17. Real provider adapters
 ```

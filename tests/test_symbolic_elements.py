@@ -129,6 +129,49 @@ def test_level_2_chemistry_boundaries_validate_oxidation_and_electronegativity_f
     assert any("[0.0, 5.0]" in error for error in out_of_range_electronegativity.validate())
 
 
+def test_level_2_chemistry_boundaries_validate_ionization_and_bond_tendency_fields():
+    zinc = get_seed_element("Zn")
+    valid_level_2_state = replace(
+        zinc.state,
+        first_ionization_energy_ev=9.39,
+        first_ionization_energy_source_key="level_2_reference_seed",
+        bond_tendency_tags=("metallic_bonding", "coordination_complex"),
+        bond_tendency_source_key="level_2_reference_seed",
+        data_level=2,
+    )
+    missing_ionization_source = replace(
+        valid_level_2_state,
+        first_ionization_energy_source_key=None,
+    )
+    out_of_range_ionization = replace(
+        valid_level_2_state,
+        first_ionization_energy_ev=30.1,
+    )
+    duplicate_bond_tags = replace(
+        valid_level_2_state,
+        bond_tendency_tags=("metallic_bonding", "metallic_bonding"),
+    )
+    unknown_bond_tag = replace(
+        valid_level_2_state,
+        bond_tendency_tags=("unsupported_bond_claim",),
+    )
+    missing_bond_source = replace(
+        valid_level_2_state,
+        bond_tendency_source_key=None,
+    )
+    source_without_bond_tags = replace(
+        valid_level_2_state,
+        bond_tendency_tags=(),
+    )
+    assert valid_level_2_state.validate() == []
+    assert any("source key is required" in error for error in missing_ionization_source.validate())
+    assert any("[0.0, 30.0] eV" in error for error in out_of_range_ionization.validate())
+    assert any("duplicates" in error for error in duplicate_bond_tags.validate())
+    assert any("bond tendency tag is unknown" in error for error in unknown_bond_tag.validate())
+    assert any("source key is required" in error for error in missing_bond_source.validate())
+    assert any("tags are required" in error for error in source_without_bond_tags.validate())
+
+
 def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     source_key = "pubchem_periodic_table_properties"
     seed_symbols = [element.identity.symbol for element in list_seed_elements()]
@@ -157,6 +200,8 @@ def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     assert titanium.state.electronegativity_value == 1.54
     assert zinc.state.oxidation_states == (2,)
     assert zinc.state.electronegativity_value == 1.65
+    assert zinc.state.first_ionization_energy_ev is None
+    assert zinc.state.bond_tendency_tags == ()
     assert krypton.state.oxidation_states == (0,)
     assert krypton.state.electronegativity_value == 3.00
     assert all(get_seed_element(symbol).validate() == [] for symbol in seed_symbols)

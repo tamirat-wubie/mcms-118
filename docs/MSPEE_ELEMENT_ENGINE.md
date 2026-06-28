@@ -34,7 +34,7 @@ snapshot for all 118 named elements.
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
-| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state and Pauling electronegativity values implemented for Z=1..36; broader fields planned |
+| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state and Pauling electronegativity values implemented for Z=1..36; ionization-energy and bond-tendency boundaries implemented without sourced values |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
@@ -88,11 +88,17 @@ Level 2 chemistry values for H through Kr:
 | `electronegativity_scale` | `null` or `pauling` |
 | `electronegativity_value` | `null` or number in `[0.0, 5.0]`; populated from PubChem when available |
 | `electronegativity_source_key` | Required when electronegativity value is present |
+| `first_ionization_energy_ev` | `null` or number in `[0.0, 30.0]`; source-backed value planned |
+| `first_ionization_energy_source_key` | Required when first ionization energy value is present |
+| `bond_tendency_tags` | Controlled tag list; empty until source-backed bond-tendency claims are added |
+| `bond_tendency_source_key` | Required when bond tendency tags are present |
 
 Electronegativity is accepted only as a complete sourced tuple: scale, value, and
 source key must all be present together or all be absent. Oxidation states are
-source-backed through the element history. The JSON Schema export and Python
-validator enforce the same boundary.
+source-backed through the element history. First ionization energy is accepted only
+as a complete sourced value/source-key pair. Bond tendency is accepted only as a
+controlled, duplicate-free tag list with a source key. The JSON Schema export and
+Python validator enforce the same boundaries.
 
 ## Full Source Snapshot
 
@@ -133,7 +139,8 @@ Input:
    neutral electron count equals atomic number
    weight model is typed
    valence count is within the block-specific Level 1 bound
-   Level 2 fields stay inside oxidation/electronegativity boundaries
+   Level 2 fields stay inside oxidation, electronegativity, first-ionization-energy,
+   and bond-tendency boundaries
    first-36 Level 2 records carry PubChem lineage
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
@@ -318,6 +325,7 @@ Drift statuses:
 | Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
 | Planned Level 2 fields -> bounded contract | Oxidation-state and electronegativity fields now reject invalid values |
 | Bounded Level 2 fields -> sourced first-36 values | H through Kr now carry PubChem-backed oxidation-state and electronegativity values |
+| Planned ionization/bond fields -> bounded contract | First-ionization-energy and bond-tendency claims now reject invalid or unsourced values |
 
 ## Fracture Deltas Avoided
 
@@ -340,5 +348,5 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Extend sourced Level 2 chemistry values beyond Krypton.
-2. Add ionization-energy and bond-tendency boundary contracts.
+1. Add sourced first-ionization-energy values for the first 36 seed elements.
+2. Add source-backed bond-tendency classifications.

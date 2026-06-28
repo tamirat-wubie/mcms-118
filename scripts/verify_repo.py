@@ -74,6 +74,8 @@ def main() -> None:
     assert calcium.state.oxidation_states == (2,), calcium.state
     assert zinc.state.oxidation_states == (2,), zinc.state
     assert zinc.state.electronegativity_value == 1.65, zinc.state
+    assert zinc.state.first_ionization_energy_ev is None, zinc.state
+    assert zinc.state.bond_tendency_tags == (), zinc.state
     assert krypton.state.oxidation_states == (0,), krypton.state
     assert krypton.state.electronegativity_value == 3.00, krypton.state
     level_2_zinc_payload = json.loads(json.dumps(get_seed_element("Zn").to_dict()))

@@ -72,6 +72,15 @@ def _element_card(element: MulluStandardSymbolicElement) -> dict[str, Any]:
             "value": element.state.electronegativity_value,
             "source_key": element.state.electronegativity_source_key,
         },
+        "first_ionization_energy": {
+            "unit": "eV",
+            "value": element.state.first_ionization_energy_ev,
+            "source_key": element.state.first_ionization_energy_source_key,
+        },
+        "bond_tendency": {
+            "tags": list(element.state.bond_tendency_tags),
+            "source_key": element.state.bond_tendency_source_key,
+        },
         "validation_status": receipt["validation_status"],
         "element_hash": receipt["element_hash"],
         "source_keys": list(receipt["source_keys"]),

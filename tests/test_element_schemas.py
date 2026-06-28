@@ -43,6 +43,10 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
                 "electronegativity_scale": "pauling",
                 "electronegativity_value": 1.65,
                 "electronegativity_source_key": "level_2_reference_seed",
+                "first_ionization_energy_ev": 9.39,
+                "first_ionization_energy_source_key": "level_2_reference_seed",
+                "bond_tendency_tags": ["metallic_bonding", "coordination_complex"],
+                "bond_tendency_source_key": "level_2_reference_seed",
                 "data_level": 2,
             },
         }
@@ -71,15 +75,53 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
             },
         }
     )
+    incomplete_ionization_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "first_ionization_energy_source_key": None,
+            },
+        }
+    )
+    duplicate_bond_tendency_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "bond_tendency_tags": ["metallic_bonding", "metallic_bonding"],
+            },
+        }
+    )
+    unknown_bond_tendency_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "bond_tendency_tags": ["unsupported_bond_claim"],
+            },
+        }
+    )
     validator.validate(valid_level_2_payload)
     assert valid_level_2_payload["state"]["data_level"] == 2
     assert valid_level_2_payload["state"]["electronegativity_scale"] == "pauling"
+    assert valid_level_2_payload["state"]["first_ionization_energy_ev"] == 9.39
+    assert valid_level_2_payload["state"]["bond_tendency_tags"] == [
+        "metallic_bonding",
+        "coordination_complex",
+    ]
     with pytest.raises(ValidationError):
         validator.validate(duplicate_oxidation_payload)
     with pytest.raises(ValidationError):
         validator.validate(incomplete_electronegativity_payload)
     with pytest.raises(ValidationError):
         validator.validate(out_of_range_electronegativity_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(incomplete_ionization_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(duplicate_bond_tendency_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(unknown_bond_tendency_payload)
 
 
 def test_element_seed_schema_validates_promoted_seed_pack_level_2_record():

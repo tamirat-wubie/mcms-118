@@ -12,9 +12,12 @@ from copy import deepcopy
 from mcms.elements.model import (
     ELECTRONEGATIVITY_MAX,
     ELECTRONEGATIVITY_MIN,
+    FIRST_IONIZATION_ENERGY_MAX_EV,
+    FIRST_IONIZATION_ENERGY_MIN_EV,
     OXIDATION_STATE_MAX,
     OXIDATION_STATE_MIN,
     VALID_BLOCKS,
+    VALID_BOND_TENDENCY_TAGS,
     VALID_ELECTRONEGATIVITY_SCALES,
     VALID_RELATION_TYPES,
     VALID_WEIGHT_MODEL_TYPES,
@@ -140,32 +143,91 @@ def _element_defs() -> dict:
         "ElementState": {
             "type": "object",
             "additionalProperties": False,
-            "oneOf": [
+            "allOf": [
                 {
-                    "properties": {
-                        "electronegativity_scale": {"type": "null"},
-                        "electronegativity_value": {"type": "null"},
-                        "electronegativity_source_key": {"type": "null"},
-                    }
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "electronegativity_scale": {"type": "null"},
+                                "electronegativity_value": {"type": "null"},
+                                "electronegativity_source_key": {"type": "null"},
+                            }
+                        },
+                        {
+                            "properties": {
+                                "electronegativity_scale": {
+                                    "type": "string",
+                                    "enum": sorted(VALID_ELECTRONEGATIVITY_SCALES),
+                                },
+                                "electronegativity_value": {
+                                    "type": "number",
+                                    "minimum": ELECTRONEGATIVITY_MIN,
+                                    "maximum": ELECTRONEGATIVITY_MAX,
+                                },
+                                "electronegativity_source_key": {"type": "string", "minLength": 1},
+                            },
+                            "required": [
+                                "electronegativity_scale",
+                                "electronegativity_value",
+                                "electronegativity_source_key",
+                            ],
+                        },
+                    ]
                 },
                 {
-                    "properties": {
-                        "electronegativity_scale": {
-                            "type": "string",
-                            "enum": sorted(VALID_ELECTRONEGATIVITY_SCALES),
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "first_ionization_energy_ev": {"type": "null"},
+                                "first_ionization_energy_source_key": {"type": "null"},
+                            }
                         },
-                        "electronegativity_value": {
-                            "type": "number",
-                            "minimum": ELECTRONEGATIVITY_MIN,
-                            "maximum": ELECTRONEGATIVITY_MAX,
+                        {
+                            "properties": {
+                                "first_ionization_energy_ev": {
+                                    "type": "number",
+                                    "minimum": FIRST_IONIZATION_ENERGY_MIN_EV,
+                                    "maximum": FIRST_IONIZATION_ENERGY_MAX_EV,
+                                },
+                                "first_ionization_energy_source_key": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                },
+                            },
+                            "required": [
+                                "first_ionization_energy_ev",
+                                "first_ionization_energy_source_key",
+                            ],
                         },
-                        "electronegativity_source_key": {"type": "string", "minLength": 1},
-                    },
-                    "required": [
-                        "electronegativity_scale",
-                        "electronegativity_value",
-                        "electronegativity_source_key",
-                    ],
+                    ]
+                },
+                {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "bond_tendency_tags": {"type": "array", "maxItems": 0},
+                                "bond_tendency_source_key": {"type": "null"},
+                            }
+                        },
+                        {
+                            "properties": {
+                                "bond_tendency_tags": {
+                                    "type": "array",
+                                    "uniqueItems": True,
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "string",
+                                        "enum": sorted(VALID_BOND_TENDENCY_TAGS),
+                                    },
+                                },
+                                "bond_tendency_source_key": {"type": "string", "minLength": 1},
+                            },
+                            "required": [
+                                "bond_tendency_tags",
+                                "bond_tendency_source_key",
+                            ],
+                        },
+                    ]
                 },
             ],
             "required": [
@@ -182,6 +244,10 @@ def _element_defs() -> dict:
                 "electronegativity_scale",
                 "electronegativity_value",
                 "electronegativity_source_key",
+                "first_ionization_energy_ev",
+                "first_ionization_energy_source_key",
+                "bond_tendency_tags",
+                "bond_tendency_source_key",
                 "behavior_tags",
                 "relation_edges",
                 "data_level",
@@ -219,6 +285,21 @@ def _element_defs() -> dict:
                     "maximum": ELECTRONEGATIVITY_MAX,
                 },
                 "electronegativity_source_key": {"type": ["string", "null"]},
+                "first_ionization_energy_ev": {
+                    "type": ["number", "null"],
+                    "minimum": FIRST_IONIZATION_ENERGY_MIN_EV,
+                    "maximum": FIRST_IONIZATION_ENERGY_MAX_EV,
+                },
+                "first_ionization_energy_source_key": {"type": ["string", "null"]},
+                "bond_tendency_tags": {
+                    "type": "array",
+                    "uniqueItems": True,
+                    "items": {
+                        "type": "string",
+                        "enum": sorted(VALID_BOND_TENDENCY_TAGS),
+                    },
+                },
+                "bond_tendency_source_key": {"type": ["string", "null"]},
                 "behavior_tags": _string_array(),
                 "relation_edges": {
                     "type": "array",

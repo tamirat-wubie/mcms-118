@@ -16,10 +16,21 @@ VALID_BLOCKS = {"s", "p", "d", "f"}
 VALID_WEIGHT_MODEL_TYPES = {"interval", "single", "unavailable"}
 VALID_RELATION_TYPES = {"same_group", "same_period", "same_block"}
 VALID_ELECTRONEGATIVITY_SCALES = {"pauling"}
+VALID_BOND_TENDENCY_TAGS = {
+    "coordination_complex",
+    "covalent_bonding",
+    "ionic_bonding",
+    "metallic_bonding",
+    "molecular_covalent",
+    "network_covalent",
+    "noble_gas_low_reactivity",
+}
 OXIDATION_STATE_MIN = -8
 OXIDATION_STATE_MAX = 9
 ELECTRONEGATIVITY_MIN = 0.0
 ELECTRONEGATIVITY_MAX = 5.0
+FIRST_IONIZATION_ENERGY_MIN_EV = 0.0
+FIRST_IONIZATION_ENERGY_MAX_EV = 30.0
 
 
 @dataclass(frozen=True)
@@ -156,6 +167,10 @@ class ElementState:
     electronegativity_scale: str | None = None
     electronegativity_value: float | None = None
     electronegativity_source_key: str | None = None
+    first_ionization_energy_ev: float | None = None
+    first_ionization_energy_source_key: str | None = None
+    bond_tendency_tags: tuple[str, ...] = ()
+    bond_tendency_source_key: str | None = None
     behavior_tags: tuple[str, ...] = ()
     relation_edges: tuple[ElementRelationEdge, ...] = ()
     data_level: int = 1
@@ -213,6 +228,32 @@ class ElementState:
                 )
             if not self.electronegativity_source_key:
                 errors.append("electronegativity source key is required when value is present.")
+        ionization_energy_fields = (
+            self.first_ionization_energy_ev,
+            self.first_ionization_energy_source_key,
+        )
+        if any(value is not None for value in ionization_energy_fields):
+            if self.first_ionization_energy_ev is None:
+                errors.append("first ionization energy value is required when source key is present.")
+            elif (
+                self.first_ionization_energy_ev < FIRST_IONIZATION_ENERGY_MIN_EV
+                or self.first_ionization_energy_ev > FIRST_IONIZATION_ENERGY_MAX_EV
+            ):
+                errors.append(
+                    "first ionization energy value must be in "
+                    f"[{FIRST_IONIZATION_ENERGY_MIN_EV}, {FIRST_IONIZATION_ENERGY_MAX_EV}] eV."
+                )
+            if not self.first_ionization_energy_source_key:
+                errors.append("first ionization energy source key is required when value is present.")
+        if len(set(self.bond_tendency_tags)) != len(self.bond_tendency_tags):
+            errors.append("bond tendency tags must not contain duplicates.")
+        for bond_tendency_tag in self.bond_tendency_tags:
+            if bond_tendency_tag not in VALID_BOND_TENDENCY_TAGS:
+                errors.append("bond tendency tag is unknown.")
+        if self.bond_tendency_tags and not self.bond_tendency_source_key:
+            errors.append("bond tendency source key is required when tags are present.")
+        if self.bond_tendency_source_key and not self.bond_tendency_tags:
+            errors.append("bond tendency tags are required when source key is present.")
         errors.extend(self.atomic_weight_model.validate())
         for edge in self.relation_edges:
             errors.extend(edge.validate())
