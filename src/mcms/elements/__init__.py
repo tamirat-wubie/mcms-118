@@ -18,6 +18,11 @@ from mcms.elements.model import (
     SourceReference,
     build_element_receipt,
 )
+from mcms.elements.schema import (
+    element_schema_bundle,
+    element_seed_json_schema,
+    element_snapshot_json_schema,
+)
 from mcms.elements.seed import (
     get_seed_element,
     list_seed_elements,
@@ -47,6 +52,9 @@ __all__ = [
     "SourceReference",
     "build_element_receipt",
     "build_snapshot_receipt",
+    "element_schema_bundle",
+    "element_seed_json_schema",
+    "element_snapshot_json_schema",
     "get_seed_element",
     "get_snapshot_record",
     "list_full_snapshot_records",

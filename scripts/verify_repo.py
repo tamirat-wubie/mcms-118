@@ -4,10 +4,16 @@ import json
 import sys
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from mcms.elements import (  # noqa: E402
+    element_seed_json_schema,
+    element_snapshot_json_schema,
+    get_seed_element,
+    get_snapshot_record,
     list_full_snapshot_records,
     list_seed_elements,
     validate_full_snapshot,
@@ -39,6 +45,10 @@ def main() -> None:
     snapshot_records = list_full_snapshot_records()
     element_seed_result = validate_seed_pack(elements)
     snapshot_result = validate_full_snapshot(snapshot_records)
+    element_schema = element_seed_json_schema()
+    snapshot_schema = element_snapshot_json_schema()
+    element_schema_validator = Draft202012Validator(element_schema)
+    snapshot_schema_validator = Draft202012Validator(snapshot_schema)
     assert len(phases) == 135, len(phases)
     assert len(modules) >= 180, len(modules)
     assert len(elements) == 36, len(elements)
@@ -47,6 +57,10 @@ def main() -> None:
     assert not element_seed_result.invalid_elements, element_seed_result.invalid_elements
     assert snapshot_result.validation_status == "full_element_snapshot_validated", snapshot_result
     assert not snapshot_result.invalid_elements, snapshot_result.invalid_elements
+    Draft202012Validator.check_schema(element_schema)
+    Draft202012Validator.check_schema(snapshot_schema)
+    element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
+    snapshot_schema_validator.validate(json.loads(json.dumps(get_snapshot_record("La").to_dict())))
     for phase in phases:
         missing = REQUIRED_KEYS - set(phase)
         assert not missing, (phase["phase"], sorted(missing))

@@ -121,6 +121,9 @@ python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --symbol 20
 python -m mcms.cli elements --full --list
 python -m mcms.cli elements --full --symbol Og
+python -m mcms.cli elements --schema seed
+python -m mcms.cli elements --schema snapshot
+python -m mcms.cli elements --schema bundle
 ```
 
 ## Validation
@@ -146,6 +149,25 @@ The full snapshot is valid only when:
 2. Every record validates identity, position, weight model, and source keys.
 3. Unavailable atomic weights are explicit.
 4. The first 36 snapshot records link to available Level 1 seed records.
+
+## JSON Schema Export
+
+The element engine exports JSON Schema Draft 2020-12 contracts for both Level 1
+seed records and full snapshot records. The schemas are explicit contracts, not
+reflection output, and set `additionalProperties = false` for governed payloads.
+
+| Schema | CLI command | Contract |
+| --- | --- | --- |
+| Seed element | `python -m mcms.cli elements --schema seed` | `MulluStandardSymbolicElement` |
+| Snapshot record | `python -m mcms.cli elements --schema snapshot` | `ElementSourceSnapshotRecord` |
+| Bundle | `python -m mcms.cli elements --schema bundle` | Both schemas in one document |
+
+The repository verifier validates the schemas and representative records:
+
+```powershell
+python scripts/verify_repo.py
+python -m pytest tests/test_element_schemas.py -q
+```
 
 ## Source Drift Check
 
@@ -181,6 +203,7 @@ Drift statuses:
 | Position-only table -> relation graph | Elements now expose same-group, same-period, and same-block edges |
 | Unchecked data -> validation receipt | Every exposed seed can emit a stable hash and validation status |
 | Static source snapshot -> drift-checkable source boundary | CIAAW source changes now produce explicit drift reports |
+| Python object contract -> JSON Schema contract | Seed and snapshot records can now be exported and externally validated |
 
 ## Fracture Deltas Avoided
 
@@ -202,5 +225,4 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add JSON schema export for `MulluStandardSymbolicElement` and snapshot records.
-3. Add graph export for element relation queries.
+2. Add graph export for element relation queries.

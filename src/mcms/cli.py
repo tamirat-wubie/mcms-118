@@ -8,6 +8,9 @@ from mcms.core.phases import latest_phase, load_phase_registry
 from mcms.elements import (
     build_element_receipt,
     build_snapshot_receipt,
+    element_schema_bundle,
+    element_seed_json_schema,
+    element_snapshot_json_schema,
     get_seed_element,
     get_snapshot_record,
     list_full_snapshot_records,
@@ -29,7 +32,20 @@ def cmd_phases() -> None:
     print(json.dumps({"count": len(phases), "latest": latest_phase()}, indent=2))
 
 
-def cmd_elements(symbol: str | None, list_only: bool, full_snapshot: bool) -> None:
+def cmd_elements(
+    symbol: str | None,
+    list_only: bool,
+    full_snapshot: bool,
+    schema_name: str | None,
+) -> None:
+    if schema_name:
+        schema_builders = {
+            "seed": element_seed_json_schema,
+            "snapshot": element_snapshot_json_schema,
+            "bundle": element_schema_bundle,
+        }
+        print(json.dumps(schema_builders[schema_name](), indent=2, sort_keys=True))
+        return
     if full_snapshot:
         if list_only:
             records = list_full_snapshot_records()
@@ -99,13 +115,18 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Use the full 118-element identity snapshot instead of the Level 1 seed pack",
     )
+    elements_parser.add_argument(
+        "--schema",
+        choices=("seed", "snapshot", "bundle"),
+        help="Print the JSON Schema contract for seed records, snapshot records, or both",
+    )
     args = parser.parse_args(argv)
     if args.cmd == "demo":
         cmd_demo()
     elif args.cmd == "phases":
         cmd_phases()
     elif args.cmd == "elements":
-        cmd_elements(args.symbol, args.list, args.full)
+        cmd_elements(args.symbol, args.list, args.full, args.schema)
 
 
 if __name__ == "__main__":
