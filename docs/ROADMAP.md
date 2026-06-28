@@ -52,5 +52,6 @@ M8 = production-engineering-ready
 12. Level 2 oxidation-state and electronegativity boundaries
 13. Sourced Level 2 chemistry values for the first 20 elements
 14. Source drift check for Level 2 chemistry values
-15. Real provider adapters
+15. Extend Level 2 chemistry values beyond Calcium
+16. Real provider adapters
 ```

@@ -274,10 +274,19 @@ and emits JSON with a deterministic drift status.
 python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
+The partial Level 2 chemistry layer has a separate PubChem drift checker. It
+compares promoted local oxidation-state and electronegativity values against the
+PubChem periodic-table CSV without mutating seed records.
+
+```powershell
+python scripts/check_element_level2_drift.py --fail-on-drift
+```
+
 Fixture mode supports offline review and CI-safe parser tests:
 
 ```powershell
 python scripts/check_element_snapshot_drift.py --fixture-html path\to\ciaaw.html --fail-on-drift
+python scripts/check_element_level2_drift.py --fixture-csv path\to\pubchem.csv --fail-on-drift
 ```
 
 Drift statuses:
@@ -287,6 +296,9 @@ Drift statuses:
 | `element_snapshot_no_drift` | Local snapshot matches the parsed source rows |
 | `element_snapshot_drift_detected` | At least one source/local field differs or a required row is missing |
 | `element_snapshot_source_unavailable` | The source could not be read; no local mutation was attempted |
+| `element_level_2_chemistry_no_drift` | Local promoted Level 2 chemistry fields match parsed PubChem source rows |
+| `element_level_2_chemistry_drift_detected` | At least one promoted Level 2 field differs or a required source row is missing |
+| `element_level_2_chemistry_source_unavailable` | The PubChem source could not be read or parsed; no local mutation was attempted |
 
 ## Constructive Deltas
 
@@ -298,11 +310,13 @@ Drift statuses:
 | Position-only table -> relation graph | Elements now expose same-group, same-period, and same-block edges |
 | Unchecked data -> validation receipt | Every exposed seed can emit a stable hash and validation status |
 | Static source snapshot -> drift-checkable source boundary | CIAAW source changes now produce explicit drift reports |
+| Sourced Level 2 values -> drift-checkable chemistry boundary | PubChem source changes now produce explicit Level 2 drift reports |
 | Python object contract -> JSON Schema contract | Seed and snapshot records can now be exported and externally validated |
 | Embedded relation edges -> graph export | Element relation queries now produce deterministic node and edge payloads |
 | CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
 | Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
 | Planned Level 2 fields -> bounded contract | Oxidation-state and electronegativity fields now reject invalid values |
+| Bounded Level 2 fields -> sourced first-20 values | H through Ca now carry PubChem-backed oxidation-state and electronegativity values |
 
 ## Fracture Deltas Avoided
 
@@ -320,8 +334,10 @@ The seed implementation uses these authority anchors:
 1. CIAAW/IUPAC Standard Atomic Weights 2024: `https://www.ciaaw.org/atomic-weights.htm`
 2. NIST Electronic Configurations of the Elements:
    `https://www.nist.gov/pml/atomic-reference-data-electronic-structure-calculations/atomic-reference-data-electronic-8`
+3. PubChem Periodic Table of Elements CSV:
+   `https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV`
 
 ## Next Expansion
 
-1. Add sourced Level 2 oxidation-state and electronegativity seed values for the first 20 elements.
-2. Add Level 2 source references and drift checks.
+1. Extend sourced Level 2 chemistry values beyond Calcium.
+2. Add ionization-energy and bond-tendency boundary contracts.

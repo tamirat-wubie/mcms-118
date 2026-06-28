@@ -85,6 +85,7 @@ python -m mcms.cli elements --graph --symbol Zn --relation same_block
 python -m mcms.cli elements --dashboard --symbol Zn --relation same_block
 python -m mcms.cli api --host 127.0.0.1 --port 8765
 python scripts/check_element_snapshot_drift.py --fail-on-drift
+python scripts/check_element_level2_drift.py --fail-on-drift
 ```
 
 On Windows PowerShell:
@@ -103,6 +104,7 @@ python -m mcms.cli elements --graph --symbol Zn --relation same_block
 python -m mcms.cli elements --dashboard --symbol Zn --relation same_block
 python -m mcms.cli api --host 127.0.0.1 --port 8765
 python scripts/check_element_snapshot_drift.py --fail-on-drift
+python scripts/check_element_level2_drift.py --fail-on-drift
 ```
 
 ## Push to GitHub
