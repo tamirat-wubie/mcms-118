@@ -30,6 +30,58 @@ def test_element_seed_schema_validates_seed_records_and_rejects_extra_fields():
         validator.validate(invalid_payload)
 
 
+def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
+    schema = element_seed_json_schema()
+    validator = Draft202012Validator(schema)
+    zinc_payload = _json_payload(get_seed_element("Zn").to_dict())
+    valid_level_2_payload = _json_payload(
+        {
+            **zinc_payload,
+            "state": {
+                **zinc_payload["state"],
+                "oxidation_states": [-2, 0, 2],
+                "electronegativity_scale": "pauling",
+                "electronegativity_value": 1.65,
+                "electronegativity_source_key": "level_2_reference_seed",
+                "data_level": 2,
+            },
+        }
+    )
+    duplicate_oxidation_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {**valid_level_2_payload["state"], "oxidation_states": [0, 2, 2]},
+        }
+    )
+    incomplete_electronegativity_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "electronegativity_source_key": None,
+            },
+        }
+    )
+    out_of_range_electronegativity_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "electronegativity_value": 5.1,
+            },
+        }
+    )
+    validator.validate(valid_level_2_payload)
+    assert valid_level_2_payload["state"]["data_level"] == 2
+    assert valid_level_2_payload["state"]["electronegativity_scale"] == "pauling"
+    with pytest.raises(ValidationError):
+        validator.validate(duplicate_oxidation_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(incomplete_electronegativity_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(out_of_range_electronegativity_payload)
+
+
 def test_snapshot_schema_validates_grouped_and_ungrouped_records():
     schema = element_snapshot_json_schema()
     validator = Draft202012Validator(schema)

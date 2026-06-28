@@ -15,6 +15,11 @@ from hashlib import sha256
 VALID_BLOCKS = {"s", "p", "d", "f"}
 VALID_WEIGHT_MODEL_TYPES = {"interval", "single", "unavailable"}
 VALID_RELATION_TYPES = {"same_group", "same_period", "same_block"}
+VALID_ELECTRONEGATIVITY_SCALES = {"pauling"}
+OXIDATION_STATE_MIN = -8
+OXIDATION_STATE_MAX = 9
+ELECTRONEGATIVITY_MIN = 0.0
+ELECTRONEGATIVITY_MAX = 5.0
 
 
 @dataclass(frozen=True)
@@ -148,6 +153,9 @@ class ElementState:
     valence_electrons: int
     atomic_weight_model: AtomicWeightModel
     oxidation_states: tuple[int, ...] = ()
+    electronegativity_scale: str | None = None
+    electronegativity_value: float | None = None
+    electronegativity_source_key: str | None = None
     behavior_tags: tuple[str, ...] = ()
     relation_edges: tuple[ElementRelationEdge, ...] = ()
     data_level: int = 1
@@ -178,6 +186,33 @@ class ElementState:
             )
         if self.data_level not in {1, 2, 3}:
             errors.append("data level must be 1, 2, or 3.")
+        if len(set(self.oxidation_states)) != len(self.oxidation_states):
+            errors.append("oxidation states must not contain duplicates.")
+        for oxidation_state in self.oxidation_states:
+            if oxidation_state < OXIDATION_STATE_MIN or oxidation_state > OXIDATION_STATE_MAX:
+                errors.append(
+                    f"oxidation states must be in [{OXIDATION_STATE_MIN}, {OXIDATION_STATE_MAX}]."
+                )
+        electronegativity_fields = (
+            self.electronegativity_scale,
+            self.electronegativity_value,
+            self.electronegativity_source_key,
+        )
+        if any(value is not None for value in electronegativity_fields):
+            if self.electronegativity_scale not in VALID_ELECTRONEGATIVITY_SCALES:
+                errors.append("electronegativity scale is unknown.")
+            if self.electronegativity_value is None:
+                errors.append("electronegativity value is required when scale is present.")
+            elif (
+                self.electronegativity_value < ELECTRONEGATIVITY_MIN
+                or self.electronegativity_value > ELECTRONEGATIVITY_MAX
+            ):
+                errors.append(
+                    "electronegativity value must be in "
+                    f"[{ELECTRONEGATIVITY_MIN}, {ELECTRONEGATIVITY_MAX}]."
+                )
+            if not self.electronegativity_source_key:
+                errors.append("electronegativity source key is required when value is present.")
         errors.extend(self.atomic_weight_model.validate())
         for edge in self.relation_edges:
             errors.extend(edge.validate())

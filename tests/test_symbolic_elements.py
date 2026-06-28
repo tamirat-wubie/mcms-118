@@ -102,6 +102,33 @@ def test_d_block_valence_validation_rejects_out_of_range_seed_state():
     assert zinc.state.block == "d"
 
 
+def test_level_2_chemistry_boundaries_validate_oxidation_and_electronegativity_fields():
+    zinc = get_seed_element("Zn")
+    valid_level_2_state = replace(
+        zinc.state,
+        oxidation_states=(-2, 0, 2),
+        electronegativity_scale="pauling",
+        electronegativity_value=1.65,
+        electronegativity_source_key="level_2_reference_seed",
+        data_level=2,
+    )
+    duplicate_oxidation_state = replace(valid_level_2_state, oxidation_states=(0, 2, 2))
+    out_of_range_oxidation_state = replace(valid_level_2_state, oxidation_states=(-9, 0, 2))
+    incomplete_electronegativity = replace(
+        valid_level_2_state,
+        electronegativity_source_key=None,
+    )
+    out_of_range_electronegativity = replace(
+        valid_level_2_state,
+        electronegativity_value=5.1,
+    )
+    assert valid_level_2_state.validate() == []
+    assert any("duplicates" in error for error in duplicate_oxidation_state.validate())
+    assert any("[-8, 9]" in error for error in out_of_range_oxidation_state.validate())
+    assert any("source key is required" in error for error in incomplete_electronegativity.validate())
+    assert any("[0.0, 5.0]" in error for error in out_of_range_electronegativity.validate())
+
+
 def test_full_snapshot_contains_all_118_elements_in_order():
     records = list_full_snapshot_records()
     result = validate_full_snapshot(records)

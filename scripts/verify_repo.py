@@ -63,6 +63,13 @@ def main() -> None:
     Draft202012Validator.check_schema(element_schema)
     Draft202012Validator.check_schema(snapshot_schema)
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
+    level_2_zinc_payload = json.loads(json.dumps(get_seed_element("Zn").to_dict()))
+    level_2_zinc_payload["state"]["oxidation_states"] = [-2, 0, 2]
+    level_2_zinc_payload["state"]["electronegativity_scale"] = "pauling"
+    level_2_zinc_payload["state"]["electronegativity_value"] = 1.65
+    level_2_zinc_payload["state"]["electronegativity_source_key"] = "level_2_reference_seed"
+    level_2_zinc_payload["state"]["data_level"] = 2
+    element_schema_validator.validate(level_2_zinc_payload)
     snapshot_schema_validator.validate(json.loads(json.dumps(get_snapshot_record("La").to_dict())))
     zinc_block_graph = build_element_relation_graph("Zn", relation_type="same_block")
     assert zinc_block_graph.graph_status == "element_relation_graph_exported", zinc_block_graph

@@ -9,7 +9,16 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from mcms.elements.model import VALID_BLOCKS, VALID_RELATION_TYPES, VALID_WEIGHT_MODEL_TYPES
+from mcms.elements.model import (
+    ELECTRONEGATIVITY_MAX,
+    ELECTRONEGATIVITY_MIN,
+    OXIDATION_STATE_MAX,
+    OXIDATION_STATE_MIN,
+    VALID_BLOCKS,
+    VALID_ELECTRONEGATIVITY_SCALES,
+    VALID_RELATION_TYPES,
+    VALID_WEIGHT_MODEL_TYPES,
+)
 from mcms.elements.snapshot import VALID_SNAPSHOT_BLOCKS, VALID_SNAPSHOT_STATUSES
 
 JSON_SCHEMA_DRAFT = "https://json-schema.org/draft/2020-12/schema"
@@ -131,6 +140,34 @@ def _element_defs() -> dict:
         "ElementState": {
             "type": "object",
             "additionalProperties": False,
+            "oneOf": [
+                {
+                    "properties": {
+                        "electronegativity_scale": {"type": "null"},
+                        "electronegativity_value": {"type": "null"},
+                        "electronegativity_source_key": {"type": "null"},
+                    }
+                },
+                {
+                    "properties": {
+                        "electronegativity_scale": {
+                            "type": "string",
+                            "enum": sorted(VALID_ELECTRONEGATIVITY_SCALES),
+                        },
+                        "electronegativity_value": {
+                            "type": "number",
+                            "minimum": ELECTRONEGATIVITY_MIN,
+                            "maximum": ELECTRONEGATIVITY_MAX,
+                        },
+                        "electronegativity_source_key": {"type": "string", "minLength": 1},
+                    },
+                    "required": [
+                        "electronegativity_scale",
+                        "electronegativity_value",
+                        "electronegativity_source_key",
+                    ],
+                },
+            ],
             "required": [
                 "neutral_electron_count",
                 "neutral_electron_configuration",
@@ -142,6 +179,9 @@ def _element_defs() -> dict:
                 "valence_electrons",
                 "atomic_weight_model",
                 "oxidation_states",
+                "electronegativity_scale",
+                "electronegativity_value",
+                "electronegativity_source_key",
                 "behavior_tags",
                 "relation_edges",
                 "data_level",
@@ -160,7 +200,25 @@ def _element_defs() -> dict:
                 "valence_shell": {"type": "string", "minLength": 1},
                 "valence_electrons": {"type": "integer", "minimum": 1, "maximum": 16},
                 "atomic_weight_model": {"$ref": "#/$defs/AtomicWeightModel"},
-                "oxidation_states": {"type": "array", "items": {"type": "integer"}},
+                "oxidation_states": {
+                    "type": "array",
+                    "uniqueItems": True,
+                    "items": {
+                        "type": "integer",
+                        "minimum": OXIDATION_STATE_MIN,
+                        "maximum": OXIDATION_STATE_MAX,
+                    },
+                },
+                "electronegativity_scale": {
+                    "type": ["string", "null"],
+                    "enum": sorted(VALID_ELECTRONEGATIVITY_SCALES) + [None],
+                },
+                "electronegativity_value": {
+                    "type": ["number", "null"],
+                    "minimum": ELECTRONEGATIVITY_MIN,
+                    "maximum": ELECTRONEGATIVITY_MAX,
+                },
+                "electronegativity_source_key": {"type": ["string", "null"]},
                 "behavior_tags": _string_array(),
                 "relation_edges": {
                     "type": "array",

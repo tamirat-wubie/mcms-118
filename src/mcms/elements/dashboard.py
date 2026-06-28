@@ -66,6 +66,12 @@ def _element_card(element: MulluStandardSymbolicElement) -> dict[str, Any]:
         "neutral_electron_configuration": element.state.neutral_electron_configuration,
         "valence_shell": element.state.valence_shell,
         "valence_electrons": element.state.valence_electrons,
+        "oxidation_states": list(element.state.oxidation_states),
+        "electronegativity": {
+            "scale": element.state.electronegativity_scale,
+            "value": element.state.electronegativity_value,
+            "source_key": element.state.electronegativity_source_key,
+        },
         "validation_status": receipt["validation_status"],
         "element_hash": receipt["element_hash"],
         "source_keys": list(receipt["source_keys"]),

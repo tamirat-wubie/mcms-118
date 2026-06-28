@@ -10,6 +10,8 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
     assert dashboard["dashboard_status"] == "element_dashboard_view_model_ready"
     assert dashboard["selected_element"]["symbol"] == "Zn"
     assert dashboard["selected_snapshot"]["level_1_seed_available"] is True
+    assert dashboard["selected_element"]["oxidation_states"] == []
+    assert dashboard["selected_element"]["electronegativity"]["value"] is None
     assert dashboard["graph"]["query"]["edge_count"] == 9
     assert len(dashboard["schema_cards"]) == 3
 

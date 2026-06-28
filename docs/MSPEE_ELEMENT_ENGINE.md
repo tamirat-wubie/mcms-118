@@ -33,7 +33,7 @@ seed pack for the first 36 elements and an identity/weight source snapshot for a
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
-| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Planned |
+| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Boundary fields implemented; sourced values planned |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
@@ -65,6 +65,22 @@ Every seed record includes:
 D-block Level 1 records use the `(n-1)d ns` valence signature and allow up to 12
 tracked valence electrons. This keeps transition-metal structure explicit without
 collapsing d-block behavior into the s/p-block rule.
+
+## Level 2 Boundary Fields
+
+The element state contract now includes Level 2 boundary fields without claiming
+sourced Level 2 chemistry values for the current seed pack:
+
+| Field | Boundary |
+| --- | --- |
+| `oxidation_states` | Unique integers in `[-8, 9]`; empty for Level 1 records |
+| `electronegativity_scale` | `null` or `pauling` |
+| `electronegativity_value` | `null` or number in `[0.0, 5.0]` |
+| `electronegativity_source_key` | Required when electronegativity value is present |
+
+Electronegativity is accepted only as a complete sourced tuple: scale, value, and
+source key must all be present together or all be absent. The JSON Schema export
+and Python validator enforce the same boundary.
 
 ## Full Source Snapshot
 
@@ -105,6 +121,7 @@ Input:
    neutral electron count equals atomic number
    weight model is typed
    valence count is within the block-specific Level 1 bound
+   Level 2 fields stay inside oxidation/electronegativity boundaries
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
 
@@ -272,6 +289,7 @@ Drift statuses:
 | Embedded relation edges -> graph export | Element relation queries now produce deterministic node and edge payloads |
 | CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
 | Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
+| Planned Level 2 fields -> bounded contract | Oxidation-state and electronegativity fields now reject invalid values |
 
 ## Fracture Deltas Avoided
 
@@ -292,5 +310,5 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add Level 2 schema fields and tests for oxidation-state and electronegativity boundaries.
+1. Add sourced Level 2 oxidation-state and electronegativity seed values for the first 20 elements.
+2. Add Level 2 source references and drift checks.
