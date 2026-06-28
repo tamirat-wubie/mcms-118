@@ -1,6 +1,6 @@
 """Purpose: public MSPEE element-engine interface.
 
-Governance scope: exposes source-backed symbolic element seed records only.
+Project scope: exposes source-backed element seed records only.
 Dependencies: local dataclass models and deterministic seed-pack builders.
 Invariants: element identity is proton-count anchored; validation never mutates records.
 """
@@ -16,8 +16,11 @@ from mcms.elements.graph import (
     build_element_relation_graph,
 )
 from mcms.elements.model import (
+    VALID_D_SHELL_STABILITY_STATES,
+    VALID_FRONTIER_VALENCE_MODELS,
     VALID_RELATION_TYPES,
     AtomicWeightModel,
+    ConfigurationAudit,
     ElementExposure,
     ElementHistory,
     ElementIdentity,
@@ -25,9 +28,12 @@ from mcms.elements.model import (
     ElementRelationEdge,
     ElementSeedPackValidationResult,
     ElementState,
+    FrontierSignature,
     MulluStandardSymbolicElement,
     SourceReference,
+    TransitionBehaviorKernel,
     build_element_receipt,
+    validate_configuration_audit,
 )
 from mcms.elements.schema import (
     element_schema_bundle,
@@ -50,6 +56,7 @@ from mcms.elements.snapshot import (
 
 __all__ = [
     "AtomicWeightModel",
+    "ConfigurationAudit",
     "ElementExposure",
     "ElementDashboardViewModel",
     "ElementGraphEdge",
@@ -63,8 +70,12 @@ __all__ = [
     "ElementSnapshotValidationResult",
     "ElementState",
     "ElementSourceSnapshotRecord",
+    "FrontierSignature",
     "MulluStandardSymbolicElement",
     "SourceReference",
+    "TransitionBehaviorKernel",
+    "VALID_D_SHELL_STABILITY_STATES",
+    "VALID_FRONTIER_VALENCE_MODELS",
     "VALID_RELATION_TYPES",
     "build_element_receipt",
     "build_element_dashboard_view_model",
@@ -78,5 +89,6 @@ __all__ = [
     "list_full_snapshot_records",
     "list_seed_elements",
     "validate_full_snapshot",
+    "validate_configuration_audit",
     "validate_seed_pack",
 ]

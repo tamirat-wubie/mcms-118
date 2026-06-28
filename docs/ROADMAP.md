@@ -1,4 +1,4 @@
-# MCMS Roadmap
+# MSPEE Periodic Table Roadmap
 
 ## Immediate target: one working vertical slice
 
@@ -19,7 +19,7 @@ M0 = concept only
 M1 = symbolic model implemented
 M2 = tests pass
 M3 = persisted with receipts
-M4 = signed / governed
+M4 = signed / validated
 M5 = exposed through API
 M6 = visible in dashboard
 M7 = demo-ready
@@ -30,7 +30,7 @@ M8 = production-engineering-ready
 
 ```text
 1. Science / symbolic modeling engine
-2. Governance / evidence / receipt engine
+2. Evidence / receipt engine
 3. Runtime / storage / release engine
 4. Product interface / dashboard engine
 ```
@@ -54,6 +54,9 @@ M8 = production-engineering-ready
 14. Source drift check for Level 2 chemistry values
 15. Ionization-energy and bond-tendency boundary contracts
 16. Sourced first-ionization-energy values for the first 36 elements
-17. Source-backed bond-tendency classifications
-18. Real provider adapters
+17. Transition-metal exception kernel and elements 21-36 frontier audits
+18. Lanthanide-actinide expansion kernel
+19. Source-backed bond-tendency classifications for the first 36 elements
+20. Extend sourced Level 2 chemistry values beyond Krypton
+21. Real provider adapters
 ```

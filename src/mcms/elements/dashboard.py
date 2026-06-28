@@ -1,6 +1,6 @@
 """Purpose: dashboard-facing read model for MSPEE element surfaces.
 
-Governance scope: composes validated element, snapshot, schema, and graph payloads.
+Project scope: composes validated element, snapshot, schema, and graph payloads.
 Dependencies: local MSPEE seed, snapshot, schema, graph, and receipt builders.
 Invariants: dashboard views are read-only projections and never mutate source records.
 """
@@ -81,6 +81,21 @@ def _element_card(element: MulluStandardSymbolicElement) -> dict[str, Any]:
             "tags": list(element.state.bond_tendency_tags),
             "source_key": element.state.bond_tendency_source_key,
         },
+        "frontier_signature": (
+            element.state.frontier_signature.to_dict()
+            if element.state.frontier_signature is not None
+            else None
+        ),
+        "configuration_audit": (
+            element.state.configuration_audit.to_dict()
+            if element.state.configuration_audit is not None
+            else None
+        ),
+        "transition_behavior_kernel": (
+            element.state.transition_behavior_kernel.to_dict()
+            if element.state.transition_behavior_kernel is not None
+            else None
+        ),
         "validation_status": receipt["validation_status"],
         "element_hash": receipt["element_hash"],
         "source_keys": list(receipt["source_keys"]),

@@ -26,6 +26,11 @@ def test_element_seed_schema_validates_seed_records_and_rejects_extra_fields():
     validator.validate(zinc_payload)
     assert schema["title"] == "MulluStandardSymbolicElement"
     assert zinc_payload["state"]["block"] == "d"
+    assert zinc_payload["state"]["frontier_signature"]["d_shell"] == "3d^10"
+    assert zinc_payload["state"]["configuration_audit"]["source_backed_configuration"] == (
+        "[Ar] 3d^10 4s^2"
+    )
+    assert zinc_payload["state"]["transition_behavior_kernel"]["coordination_relevance"] is True
     with pytest.raises(ValidationError):
         validator.validate(invalid_payload)
 
@@ -102,6 +107,31 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
             },
         }
     )
+    incomplete_exception_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "configuration_audit": {
+                    **valid_level_2_payload["state"]["configuration_audit"],
+                    "is_exception": True,
+                    "exception_reason": None,
+                },
+            },
+        }
+    )
+    unknown_frontier_model_payload = _json_payload(
+        {
+            **valid_level_2_payload,
+            "state": {
+                **valid_level_2_payload["state"],
+                "frontier_signature": {
+                    **valid_level_2_payload["state"]["frontier_signature"],
+                    "valence_model": "outer_shell_only",
+                },
+            },
+        }
+    )
     validator.validate(valid_level_2_payload)
     assert valid_level_2_payload["state"]["data_level"] == 2
     assert valid_level_2_payload["state"]["electronegativity_scale"] == "pauling"
@@ -110,6 +140,11 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
         "metallic_bonding",
         "coordination_complex",
     ]
+    assert valid_level_2_payload["state"]["frontier_signature"]["valence_model"] == (
+        "transition_metal"
+    )
+    assert valid_level_2_payload["state"]["configuration_audit"]["is_exception"] is False
+    assert valid_level_2_payload["state"]["transition_behavior_kernel"]["alloy_relevance"] is True
     with pytest.raises(ValidationError):
         validator.validate(duplicate_oxidation_payload)
     with pytest.raises(ValidationError):
@@ -122,6 +157,10 @@ def test_element_seed_schema_enforces_level_2_chemistry_boundaries():
         validator.validate(duplicate_bond_tendency_payload)
     with pytest.raises(ValidationError):
         validator.validate(unknown_bond_tendency_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(incomplete_exception_payload)
+    with pytest.raises(ValidationError):
+        validator.validate(unknown_frontier_model_payload)
 
 
 def test_element_seed_schema_validates_promoted_seed_pack_level_2_record():
@@ -139,6 +178,14 @@ def test_element_seed_schema_validates_promoted_seed_pack_level_2_record():
         zinc_payload["state"]["first_ionization_energy_source_key"]
         == "pubchem_periodic_table_properties"
     )
+    assert zinc_payload["state"]["bond_tendency_tags"] == [
+        "metallic_bonding",
+        "coordination_complex",
+    ]
+    assert zinc_payload["state"]["bond_tendency_source_key"] == "pubchem_periodic_table_properties"
+    assert zinc_payload["state"]["frontier_signature"]["d_shell_stability"] == "filled_d_shell"
+    assert zinc_payload["state"]["configuration_audit"]["is_exception"] is False
+    assert zinc_payload["state"]["transition_behavior_kernel"]["coordination_relevance"] is True
 
 
 def test_snapshot_schema_validates_grouped_and_ungrouped_records():

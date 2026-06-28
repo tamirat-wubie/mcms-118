@@ -28,6 +28,16 @@ from mcms.elements import list_seed_elements  # noqa: E402
 
 PUBCHEM_SOURCE_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV"
 PUBCHEM_SOURCE_KEY = "pubchem_periodic_table_properties"
+_BOND_TENDENCY_TAGS_BY_PUBCHEM_GROUP_BLOCK: dict[str, tuple[str, ...]] = {
+    "Alkali metal": ("metallic_bonding", "ionic_bonding"),
+    "Alkaline earth metal": ("metallic_bonding", "ionic_bonding"),
+    "Halogen": ("covalent_bonding", "ionic_bonding", "molecular_covalent"),
+    "Metalloid": ("covalent_bonding", "network_covalent"),
+    "Noble gas": ("noble_gas_low_reactivity",),
+    "Nonmetal": ("covalent_bonding", "molecular_covalent"),
+    "Post-transition metal": ("metallic_bonding", "covalent_bonding"),
+    "Transition metal": ("metallic_bonding", "coordination_complex"),
+}
 
 
 @dataclass(frozen=True)
@@ -37,10 +47,13 @@ class SourceLevel2ChemistryRow:
     oxidation_states: tuple[int, ...]
     electronegativity_value: float | None
     first_ionization_energy_ev: float | None
+    group_block: str
+    bond_tendency_tags: tuple[str, ...]
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
         payload["oxidation_states"] = list(self.oxidation_states)
+        payload["bond_tendency_tags"] = list(self.bond_tendency_tags)
         return payload
 
 
@@ -80,6 +93,10 @@ def normalize_first_ionization_energy(value: str) -> float | None:
     return float(value)
 
 
+def derive_bond_tendency_tags(group_block: str) -> tuple[str, ...]:
+    return _BOND_TENDENCY_TAGS_BY_PUBCHEM_GROUP_BLOCK.get(group_block, ())
+
+
 def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2ChemistryRow, ...]:
     reader = csv.DictReader(io.StringIO(csv_text))
     required_fields = {
@@ -88,6 +105,7 @@ def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2Chemist
         "OxidationStates",
         "Electronegativity",
         "IonizationEnergy",
+        "GroupBlock",
     }
     if reader.fieldnames is None or not required_fields <= set(reader.fieldnames):
         raise ValueError("PubChem CSV is missing required Level 2 chemistry columns.")
@@ -95,6 +113,7 @@ def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2Chemist
     for row in reader:
         atomic_number = row["AtomicNumber"].strip()
         symbol = row["Symbol"].strip()
+        group_block = row["GroupBlock"].strip()
         if not atomic_number or not symbol:
             continue
         source_rows.append(
@@ -106,6 +125,8 @@ def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2Chemist
                 first_ionization_energy_ev=normalize_first_ionization_energy(
                     row["IonizationEnergy"]
                 ),
+                group_block=group_block,
+                bond_tendency_tags=derive_bond_tendency_tags(group_block),
             )
         )
     return tuple(source_rows)
@@ -178,6 +199,11 @@ def compare_level_2_to_source(
                 "first_ionization_energy_ev",
                 local_element.state.first_ionization_energy_ev,
                 source_row.first_ionization_energy_ev,
+            ),
+            (
+                "bond_tendency_tags",
+                local_element.state.bond_tendency_tags,
+                source_row.bond_tendency_tags,
             ),
         )
         for field, local_value, source_value in comparison_fields:

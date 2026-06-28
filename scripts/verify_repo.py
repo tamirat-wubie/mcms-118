@@ -65,21 +65,34 @@ def main() -> None:
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
     oxygen = get_seed_element("O")
     calcium = get_seed_element("Ca")
+    chromium = get_seed_element("Cr")
+    copper = get_seed_element("Cu")
     zinc = get_seed_element("Zn")
+    gallium = get_seed_element("Ga")
     krypton = get_seed_element("Kr")
     assert oxygen.state.data_level == 2, oxygen.state
     assert oxygen.state.oxidation_states == (-2,), oxygen.state
     assert oxygen.state.electronegativity_value == 3.44, oxygen.state
     assert "pubchem_periodic_table_properties" in oxygen.source_keys(), oxygen.source_keys()
     assert calcium.state.oxidation_states == (2,), calcium.state
+    assert chromium.state.configuration_audit.is_exception is True, chromium.state
+    assert chromium.state.configuration_audit.simple_aufbau_candidate == "[Ar] 3d^4 4s^2"
+    assert chromium.state.frontier_signature.d_shell_stability == "half_filled_d_shell"
+    assert copper.state.configuration_audit.is_exception is True, copper.state
+    assert copper.state.configuration_audit.simple_aufbau_candidate == "[Ar] 3d^9 4s^2"
+    assert copper.state.frontier_signature.d_shell_stability == "filled_d_shell"
     assert zinc.state.oxidation_states == (2,), zinc.state
     assert zinc.state.electronegativity_value == 1.65, zinc.state
     assert zinc.state.first_ionization_energy_ev == 9.394, zinc.state
     assert zinc.state.first_ionization_energy_source_key == "pubchem_periodic_table_properties"
-    assert zinc.state.bond_tendency_tags == (), zinc.state
+    assert zinc.state.bond_tendency_tags == ("metallic_bonding", "coordination_complex")
+    assert zinc.state.bond_tendency_source_key == "pubchem_periodic_table_properties"
+    assert gallium.state.frontier_signature.d_shell == "3d^10", gallium.state
+    assert gallium.state.frontier_signature.valence_model == "period_4_p_block_d_core"
     assert krypton.state.oxidation_states == (0,), krypton.state
     assert krypton.state.electronegativity_value == 3.00, krypton.state
     assert krypton.state.first_ionization_energy_ev == 14.000, krypton.state
+    assert krypton.state.bond_tendency_tags == ("noble_gas_low_reactivity",)
     level_2_zinc_payload = json.loads(json.dumps(get_seed_element("Zn").to_dict()))
     level_2_zinc_payload["state"]["oxidation_states"] = [-2, 0, 2]
     level_2_zinc_payload["state"]["electronegativity_scale"] = "pauling"

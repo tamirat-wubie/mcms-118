@@ -1,6 +1,6 @@
 """Purpose: JSON Schema exports for MSPEE element and snapshot records.
 
-Governance scope: exposes stable machine contracts for source-backed element records.
+Project scope: exposes stable machine contracts for source-backed element records.
 Dependencies: local MSPEE model constants and standard-library deep copy.
 Invariants: schemas are deterministic; exported schemas reject undeclared fields.
 """
@@ -18,7 +18,9 @@ from mcms.elements.model import (
     OXIDATION_STATE_MIN,
     VALID_BLOCKS,
     VALID_BOND_TENDENCY_TAGS,
+    VALID_D_SHELL_STABILITY_STATES,
     VALID_ELECTRONEGATIVITY_SCALES,
+    VALID_FRONTIER_VALENCE_MODELS,
     VALID_RELATION_TYPES,
     VALID_WEIGHT_MODEL_TYPES,
 )
@@ -140,6 +142,79 @@ def _element_defs() -> dict:
                 "reason": {"type": "string", "minLength": 1},
             },
         },
+        "FrontierSignature": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "outer_shell",
+                "d_shell",
+                "p_shell",
+                "valence_model",
+                "d_shell_stability",
+                "notes",
+            ],
+            "properties": {
+                "outer_shell": {"type": "string", "minLength": 1},
+                "d_shell": {"type": ["string", "null"]},
+                "p_shell": {"type": ["string", "null"]},
+                "valence_model": {
+                    "type": "string",
+                    "enum": sorted(VALID_FRONTIER_VALENCE_MODELS),
+                },
+                "d_shell_stability": {
+                    "type": ["string", "null"],
+                    "enum": sorted(VALID_D_SHELL_STABILITY_STATES) + [None],
+                },
+                "notes": _string_array(),
+            },
+        },
+        "ConfigurationAudit": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "source_backed_configuration",
+                "simple_aufbau_candidate",
+                "is_exception",
+                "exception_reason",
+            ],
+            "properties": {
+                "source_backed_configuration": {"type": "string", "minLength": 1},
+                "simple_aufbau_candidate": {"type": ["string", "null"]},
+                "is_exception": {"type": "boolean"},
+                "exception_reason": {"type": ["string", "null"]},
+            },
+            "allOf": [
+                {
+                    "if": {"properties": {"is_exception": {"const": True}}},
+                    "then": {
+                        "properties": {
+                            "simple_aufbau_candidate": {"type": "string", "minLength": 1},
+                            "exception_reason": {"type": "string", "minLength": 1},
+                        }
+                    },
+                }
+            ],
+        },
+        "TransitionBehaviorKernel": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "variable_oxidation_states",
+                "magnetic_relevance",
+                "coordination_relevance",
+                "catalytic_relevance",
+                "alloy_relevance",
+                "redox_relevance",
+            ],
+            "properties": {
+                "variable_oxidation_states": {"type": "boolean"},
+                "magnetic_relevance": {"type": "boolean"},
+                "coordination_relevance": {"type": "boolean"},
+                "catalytic_relevance": {"type": "boolean"},
+                "alloy_relevance": {"type": "boolean"},
+                "redox_relevance": {"type": "boolean"},
+            },
+        },
         "ElementState": {
             "type": "object",
             "additionalProperties": False,
@@ -248,6 +323,9 @@ def _element_defs() -> dict:
                 "first_ionization_energy_source_key",
                 "bond_tendency_tags",
                 "bond_tendency_source_key",
+                "frontier_signature",
+                "configuration_audit",
+                "transition_behavior_kernel",
                 "behavior_tags",
                 "relation_edges",
                 "data_level",
@@ -300,6 +378,24 @@ def _element_defs() -> dict:
                     },
                 },
                 "bond_tendency_source_key": {"type": ["string", "null"]},
+                "frontier_signature": {
+                    "anyOf": [
+                        {"type": "null"},
+                        {"$ref": "#/$defs/FrontierSignature"},
+                    ]
+                },
+                "configuration_audit": {
+                    "anyOf": [
+                        {"type": "null"},
+                        {"$ref": "#/$defs/ConfigurationAudit"},
+                    ]
+                },
+                "transition_behavior_kernel": {
+                    "anyOf": [
+                        {"type": "null"},
+                        {"$ref": "#/$defs/TransitionBehaviorKernel"},
+                    ]
+                },
                 "behavior_tags": _string_array(),
                 "relation_edges": {
                     "type": "array",

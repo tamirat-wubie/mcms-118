@@ -2,13 +2,12 @@
 
 ## Purpose
 
-MSPEE-118 extends MCMS-118 from a governed release-evidence platform into a governed
-symbolic matter platform. The periodic table is treated as a static compression of
-matter; MSPEE turns each element into an auditable symbolic object with identity,
-laws, state, exposure, and history.
+MSPEE-118 is a standalone periodic-table element engine. It turns each element
+into an auditable element record with identity, laws, state, exposure, and
+history.
 
 ```text
-symbolic_element := identity + laws + state + exposure + history
+element_record := identity + laws + state + exposure + history
 ```
 
 The engine does not claim full chemistry prediction, legal certification, production
@@ -23,7 +22,7 @@ snapshot for all 118 named elements.
 | --- | --- | --- |
 | Identity | Atomic number, symbol, name, proton-count identity | `ElementIdentity` |
 | Laws | Charge, isotope, shell-capacity, conservation constraints | `ElementLaws` |
-| State | Electron configuration, periodic location, atomic weight model, relation edges | `ElementState` |
+| State | Electron configuration, frontier signature, configuration audit, periodic location, atomic weight model, relation edges | `ElementState` |
 | Exposure | Human card, JSON view, graph-node view | `ElementExposure` |
 | History | CIAAW/IUPAC and NIST source references, derivation trace, audit marker | `ElementHistory` |
 | Receipt | Stable hash plus validation status | `build_element_receipt` |
@@ -34,7 +33,7 @@ snapshot for all 118 named elements.
 | --- | --- | --- |
 | Snapshot | Identity, periodic position, CIAAW atomic-weight display, source status | Implemented for Z=1..118 |
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..36 |
-| Level 2 | Oxidation states, electronegativity, ionization energy, bond tendency, reaction-family behavior | Oxidation-state, Pauling electronegativity, and first-ionization-energy values implemented for Z=1..36; bond-tendency boundaries implemented without sourced values |
+| Level 2 | Oxidation states, electronegativity, ionization energy, transition frontier, configuration audit, bond tendency, reaction-family behavior | Oxidation-state, Pauling electronegativity, first-ionization-energy, PubChem GroupBlock-derived bond tendency, transition frontier, and configuration-audit values implemented for Z=1..36 |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Planned for elements where it changes meaning |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
@@ -61,14 +60,16 @@ Every seed record includes:
 7. Standard atomic weight model as either a single value or interval.
 8. Same-group, same-period, and same-block relation edges.
 9. Source references and derivation trace.
-10. Validation receipt.
+10. Phase 2 frontier signature and configuration audit for Z=21..36.
+11. Validation receipt.
 
 Elements H through Kr also include a partial Level 2 promotion:
 
 1. PubChem oxidation-state set.
 2. PubChem Pauling electronegativity value when the source publishes one.
 3. PubChem first-ionization-energy value in electronvolts.
-4. PubChem source reference in the element history.
+4. PubChem `GroupBlock`-derived bond-tendency tags.
+5. PubChem source reference in the element history.
 
 He, Ne, and Ar carry PubChem `0` oxidation state and no electronegativity value
 because the source leaves the electronegativity cell blank. Kr carries PubChem
@@ -77,6 +78,42 @@ because the source leaves the electronegativity cell blank. Kr carries PubChem
 D-block Level 1 records use the `(n-1)d ns` valence signature and allow up to 12
 tracked valence electrons. This keeps transition-metal structure explicit without
 collapsing d-block behavior into the s/p-block rule.
+
+## Phase 2 Transition Exception Kernel
+
+Phase 2 adds the first transition-metal behavior boundary. It keeps the simple
+main-group rule separate from the d-block rule:
+
+```text
+main_group_frontier := outer shell mostly determines behavior
+transition_frontier := outer ns + inner (n-1)d jointly shape behavior
+```
+
+The `ElementState` contract now includes:
+
+| Field | Meaning |
+| --- | --- |
+| `frontier_signature.outer_shell` | Outer shell contribution, for example `4s^1` or `4s^2 4p^5` |
+| `frontier_signature.d_shell` | Inner d-shell contribution when present, for example `3d^5` |
+| `frontier_signature.p_shell` | Period-4 p-shell contribution when present |
+| `frontier_signature.valence_model` | `transition_metal`, `period_4_p_block_d_core`, or `main_group` |
+| `frontier_signature.d_shell_stability` | `open_d_shell`, `half_filled_d_shell`, or `filled_d_shell` |
+| `configuration_audit.source_backed_configuration` | NIST-backed neutral configuration used as authority |
+| `configuration_audit.simple_aufbau_candidate` | Simple filling candidate retained for audit comparison |
+| `configuration_audit.is_exception` | True when candidate and source-backed configuration conflict |
+| `transition_behavior_kernel.*` | Capability relevance flags, not universal compound claims |
+
+Chromium and copper are formal exception anchors:
+
+| Element | Simple candidate | Source-backed state | Exception reason |
+| --- | --- | --- | --- |
+| Cr | `[Ar] 3d^4 4s^2` | `[Ar] 3d^5 4s^1` | half-filled d-shell stabilization pattern |
+| Cu | `[Ar] 3d^9 4s^2` | `[Ar] 3d^10 4s^1` | filled d-shell stabilization pattern |
+
+For Sc through Zn, validation requires a transition frontier signature with an
+explicit d-shell and a transition behavior kernel. For Ga through Kr, validation
+requires the filled `3d^10` core to remain present in the frontier signature even
+though the active outer shell is `4s 4p`.
 
 ## Level 2 Boundary Fields
 
@@ -91,15 +128,17 @@ Level 2 chemistry values for H through Kr:
 | `electronegativity_source_key` | Required when electronegativity value is present |
 | `first_ionization_energy_ev` | `null` or number in `[0.0, 30.0]`; populated from PubChem for Z=1..36 |
 | `first_ionization_energy_source_key` | Required when first ionization energy value is present |
-| `bond_tendency_tags` | Controlled tag list; empty until source-backed bond-tendency claims are added |
+| `bond_tendency_tags` | Controlled tag list derived from PubChem `GroupBlock` for Z=1..36 |
 | `bond_tendency_source_key` | Required when bond tendency tags are present |
 
 Electronegativity is accepted only as a complete sourced tuple: scale, value, and
 source key must all be present together or all be absent. Oxidation states are
 source-backed through the element history. First ionization energy is accepted only
 as a complete sourced value/source-key pair. Bond tendency is accepted only as a
-controlled, duplicate-free tag list with a source key. The JSON Schema export and
-Python validator enforce the same boundaries.
+controlled, duplicate-free tag list with a source key. Current bond-tendency tags
+are element-class classifications derived from PubChem `GroupBlock`; they are not
+compound-specific reaction predictions. The JSON Schema export and Python
+validator enforce the same boundaries.
 
 ## Full Source Snapshot
 
@@ -130,7 +169,7 @@ Input:
 
 3. Build state:
    neutral electron count, electron configuration, periodic location,
-   valence signature, atomic weight model
+   valence signature, frontier signature, configuration audit, atomic weight model
 
 4. Build relation graph:
    same group, same period, same block
@@ -143,6 +182,9 @@ Input:
    Level 2 fields stay inside oxidation, electronegativity, first-ionization-energy,
    and bond-tendency boundaries
    first-36 Level 2 records carry PubChem lineage
+   d-block records carry transition frontier and behavior kernel
+   Cr and Cu carry configuration exception audits
+   period-4 p-block records preserve filled 3d-core context
    relation edges are non-self edges
    source references include CIAAW/IUPAC and NIST
 
@@ -181,10 +223,12 @@ python -m pytest tests/test_element_snapshot_drift.py -q
 The seed pack is valid only when:
 
 1. It contains exactly Z=1..36 in order.
-2. Every element validates with no governance errors.
+2. Every element validates with no contract errors.
 3. Source references include CIAAW/IUPAC and NIST.
 4. Relation edges exist and are typed.
 5. First-36 Level 2 chemistry records validate and carry PubChem lineage.
+6. Phase 2 records carry frontier signatures and configuration audits.
+7. Chromium and copper are marked as configuration exceptions.
 
 The full snapshot is valid only when:
 
@@ -197,7 +241,7 @@ The full snapshot is valid only when:
 
 The element engine exports JSON Schema Draft 2020-12 contracts for both Level 1
 seed records and full snapshot records. The schemas are explicit contracts, not
-reflection output, and set `additionalProperties = false` for governed payloads.
+reflection output, and set `additionalProperties = false` for element payloads.
 
 | Schema | CLI command | Contract |
 | --- | --- | --- |
@@ -273,6 +317,10 @@ payload for a future dashboard surface.
 The dashboard view is a projection. It does not mutate element, snapshot, schema,
 or graph records.
 
+Selected seed-element cards include the Phase 2 frontier signature,
+configuration audit, and transition behavior kernel when the selected element has
+that layer.
+
 ## Source Drift Check
 
 The snapshot has an explicit CIAAW drift checker. The checker compares the local
@@ -284,8 +332,9 @@ python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
 The partial Level 2 chemistry layer has a separate PubChem drift checker. It
-compares promoted local oxidation-state, electronegativity, and first-ionization-energy
-values against the PubChem periodic-table CSV without mutating seed records.
+compares promoted local oxidation-state, electronegativity, first-ionization-energy,
+and GroupBlock-derived bond-tendency values against the PubChem periodic-table CSV
+without mutating seed records.
 
 ```powershell
 python scripts/check_element_level2_drift.py --fail-on-drift
@@ -325,8 +374,11 @@ Drift statuses:
 | CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
 | Raw API routes -> dashboard view model | Dashboard consumers now get one composed read-only payload |
 | Planned Level 2 fields -> bounded contract | Oxidation-state and electronegativity fields now reject invalid values |
-| Bounded Level 2 fields -> sourced first-36 values | H through Kr now carry PubChem-backed oxidation-state, electronegativity, and first-ionization-energy values |
-| Planned bond fields -> bounded contract | Bond-tendency claims now reject invalid or unsourced values |
+| Bounded Level 2 fields -> sourced first-36 values | H through Kr now carry PubChem-backed oxidation-state, electronegativity, first-ionization-energy, and GroupBlock-derived bond-tendency values |
+| Planned bond fields -> source-classified boundary | Bond-tendency tags now derive from PubChem GroupBlock classes and remain non-reaction predictions |
+| Simple Aufbau output -> configuration audit | Cr and Cu store both simple candidates and NIST-backed corrected states |
+| Outer-shell-only transition rule -> frontier kernel | Sc through Zn now expose outer ns plus inner 3d structure |
+| Period-4 p-block shell view -> filled d-core context | Ga through Kr preserve `3d^10` behind the `4s 4p` frontier |
 
 ## Fracture Deltas Avoided
 
@@ -336,6 +388,9 @@ Drift statuses:
 | Collapsing atomic-weight intervals | Interval values are stored with lower and upper bounds |
 | Inferring unsupported chemistry behavior | Level 2 properties are not claimed by Level 1 seeds |
 | Treating generated data as source authority | History records cite source authorities and derivation trace |
+| Silent Aufbau failure | Candidate/source conflict is stored as a configuration exception |
+| Flattening d-block elements into one family | Frontier signatures distinguish open, half-filled, and filled d-shell states |
+| Claiming universal magnetism or catalysis | Transition behavior fields are relevance flags, not guaranteed compound behavior |
 
 ## Source Boundary
 
@@ -349,5 +404,8 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Add source-backed bond-tendency classifications.
-2. Extend sourced Level 2 chemistry values beyond Krypton.
+1. MSPEE-118 Phase 3: Lanthanide-Actinide Expansion Kernel.
+2. Add f-orbital behavior, lanthanide contraction, radioactive decay handling,
+   actinide instability, nuclear-state extension, heavy-element uncertainty, and
+   relativistic-effect flags.
+3. Continue sourced Level 2 chemistry values beyond Krypton.

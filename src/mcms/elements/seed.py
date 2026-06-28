@@ -1,6 +1,6 @@
 """Purpose: deterministic MSPEE Level 1 seed pack for the first 36 elements.
 
-Governance scope: stores source-backed element identity, electron configuration, atomic
+Project scope: stores source-backed element identity, electron configuration, atomic
 weight model, periodic location, relation edges, and validation receipts.
 Dependencies: local MSPEE model contracts and dataclass replacement.
 Invariants: first seed pack contains Z=1..36 in order; no value is inferred without a
@@ -15,6 +15,7 @@ from typing import Any
 
 from mcms.elements.model import (
     AtomicWeightModel,
+    ConfigurationAudit,
     ElementExposure,
     ElementHistory,
     ElementIdentity,
@@ -22,8 +23,10 @@ from mcms.elements.model import (
     ElementRelationEdge,
     ElementSeedPackValidationResult,
     ElementState,
+    FrontierSignature,
     MulluStandardSymbolicElement,
     SourceReference,
+    TransitionBehaviorKernel,
 )
 
 SOURCE_REFERENCES = (
@@ -53,6 +56,56 @@ LEVEL_2_CHEMISTRY_SOURCE_REFERENCE = SourceReference(
     url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV",
     version="source page observed 2026-06-28",
 )
+
+_BOND_TENDENCY_TAGS_BY_PUBCHEM_GROUP_BLOCK: dict[str, tuple[str, ...]] = {
+    "Alkali metal": ("metallic_bonding", "ionic_bonding"),
+    "Alkaline earth metal": ("metallic_bonding", "ionic_bonding"),
+    "Halogen": ("covalent_bonding", "ionic_bonding", "molecular_covalent"),
+    "Metalloid": ("covalent_bonding", "network_covalent"),
+    "Noble gas": ("noble_gas_low_reactivity",),
+    "Nonmetal": ("covalent_bonding", "molecular_covalent"),
+    "Post-transition metal": ("metallic_bonding", "covalent_bonding"),
+    "Transition metal": ("metallic_bonding", "coordination_complex"),
+}
+
+_PUBCHEM_GROUP_BLOCK_BY_SYMBOL: dict[str, str] = {
+    "H": "Nonmetal",
+    "He": "Noble gas",
+    "Li": "Alkali metal",
+    "Be": "Alkaline earth metal",
+    "B": "Metalloid",
+    "C": "Nonmetal",
+    "N": "Nonmetal",
+    "O": "Nonmetal",
+    "F": "Halogen",
+    "Ne": "Noble gas",
+    "Na": "Alkali metal",
+    "Mg": "Alkaline earth metal",
+    "Al": "Post-transition metal",
+    "Si": "Metalloid",
+    "P": "Nonmetal",
+    "S": "Nonmetal",
+    "Cl": "Halogen",
+    "Ar": "Noble gas",
+    "K": "Alkali metal",
+    "Ca": "Alkaline earth metal",
+    "Sc": "Transition metal",
+    "Ti": "Transition metal",
+    "V": "Transition metal",
+    "Cr": "Transition metal",
+    "Mn": "Transition metal",
+    "Fe": "Transition metal",
+    "Co": "Transition metal",
+    "Ni": "Transition metal",
+    "Cu": "Transition metal",
+    "Zn": "Transition metal",
+    "Ga": "Post-transition metal",
+    "Ge": "Metalloid",
+    "As": "Metalloid",
+    "Se": "Nonmetal",
+    "Br": "Halogen",
+    "Kr": "Noble gas",
+}
 
 _LEVEL_2_CHEMISTRY_BY_SYMBOL: dict[str, dict[str, Any]] = {
     "H": {
@@ -248,10 +301,15 @@ def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
             "electronegativity_source_key": None,
             "first_ionization_energy_ev": None,
             "first_ionization_energy_source_key": None,
+            "bond_tendency_tags": (),
+            "bond_tendency_source_key": None,
             "data_level": 1,
         }
     electronegativity_value = chemistry["electronegativity_value"]
     first_ionization_energy_ev = chemistry["first_ionization_energy_ev"]
+    bond_tendency_tags = _BOND_TENDENCY_TAGS_BY_PUBCHEM_GROUP_BLOCK[
+        _PUBCHEM_GROUP_BLOCK_BY_SYMBOL[symbol]
+    ]
     if electronegativity_value is None:
         return {
             "oxidation_states": chemistry["oxidation_states"],
@@ -260,6 +318,8 @@ def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
             "electronegativity_source_key": None,
             "first_ionization_energy_ev": first_ionization_energy_ev,
             "first_ionization_energy_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
+            "bond_tendency_tags": bond_tendency_tags,
+            "bond_tendency_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
             "data_level": 2,
         }
     return {
@@ -269,8 +329,311 @@ def _level_2_chemistry_fields(symbol: str) -> dict[str, Any]:
         "electronegativity_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
         "first_ionization_energy_ev": first_ionization_energy_ev,
         "first_ionization_energy_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
+        "bond_tendency_tags": bond_tendency_tags,
+        "bond_tendency_source_key": LEVEL_2_CHEMISTRY_SOURCE_REFERENCE.key,
         "data_level": 2,
     }
+
+
+def _transition_phase_2_entry(
+    *,
+    outer_shell: str,
+    d_shell: str,
+    d_shell_stability: str,
+    source_backed_configuration: str,
+    simple_aufbau_candidate: str,
+    behavior_tags: tuple[str, ...],
+    exception_reason: str | None = None,
+    variable_oxidation_states: bool = False,
+    magnetic_relevance: bool = False,
+    coordination_relevance: bool = True,
+    catalytic_relevance: bool = False,
+    alloy_relevance: bool = False,
+    redox_relevance: bool = False,
+) -> dict[str, Any]:
+    return {
+        "frontier_signature": FrontierSignature(
+            outer_shell=outer_shell,
+            d_shell=d_shell,
+            valence_model="transition_metal",
+            d_shell_stability=d_shell_stability,
+            notes=(
+                "outer ns and inner (n-1)d electrons jointly shape behavior",
+                "oxidation, magnetic, coordination, catalytic, alloy, and redox fields "
+                "are capability relevance markers",
+            ),
+        ),
+        "configuration_audit": ConfigurationAudit(
+            source_backed_configuration=source_backed_configuration,
+            simple_aufbau_candidate=simple_aufbau_candidate,
+            is_exception=simple_aufbau_candidate != source_backed_configuration,
+            exception_reason=exception_reason,
+        ),
+        "transition_behavior_kernel": TransitionBehaviorKernel(
+            variable_oxidation_states=variable_oxidation_states,
+            magnetic_relevance=magnetic_relevance,
+            coordination_relevance=coordination_relevance,
+            catalytic_relevance=catalytic_relevance,
+            alloy_relevance=alloy_relevance,
+            redox_relevance=redox_relevance,
+        ),
+        "behavior_tags": behavior_tags,
+    }
+
+
+def _period_4_p_block_phase_2_entry(
+    *,
+    outer_shell: str,
+    p_shell: str,
+    source_backed_configuration: str,
+    behavior_tags: tuple[str, ...],
+    notes: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    return {
+        "frontier_signature": FrontierSignature(
+            outer_shell=outer_shell,
+            d_shell="3d^10",
+            p_shell=p_shell,
+            valence_model="period_4_p_block_d_core",
+            d_shell_stability="filled_d_shell",
+            notes=(
+                "filled 3d core is preserved behind the period-4 p-block frontier",
+            )
+            + notes,
+        ),
+        "configuration_audit": ConfigurationAudit(
+            source_backed_configuration=source_backed_configuration,
+            simple_aufbau_candidate=source_backed_configuration,
+        ),
+        "transition_behavior_kernel": None,
+        "behavior_tags": behavior_tags,
+    }
+
+
+_PHASE_2_SYMBOLIC_STATE_BY_SYMBOL: dict[str, dict[str, Any]] = {
+    "Sc": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^1",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^1 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^1 4s^2",
+        behavior_tags=(
+            "early_transition_metal",
+            "sc_3_plus_pathway_common",
+            "d_block_entry_point",
+        ),
+        coordination_relevance=True,
+    ),
+    "Ti": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^2",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^2 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^2 4s^2",
+        behavior_tags=(
+            "multiple_oxidation_states",
+            "strong_oxide_forming_tendency",
+            "lightweight_structural_metal",
+        ),
+        variable_oxidation_states=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "V": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^3",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^3 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^3 4s^2",
+        behavior_tags=(
+            "variable_oxidation_states",
+            "redox_active",
+            "transition_metal_chemistry_expressive",
+        ),
+        variable_oxidation_states=True,
+        catalytic_relevance=True,
+        redox_relevance=True,
+    ),
+    "Cr": _transition_phase_2_entry(
+        outer_shell="4s^1",
+        d_shell="3d^5",
+        d_shell_stability="half_filled_d_shell",
+        source_backed_configuration="[Ar] 3d^5 4s^1",
+        simple_aufbau_candidate="[Ar] 3d^4 4s^2",
+        exception_reason="half-filled d-shell stabilization pattern",
+        behavior_tags=(
+            "configuration_exception",
+            "half_filled_d_shell_stabilization",
+            "corrosion_resistant_alloy_relevance",
+            "multiple_oxidation_states",
+        ),
+        variable_oxidation_states=True,
+        magnetic_relevance=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "Mn": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^5",
+        d_shell_stability="half_filled_d_shell",
+        source_backed_configuration="[Ar] 3d^5 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^5 4s^2",
+        behavior_tags=(
+            "multiple_oxidation_states",
+            "redox_rich",
+            "magnetic_material_relevance",
+        ),
+        variable_oxidation_states=True,
+        magnetic_relevance=True,
+        redox_relevance=True,
+    ),
+    "Fe": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^6",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^6 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^6 4s^2",
+        behavior_tags=(
+            "structural_civilization_metal",
+            "fe_2_plus_fe_3_plus_pathways",
+            "magnetic_behavior",
+            "oxygen_binding_biological_relevance",
+        ),
+        variable_oxidation_states=True,
+        magnetic_relevance=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "Co": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^7",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^7 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^7 4s^2",
+        behavior_tags=(
+            "magnetic_material_relevance",
+            "coordination_chemistry",
+            "alloy_catalyst_relevance",
+        ),
+        variable_oxidation_states=True,
+        magnetic_relevance=True,
+        catalytic_relevance=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "Ni": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^8",
+        d_shell_stability="open_d_shell",
+        source_backed_configuration="[Ar] 3d^8 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^8 4s^2",
+        behavior_tags=(
+            "alloy_forming",
+            "catalytic_relevance",
+            "corrosion_resistant_material_behavior",
+        ),
+        variable_oxidation_states=True,
+        catalytic_relevance=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "Cu": _transition_phase_2_entry(
+        outer_shell="4s^1",
+        d_shell="3d^10",
+        d_shell_stability="filled_d_shell",
+        source_backed_configuration="[Ar] 3d^10 4s^1",
+        simple_aufbau_candidate="[Ar] 3d^9 4s^2",
+        exception_reason="filled d-shell stabilization pattern",
+        behavior_tags=(
+            "configuration_exception",
+            "filled_d_shell_stabilization",
+            "high_conductivity_relevance",
+            "cu_1_plus_cu_2_plus_pathways",
+        ),
+        variable_oxidation_states=True,
+        magnetic_relevance=True,
+        catalytic_relevance=True,
+        alloy_relevance=True,
+        redox_relevance=True,
+    ),
+    "Zn": _transition_phase_2_entry(
+        outer_shell="4s^2",
+        d_shell="3d^10",
+        d_shell_stability="filled_d_shell",
+        source_backed_configuration="[Ar] 3d^10 4s^2",
+        simple_aufbau_candidate="[Ar] 3d^10 4s^2",
+        behavior_tags=(
+            "filled_d_shell",
+            "zn_2_plus_pathway",
+            "biologically_relevant_metal_ion",
+        ),
+        coordination_relevance=True,
+        catalytic_relevance=True,
+        alloy_relevance=True,
+    ),
+    "Ga": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^1",
+        p_shell="4p^1",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^1",
+        behavior_tags=(
+            "post_transition_metal",
+            "low_melting_point_relevance",
+            "semiconductor_material_relevance",
+        ),
+    ),
+    "Ge": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^2",
+        p_shell="4p^2",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^2",
+        behavior_tags=(
+            "metalloid",
+            "semiconductor_relevance",
+            "silicon_family_relation",
+        ),
+    ),
+    "As": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^3",
+        p_shell="4p^3",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^3",
+        behavior_tags=(
+            "metalloid",
+            "toxicity_relevance",
+            "multiple_oxidation_behavior",
+        ),
+        notes=("multiple oxidation behavior remains separate from measured Level 2 fields",),
+    ),
+    "Se": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^4",
+        p_shell="4p^4",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^4",
+        behavior_tags=(
+            "chalcogen",
+            "trace_biological_relevance",
+            "redox_behavior",
+        ),
+    ),
+    "Br": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^5",
+        p_shell="4p^5",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^5",
+        behavior_tags=(
+            "halogen",
+            "one_electron_completion_pressure",
+            "liquid_halogen_reference_behavior",
+        ),
+    ),
+    "Kr": _period_4_p_block_phase_2_entry(
+        outer_shell="4s^2 4p^6",
+        p_shell="4p^6",
+        source_backed_configuration="[Ar] 3d^10 4s^2 4p^6",
+        behavior_tags=(
+            "noble_gas",
+            "closed_shell",
+            "low_reactivity_baseline",
+        ),
+        notes=("closed 4p shell creates low-reactivity baseline",),
+    ),
+}
 
 
 def _weight_interval(display: str, lower_bound: str, upper_bound: str) -> AtomicWeightModel:
@@ -767,7 +1130,9 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
     symbol = raw_seed["symbol"]
     atomic_number = raw_seed["z"]
     level_2_fields = _level_2_chemistry_fields(symbol)
+    phase_2_fields = _PHASE_2_SYMBOLIC_STATE_BY_SYMBOL.get(symbol)
     has_level_2_chemistry = symbol in _LEVEL_2_CHEMISTRY_BY_SYMBOL
+    has_phase_2_state = phase_2_fields is not None
     behavior_level_tag = (
         "mspee_level_2_chemistry_partial" if has_level_2_chemistry else "mspee_level_1_seed"
     )
@@ -776,7 +1141,7 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
         f"group_{raw_seed['group']}",
         f"{raw_seed['block']}_block",
         behavior_level_tag,
-    )
+    ) + (phase_2_fields["behavior_tags"] if has_phase_2_state else ())
     source_references = SOURCE_REFERENCES + (
         (LEVEL_2_CHEMISTRY_SOURCE_REFERENCE,) if has_level_2_chemistry else ()
     )
@@ -789,9 +1154,19 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
     ) + (
         (
             "PubChem periodic table properties -> oxidation_states, Pauling "
-            "electronegativity, and first_ionization_energy_ev",
+            "electronegativity, first_ionization_energy_ev, and GroupBlock-derived "
+            "bond_tendency_tags",
         )
         if has_level_2_chemistry
+        else ()
+    ) + (
+        (
+            "Phase 2 transition exception kernel -> frontier_signature, "
+            "configuration_audit, and capability flags",
+            "simple Aufbau configuration remains an audit candidate; "
+            "NIST-backed configuration remains authority",
+        )
+        if has_phase_2_state
         else ()
     )
     audit_notes = (
@@ -800,9 +1175,19 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
     ) + (
         (
             "Level 2 chemistry values are limited to oxidation-state set, Pauling "
-            "electronegativity, and first ionization energy.",
+            "electronegativity, first ionization energy, and PubChem GroupBlock-derived "
+            "bond tendency tags.",
         )
         if has_level_2_chemistry
+        else ()
+    ) + (
+        (
+            "Phase 2 frontier signatures separate outer ns, inner d-shell, and "
+            "period-4 p-block filled d-core context.",
+            "Transition behavior fields are relevance flags, not guaranteed behavior "
+            "for every compound.",
+        )
+        if has_phase_2_state
         else ()
     )
     human_view = (
@@ -838,6 +1223,17 @@ def _make_base_element(raw_seed: dict[str, Any]) -> MulluStandardSymbolicElement
             first_ionization_energy_source_key=level_2_fields[
                 "first_ionization_energy_source_key"
             ],
+            bond_tendency_tags=level_2_fields["bond_tendency_tags"],
+            bond_tendency_source_key=level_2_fields["bond_tendency_source_key"],
+            frontier_signature=phase_2_fields["frontier_signature"]
+            if has_phase_2_state
+            else None,
+            configuration_audit=phase_2_fields["configuration_audit"]
+            if has_phase_2_state
+            else None,
+            transition_behavior_kernel=phase_2_fields["transition_behavior_kernel"]
+            if has_phase_2_state
+            else None,
             behavior_tags=behavior_tags,
             data_level=level_2_fields["data_level"],
         ),

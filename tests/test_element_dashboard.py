@@ -17,19 +17,31 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
         dashboard["selected_element"]["first_ionization_energy"]["source_key"]
         == "pubchem_periodic_table_properties"
     )
-    assert dashboard["selected_element"]["bond_tendency"]["tags"] == []
+    assert dashboard["selected_element"]["bond_tendency"]["tags"] == [
+        "metallic_bonding",
+        "coordination_complex",
+    ]
+    assert dashboard["selected_element"]["bond_tendency"]["source_key"] == (
+        "pubchem_periodic_table_properties"
+    )
+    assert dashboard["selected_element"]["frontier_signature"]["d_shell"] == "3d^10"
+    assert dashboard["selected_element"]["configuration_audit"]["is_exception"] is False
+    assert dashboard["selected_element"]["transition_behavior_kernel"]["coordination_relevance"] is True
     assert dashboard["graph"]["query"]["edge_count"] == 9
     assert len(dashboard["schema_cards"]) == 3
 
 
 def test_dashboard_view_model_surfaces_seed_pack_level_2_chemistry_fields():
-    dashboard = build_element_dashboard_view_model("O", relation_type="same_period").to_dict()
+    dashboard = build_element_dashboard_view_model("Cr", relation_type="same_period").to_dict()
     element_card = dashboard["selected_element"]
-    assert element_card["symbol"] == "O"
-    assert element_card["oxidation_states"] == [-2]
+    assert element_card["symbol"] == "Cr"
+    assert element_card["oxidation_states"] == [6, 3, 2]
     assert element_card["electronegativity"]["scale"] == "pauling"
-    assert element_card["electronegativity"]["value"] == 3.44
+    assert element_card["electronegativity"]["value"] == 1.66
     assert element_card["electronegativity"]["source_key"] == "pubchem_periodic_table_properties"
+    assert element_card["configuration_audit"]["simple_aufbau_candidate"] == "[Ar] 3d^4 4s^2"
+    assert element_card["configuration_audit"]["is_exception"] is True
+    assert element_card["frontier_signature"]["d_shell_stability"] == "half_filled_d_shell"
 
 
 def test_dashboard_view_model_preserves_snapshot_only_boundary():

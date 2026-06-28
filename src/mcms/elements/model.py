@@ -1,6 +1,6 @@
-"""Purpose: typed MSPEE symbolic element contracts.
+"""Purpose: typed MSPEE element contracts.
 
-Governance scope: defines auditable identity, law, state, exposure, and history fields.
+Project scope: defines auditable identity, law, state, exposure, and history fields.
 Dependencies: Python dataclasses, hashlib, and JSON canonicalization.
 Invariants: identity equals proton count; neutral electron count equals atomic number;
 all source-backed seed records validate before platform exposure.
@@ -13,6 +13,16 @@ from dataclasses import asdict, dataclass
 from hashlib import sha256
 
 VALID_BLOCKS = {"s", "p", "d", "f"}
+VALID_FRONTIER_VALENCE_MODELS = {
+    "main_group",
+    "period_4_p_block_d_core",
+    "transition_metal",
+}
+VALID_D_SHELL_STABILITY_STATES = {
+    "filled_d_shell",
+    "half_filled_d_shell",
+    "open_d_shell",
+}
 VALID_WEIGHT_MODEL_TYPES = {"interval", "single", "unavailable"}
 VALID_RELATION_TYPES = {"same_group", "same_period", "same_block"}
 VALID_ELECTRONEGATIVITY_SCALES = {"pauling"}
@@ -153,6 +163,89 @@ class ElementRelationEdge:
 
 
 @dataclass(frozen=True)
+class FrontierSignature:
+    outer_shell: str
+    d_shell: str | None = None
+    p_shell: str | None = None
+    valence_model: str = "main_group"
+    d_shell_stability: str | None = None
+    notes: tuple[str, ...] = ()
+
+    def validate(self) -> list[str]:
+        errors: list[str] = []
+        if not self.outer_shell:
+            errors.append("frontier outer shell is required.")
+        if self.valence_model not in VALID_FRONTIER_VALENCE_MODELS:
+            errors.append("frontier valence model is unknown.")
+        if (
+            self.d_shell_stability is not None
+            and self.d_shell_stability not in VALID_D_SHELL_STABILITY_STATES
+        ):
+            errors.append("d-shell stability state is unknown.")
+        if self.valence_model == "transition_metal":
+            if not self.d_shell:
+                errors.append("transition-metal frontier requires an inner d-shell.")
+            if self.d_shell_stability is None:
+                errors.append("transition-metal frontier requires d-shell stability state.")
+        if self.valence_model == "period_4_p_block_d_core" and self.d_shell != "3d^10":
+            errors.append("period-4 p-block frontier must preserve filled 3d core.")
+        return errors
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class ConfigurationAudit:
+    source_backed_configuration: str
+    simple_aufbau_candidate: str | None = None
+    is_exception: bool = False
+    exception_reason: str | None = None
+
+    def validate(self) -> list[str]:
+        return validate_configuration_audit(self)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def validate_configuration_audit(audit: ConfigurationAudit) -> list[str]:
+    errors: list[str] = []
+    if not audit.source_backed_configuration:
+        errors.append("Missing source-backed electron configuration.")
+    if audit.is_exception and not audit.simple_aufbau_candidate:
+        errors.append("Exception marked but simple Aufbau candidate is missing.")
+    if audit.is_exception and not audit.exception_reason:
+        errors.append("Exception marked but exception reason is missing.")
+    if (
+        audit.simple_aufbau_candidate
+        and audit.simple_aufbau_candidate != audit.source_backed_configuration
+        and not audit.is_exception
+    ):
+        errors.append("Configuration conflict exists but exception flag is false.")
+    if (
+        audit.simple_aufbau_candidate
+        and audit.simple_aufbau_candidate == audit.source_backed_configuration
+        and audit.is_exception
+    ):
+        errors.append("Exception flag is true but simple candidate matches source-backed value.")
+    return errors
+
+
+@dataclass(frozen=True)
+class TransitionBehaviorKernel:
+    variable_oxidation_states: bool = False
+    magnetic_relevance: bool = False
+    coordination_relevance: bool = False
+    catalytic_relevance: bool = False
+    alloy_relevance: bool = False
+    redox_relevance: bool = False
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class ElementState:
     neutral_electron_count: int
     neutral_electron_configuration: str
@@ -171,6 +264,9 @@ class ElementState:
     first_ionization_energy_source_key: str | None = None
     bond_tendency_tags: tuple[str, ...] = ()
     bond_tendency_source_key: str | None = None
+    frontier_signature: FrontierSignature | None = None
+    configuration_audit: ConfigurationAudit | None = None
+    transition_behavior_kernel: TransitionBehaviorKernel | None = None
     behavior_tags: tuple[str, ...] = ()
     relation_edges: tuple[ElementRelationEdge, ...] = ()
     data_level: int = 1
@@ -254,6 +350,24 @@ class ElementState:
             errors.append("bond tendency source key is required when tags are present.")
         if self.bond_tendency_source_key and not self.bond_tendency_tags:
             errors.append("bond tendency tags are required when source key is present.")
+        if self.frontier_signature is not None:
+            errors.extend(self.frontier_signature.validate())
+        if self.configuration_audit is not None:
+            errors.extend(self.configuration_audit.validate())
+        if self.block == "d":
+            if self.frontier_signature is None:
+                errors.append("d-block element requires frontier signature.")
+            elif self.frontier_signature.valence_model != "transition_metal":
+                errors.append("d-block frontier must use transition-metal valence model.")
+            if self.transition_behavior_kernel is None:
+                errors.append("d-block element requires transition behavior kernel.")
+        if self.block == "p" and self.period == 4:
+            if self.frontier_signature is None:
+                errors.append("period-4 p-block element requires filled d-core frontier signature.")
+            elif self.frontier_signature.valence_model != "period_4_p_block_d_core":
+                errors.append("period-4 p-block frontier must preserve filled d-core model.")
+            elif self.frontier_signature.d_shell != "3d^10":
+                errors.append("period-4 p-block frontier must preserve filled 3d core.")
         errors.extend(self.atomic_weight_model.validate())
         for edge in self.relation_edges:
             errors.extend(edge.validate())
@@ -347,6 +461,24 @@ class MulluStandardSymbolicElement:
             errors.append("canonical name is required.")
         if self.state.neutral_electron_count != self.identity.atomic_number:
             errors.append("neutral electron count must equal atomic number.")
+        if self.state.configuration_audit is not None:
+            source_backed_configuration = (
+                self.state.configuration_audit.source_backed_configuration
+            )
+            if source_backed_configuration != self.state.neutral_electron_configuration:
+                errors.append(
+                    "source-backed configuration must match neutral electron configuration."
+                )
+        if 21 <= self.identity.atomic_number <= 36:
+            if self.state.frontier_signature is None:
+                errors.append("Phase 2 seed record requires frontier signature.")
+            if self.state.configuration_audit is None:
+                errors.append("Phase 2 seed record requires configuration audit.")
+        if self.identity.symbol in {"Cr", "Cu"}:
+            if self.state.configuration_audit is None:
+                errors.append("Cr and Cu require configuration exception audit.")
+            elif not self.state.configuration_audit.is_exception:
+                errors.append("Cr and Cu must be marked as configuration exceptions.")
         errors.extend(self.laws.validate())
         errors.extend(self.state.validate())
         errors.extend(self.exposure.validate())
