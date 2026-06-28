@@ -126,6 +126,7 @@ python -m mcms.cli elements --schema snapshot
 python -m mcms.cli elements --schema bundle
 python -m mcms.cli elements --graph
 python -m mcms.cli elements --graph --symbol Zn --relation same_block
+python -m mcms.cli api --host 127.0.0.1 --port 8765
 ```
 
 ## Validation
@@ -187,6 +188,34 @@ The repository verifier checks the Zinc same-block graph query, and focused grap
 tests cover full graph export, filtered export, rejection of unknown relation
 types, and CLI JSON output.
 
+## Local API
+
+The local API is a read-only JSON surface over the same deterministic element,
+snapshot, schema, and graph functions used by the CLI. It uses the Python standard
+library HTTP server and introduces no runtime web-framework dependency.
+
+Start it with:
+
+```powershell
+python -m mcms.cli api --host 127.0.0.1 --port 8765
+```
+
+Routes:
+
+| Route | Result |
+| --- | --- |
+| `GET /health` | API status, seed count, snapshot count |
+| `GET /elements` | Level 1 seed symbols and validation summary |
+| `GET /elements/{symbol}` | Seed element payload and receipt |
+| `GET /snapshot` | Full snapshot symbols and validation summary |
+| `GET /snapshot/{symbol}` | Snapshot record payload and receipt |
+| `GET /schemas/{seed\|snapshot\|bundle}` | JSON Schema export |
+| `GET /graph` | Full Level 1 relation graph |
+| `GET /graph?symbol=Zn&relation=same_block` | Filtered graph query |
+
+Unknown routes, unknown symbols, invalid relation types, and non-GET methods
+return explicit JSON error payloads.
+
 ## Source Drift Check
 
 The snapshot has an explicit CIAAW drift checker. The checker compares the local
@@ -223,6 +252,7 @@ Drift statuses:
 | Static source snapshot -> drift-checkable source boundary | CIAAW source changes now produce explicit drift reports |
 | Python object contract -> JSON Schema contract | Seed and snapshot records can now be exported and externally validated |
 | Embedded relation edges -> graph export | Element relation queries now produce deterministic node and edge payloads |
+| CLI-only surface -> local API surface | Element lookup, schemas, and graph queries now have read-only JSON routes |
 
 ## Fracture Deltas Avoided
 
@@ -244,4 +274,4 @@ The seed implementation uses these authority anchors:
 ## Next Expansion
 
 1. Add Level 2 chemical behavior fields for the first 20 elements.
-2. Add a local API surface for element lookup, schemas, and graph queries.
+2. Add a dashboard-facing view model for element lookup, schemas, and graph queries.

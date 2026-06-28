@@ -47,7 +47,7 @@ M8 = production-engineering-ready
 7. Full 118-element source snapshot workflow with source-drift check
 8. JSON Schema export for element and snapshot records
 9. Graph export for element relation queries
-10. Local API
-11. Dashboard
+10. Local API for element lookup, schemas, and graph queries
+11. Dashboard-facing view model
 12. Real provider adapters
 ```

@@ -82,6 +82,7 @@ python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
 python -m mcms.cli elements --schema bundle
 python -m mcms.cli elements --graph --symbol Zn --relation same_block
+python -m mcms.cli api --host 127.0.0.1 --port 8765
 python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 
@@ -98,6 +99,7 @@ python -m mcms.cli elements --symbol H
 python -m mcms.cli elements --full --symbol Og
 python -m mcms.cli elements --schema bundle
 python -m mcms.cli elements --graph --symbol Zn --relation same_block
+python -m mcms.cli api --host 127.0.0.1 --port 8765
 python scripts/check_element_snapshot_drift.py --fail-on-drift
 ```
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from mcms.api import serve_api
 from mcms.core.boundaries import compile_claim_boundary
 from mcms.core.phases import latest_phase, load_phase_registry
 from mcms.elements import (
@@ -110,11 +111,18 @@ def cmd_elements(
     print(json.dumps(validate_seed_pack().to_dict(), indent=2))
 
 
+def cmd_api(host: str, port: int) -> None:
+    serve_api(host=host, port=port)
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="mcms")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("demo")
     sub.add_parser("phases")
+    api_parser = sub.add_parser("api")
+    api_parser.add_argument("--host", default="127.0.0.1")
+    api_parser.add_argument("--port", type=int, default=8765)
     elements_parser = sub.add_parser("elements")
     elements_parser.add_argument("--symbol", help="Element symbol, name, or atomic number")
     elements_parser.add_argument("--list", action="store_true", help="List MSPEE seed elements")
@@ -143,6 +151,8 @@ def main(argv: list[str] | None = None) -> None:
         cmd_demo()
     elif args.cmd == "phases":
         cmd_phases()
+    elif args.cmd == "api":
+        cmd_api(args.host, args.port)
     elif args.cmd == "elements":
         cmd_elements(args.symbol, args.list, args.full, args.schema, args.graph, args.relation)
 

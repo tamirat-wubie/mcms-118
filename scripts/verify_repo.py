@@ -9,6 +9,7 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from mcms.api import handle_api_request  # noqa: E402
 from mcms.elements import (  # noqa: E402
     build_element_relation_graph,
     element_seed_json_schema,
@@ -66,6 +67,12 @@ def main() -> None:
     assert zinc_block_graph.graph_status == "element_relation_graph_exported", zinc_block_graph
     assert zinc_block_graph.query["node_count"] == 10, zinc_block_graph.query
     assert zinc_block_graph.query["edge_count"] == 9, zinc_block_graph.query
+    api_health = handle_api_request("GET", "/health")
+    api_graph = handle_api_request("GET", "/graph?symbol=Zn&relation=same_block")
+    assert api_health.status_code == 200, api_health
+    assert api_health.payload["seed_count"] == 36, api_health.payload
+    assert api_graph.status_code == 200, api_graph
+    assert api_graph.payload["graph"]["query"]["edge_count"] == 9, api_graph.payload
     for phase in phases:
         missing = REQUIRED_KEYS - set(phase)
         assert not missing, (phase["phase"], sorted(missing))
