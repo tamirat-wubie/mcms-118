@@ -19,14 +19,14 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /instances/ion/Na?charge=1" in index["routes"]
     assert "GET /instances/isotope/C?mass_number=14" in index["routes"]
     assert "GET /atom/behavior/C?mass_number=14" in index["routes"]
-    assert "GET /atom/behavior/gaps/Ga" in index["routes"]
-    assert "GET /atom/behavior/workplan/Ga" in index["routes"]
-    assert "GET /atom/behavior/isotope-source-policy/Ga" in index["routes"]
-    assert "GET /atom/behavior/isotope-source-search/Ga" in index["routes"]
+    assert "GET /atom/behavior/gaps/Rb" in index["routes"]
+    assert "GET /atom/behavior/workplan/Rb" in index["routes"]
+    assert "GET /atom/behavior/isotope-source-policy/Rb" in index["routes"]
+    assert "GET /atom/behavior/isotope-source-search/Rb" in index["routes"]
     assert "GET /atom/behavior/isotope-candidate-admission/O" in index["routes"]
-    assert "GET /scoring/readiness/Ga" in index["routes"]
+    assert "GET /scoring/readiness/Rb" in index["routes"]
     assert "GET /evidence/isotopes/C?mass_number=14" in index["routes"]
-    assert "GET /evidence/isotopes/unresolved/Ga" in index["routes"]
+    assert "GET /evidence/isotopes/unresolved/Rb" in index["routes"]
     assert "GET /evidence/common-ions/Fe" in index["routes"]
     assert "GET /evidence/common-ions/unresolved/O" in index["routes"]
     assert "GET /evidence/configurations/At" in index["routes"]
@@ -63,11 +63,11 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /level2/period-5/Xe" in index["routes"]
     assert health["seed_count"] == 54
     assert health["snapshot_count"] == 118
-    assert health["atom_behavior_profile_count"] == 79
-    assert health["atom_behavior_gap_count"] == 88
-    assert health["atom_behavior_gap_work_item_count"] == 88
-    assert health["isotope_source_policy_count"] == 24
-    assert health["isotope_source_search_receipt_count"] == 24
+    assert health["atom_behavior_profile_count"] == 101
+    assert health["atom_behavior_gap_count"] == 82
+    assert health["atom_behavior_gap_work_item_count"] == 82
+    assert health["isotope_source_policy_count"] == 18
+    assert health["isotope_source_search_receipt_count"] == 18
     assert health["isotope_candidate_evidence_receipt_count"] == 0
     assert health["isotope_candidate_admission_receipt_count"] == 1
     assert health["element_readiness_score_count"] == 118
@@ -133,7 +133,7 @@ def test_local_api_exposes_atom_behavior_profiles():
     )
     ambiguous = handle_api_request("GET", "/atom/behavior/C")
     under_specified_charge = handle_api_request("GET", "/atom/behavior/C?charge=1")
-    assert profiles["validation"]["profile_count"] == 79
+    assert profiles["validation"]["profile_count"] == 101
     assert profiles["validation"]["radioisotope_profile_count"] == 5
     assert carbon_14["profile"]["profile_id"] == (
         "MSPEE-Z006-C-isotope-14-charge-neutral-0-atom-behavior-v2"
