@@ -23,7 +23,6 @@ VALID_ISOTOPE_SOURCE_SEARCH_STATUSES = {
     "isotope_source_search_complete_pending_receipt",
     "isotope_source_search_complete_candidate_receipt_created",
 }
-OXYGEN_NIST_CANDIDATE_RECEIPT_ID = "MSPEE-ISOTOPE-CANDIDATE-EVIDENCE-Z008-O-NIST"
 
 
 @dataclass(frozen=True)
@@ -118,13 +117,6 @@ def _build_isotope_source_search_receipt(
         "collect a source-specific isotope evidence receipt and validate it "
         "against the isotope source policy before profile generation"
     )
-    if policy.symbol == "O":
-        search_status = "isotope_source_search_complete_candidate_receipt_created"
-        candidate_receipt_id = OXYGEN_NIST_CANDIDATE_RECEIPT_ID
-        required_next_action = (
-            "review the Oxygen NIST isotope candidate receipt before any isotope "
-            "evidence admission or atom behavior profile generation"
-        )
     return IsotopeSourceSearchReceipt(
         search_id=(
             f"MSPEE-ISOTOPE-SOURCE-SEARCH-"

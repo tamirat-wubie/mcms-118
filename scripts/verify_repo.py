@@ -37,7 +37,7 @@ from mcms.elements import (  # noqa: E402
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_f_block_expansion_profile,
-    get_isotope_candidate_evidence_receipt,
+    get_isotope_candidate_admission_receipt,
     get_isotope_source_policy,
     get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
@@ -74,6 +74,7 @@ from mcms.elements import (  # noqa: E402
     list_f_block_expansion_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_admission_receipts,
     list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
@@ -117,6 +118,7 @@ from mcms.elements import (  # noqa: E402
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
     validate_isotope_source_policies,
@@ -390,6 +392,10 @@ def main() -> None:
     isotope_candidate_evidence_result = validate_isotope_candidate_evidence_receipts(
         isotope_candidate_evidence_receipts
     )
+    isotope_candidate_admission_receipts = list_isotope_candidate_admission_receipts()
+    isotope_candidate_admission_result = validate_isotope_candidate_admission_receipts(
+        isotope_candidate_admission_receipts
+    )
     cs_rn_promotion_profiles = list_cs_rn_promotion_readiness_profiles()
     cs_rn_promotion_result = validate_cs_rn_promotion_readiness_profiles(
         cs_rn_promotion_profiles
@@ -440,8 +446,8 @@ def main() -> None:
     assert isotope_evidence_result["validation_status"] == "isotope_evidence_records_validated", (
         isotope_evidence_result
     )
-    assert isotope_evidence_result["record_count"] == 5, isotope_evidence_result
-    assert isotope_evidence_result["radioisotope_count"] == 1, isotope_evidence_result
+    assert isotope_evidence_result["record_count"] == 13, isotope_evidence_result
+    assert isotope_evidence_result["radioisotope_count"] == 2, isotope_evidence_result
     assert common_ion_evidence_result["validation_status"] == (
         "common_ion_evidence_records_validated"
     ), common_ion_evidence_result
@@ -449,7 +455,7 @@ def main() -> None:
     assert unresolved_isotope_evidence_result["validation_status"] == (
         "isotope_evidence_unresolved_records_validated"
     ), unresolved_isotope_evidence_result
-    assert unresolved_isotope_evidence_result["record_count"] == 116, (
+    assert unresolved_isotope_evidence_result["record_count"] == 113, (
         unresolved_isotope_evidence_result
     )
     assert unresolved_common_ion_evidence_result["validation_status"] == (
@@ -828,9 +834,10 @@ def main() -> None:
     assert atom_behavior_result["validation_status"] == "atom_behavior_profiles_validated", (
         atom_behavior_result
     )
-    assert atom_behavior_result["profile_count"] == 5, atom_behavior_result
-    assert atom_behavior_result["neutral_profile_count"] == 5, atom_behavior_result
-    assert atom_behavior_result["radioisotope_profile_count"] == 1, atom_behavior_result
+    assert atom_behavior_result["profile_count"] == 13, atom_behavior_result
+    assert atom_behavior_result["neutral_profile_count"] == 13, atom_behavior_result
+    assert atom_behavior_result["stable_isotope_profile_count"] == 11, atom_behavior_result
+    assert atom_behavior_result["radioisotope_profile_count"] == 2, atom_behavior_result
     carbon_14_atom_behavior = build_atom_behavior_profile("C", 14)
     assert carbon_14_atom_behavior.proton_count == 6, carbon_14_atom_behavior
     assert carbon_14_atom_behavior.neutron_count == 8, carbon_14_atom_behavior
@@ -841,30 +848,30 @@ def main() -> None:
     assert atom_behavior_gap_result["validation_status"] == (
         "atom_behavior_gap_receipts_validated"
     ), atom_behavior_gap_result
-    assert atom_behavior_gap_result["receipt_count"] == 116, atom_behavior_gap_result
-    assert atom_behavior_gap_result["isotope_only_gap_count"] == 52, atom_behavior_gap_result
+    assert atom_behavior_gap_result["receipt_count"] == 113, atom_behavior_gap_result
+    assert atom_behavior_gap_result["isotope_only_gap_count"] == 49, atom_behavior_gap_result
     assert atom_behavior_gap_result["seed_and_matter_gap_count"] == 64, atom_behavior_gap_result
     assert atom_behavior_gap_work_result["validation_status"] == (
         "atom_behavior_gap_work_items_validated"
     ), atom_behavior_gap_work_result
-    assert atom_behavior_gap_work_result["work_item_count"] == 116, (
+    assert atom_behavior_gap_work_result["work_item_count"] == 113, (
         atom_behavior_gap_work_result
     )
-    assert atom_behavior_gap_work_result["isotope_evidence_required_count"] == 52, (
+    assert atom_behavior_gap_work_result["isotope_evidence_required_count"] == 49, (
         atom_behavior_gap_work_result
     )
     assert atom_behavior_gap_work_result["seed_and_matter_profile_required_count"] == 64, (
         atom_behavior_gap_work_result
     )
-    oxygen_atom_gap = get_atom_behavior_gap_receipt("O")
+    lithium_atom_gap = get_atom_behavior_gap_receipt("Li")
     radon_atom_work = get_atom_behavior_gap_work_item("Rn")
-    assert oxygen_atom_gap.profile_blockers == ("isotope_evidence",), oxygen_atom_gap
+    assert lithium_atom_gap.profile_blockers == ("isotope_evidence",), lithium_atom_gap
     assert radon_atom_work.work_status == "seed_and_matter_profile_required", radon_atom_work
     assert radon_atom_work.seed_mutation_allowed is False, radon_atom_work
     assert isotope_source_policy_result["validation_status"] == (
         "isotope_source_policies_validated"
     ), isotope_source_policy_result
-    assert isotope_source_policy_result["policy_count"] == 52, (
+    assert isotope_source_policy_result["policy_count"] == 49, (
         isotope_source_policy_result
     )
     assert isotope_source_policy_result["candidate_source_count"] == 3, (
@@ -885,23 +892,23 @@ def main() -> None:
     assert isotope_source_policy_result["seed_mutation_allowed_count"] == 0, (
         isotope_source_policy_result
     )
-    oxygen_isotope_policy = get_isotope_source_policy("O")
-    assert oxygen_isotope_policy.target_atom_behavior_gap_receipt_id == (
-        "MSPEE-ATOM-BEHAVIOR-GAP-Z008-O"
-    ), oxygen_isotope_policy
-    assert oxygen_isotope_policy.atom_behavior_generation_allowed is False, (
-        oxygen_isotope_policy
+    lithium_isotope_policy = get_isotope_source_policy("Li")
+    assert lithium_isotope_policy.target_atom_behavior_gap_receipt_id == (
+        "MSPEE-ATOM-BEHAVIOR-GAP-Z003-Li"
+    ), lithium_isotope_policy
+    assert lithium_isotope_policy.atom_behavior_generation_allowed is False, (
+        lithium_isotope_policy
     )
     assert isotope_source_search_result["validation_status"] == (
         "isotope_source_search_receipts_validated"
     ), isotope_source_search_result
-    assert isotope_source_search_result["search_receipt_count"] == 52, (
+    assert isotope_source_search_result["search_receipt_count"] == 49, (
         isotope_source_search_result
     )
-    assert isotope_source_search_result["open_search_count"] == 51, (
+    assert isotope_source_search_result["open_search_count"] == 49, (
         isotope_source_search_result
     )
-    assert isotope_source_search_result["candidate_receipt_created_count"] == 1, (
+    assert isotope_source_search_result["candidate_receipt_created_count"] == 0, (
         isotope_source_search_result
     )
     assert isotope_source_search_result["candidate_source_count"] == 3, (
@@ -916,26 +923,24 @@ def main() -> None:
     assert isotope_source_search_result["seed_mutation_allowed_count"] == 0, (
         isotope_source_search_result
     )
-    oxygen_isotope_search = get_isotope_source_search_receipt("O")
-    assert oxygen_isotope_search.policy_id == oxygen_isotope_policy.policy_id, (
-        oxygen_isotope_search
+    lithium_isotope_search = get_isotope_source_search_receipt("Li")
+    assert lithium_isotope_search.policy_id == lithium_isotope_policy.policy_id, (
+        lithium_isotope_search
     )
-    assert oxygen_isotope_search.search_status == (
-        "isotope_source_search_complete_candidate_receipt_created"
-    ), oxygen_isotope_search
-    assert oxygen_isotope_search.candidate_receipt_id == (
-        "MSPEE-ISOTOPE-CANDIDATE-EVIDENCE-Z008-O-NIST"
-    ), oxygen_isotope_search
+    assert lithium_isotope_search.search_status == "isotope_source_search_open", (
+        lithium_isotope_search
+    )
+    assert lithium_isotope_search.candidate_receipt_id is None, lithium_isotope_search
     assert isotope_candidate_evidence_result["validation_status"] == (
         "isotope_candidate_evidence_receipts_validated"
     ), isotope_candidate_evidence_result
-    assert isotope_candidate_evidence_result["receipt_count"] == 1, (
+    assert isotope_candidate_evidence_result["receipt_count"] == 0, (
         isotope_candidate_evidence_result
     )
-    assert isotope_candidate_evidence_result["candidate_isotope_count"] == 3, (
+    assert isotope_candidate_evidence_result["candidate_isotope_count"] == 0, (
         isotope_candidate_evidence_result
     )
-    assert isotope_candidate_evidence_result["stable_candidate_count"] == 3, (
+    assert isotope_candidate_evidence_result["stable_candidate_count"] == 0, (
         isotope_candidate_evidence_result
     )
     assert isotope_candidate_evidence_result["radioisotope_candidate_count"] == 0, (
@@ -953,29 +958,35 @@ def main() -> None:
     assert isotope_candidate_evidence_result["seed_mutation_allowed_count"] == 0, (
         isotope_candidate_evidence_result
     )
-    oxygen_candidate_evidence = get_isotope_candidate_evidence_receipt("O")
-    oxygen_candidate_template = build_isotope_candidate_evidence_template("O")
-    assert oxygen_candidate_evidence.source_key == (
-        "nist_atomic_weights_isotopic_compositions"
-    ), oxygen_candidate_evidence
-    assert tuple(value.mass_number for value in oxygen_candidate_evidence.candidate_values) == (
-        16,
-        17,
-        18,
-    ), oxygen_candidate_evidence
-    assert oxygen_candidate_evidence.candidate_values[0].relative_atomic_mass == (
-        "15.99491461957(17)"
-    ), oxygen_candidate_evidence
-    assert oxygen_candidate_evidence.admission_status == "isotope_evidence_candidate", (
-        oxygen_candidate_evidence
+    assert isotope_candidate_admission_result["validation_status"] == (
+        "isotope_candidate_admission_receipts_validated"
+    ), isotope_candidate_admission_result
+    assert isotope_candidate_admission_result["receipt_count"] == 1, (
+        isotope_candidate_admission_result
     )
-    assert oxygen_candidate_evidence.closes_gap is False, oxygen_candidate_evidence
-    assert oxygen_candidate_evidence.atom_behavior_generation_allowed is False, (
-        oxygen_candidate_evidence
+    assert isotope_candidate_admission_result["admitted_to_canonical_count"] == 1, (
+        isotope_candidate_admission_result
     )
-    assert oxygen_candidate_template["symbol"] == "O", oxygen_candidate_template
-    assert oxygen_candidate_template["seed_mutation_allowed"] is False, (
-        oxygen_candidate_template
+    assert isotope_candidate_admission_result["admitted_isotope_count"] == 3, (
+        isotope_candidate_admission_result
+    )
+    assert isotope_candidate_admission_result["active_candidate_retained_count"] == 0, (
+        isotope_candidate_admission_result
+    )
+    assert isotope_candidate_admission_result["seed_mutation_allowed_count"] == 0, (
+        isotope_candidate_admission_result
+    )
+    oxygen_candidate_admission = get_isotope_candidate_admission_receipt("O")
+    assert oxygen_candidate_admission.admitted_mass_numbers == (16, 17, 18), (
+        oxygen_candidate_admission
+    )
+    assert oxygen_candidate_admission.active_candidate_receipt_retained is False, (
+        oxygen_candidate_admission
+    )
+    lithium_candidate_template = build_isotope_candidate_evidence_template("Li")
+    assert lithium_candidate_template["symbol"] == "Li", lithium_candidate_template
+    assert lithium_candidate_template["seed_mutation_allowed"] is False, (
+        lithium_candidate_template
     )
     assert cs_rn_promotion_result.validation_status == (
         "cs_rn_promotion_readiness_profiles_validated"
@@ -1110,7 +1121,7 @@ def main() -> None:
     assert oganesson_294.neutron_count == 176, oganesson_294
     carbon_14_evidence = find_isotope_evidence_records("C", mass_number=14)[0]
     iron_ion_evidence = find_common_ion_evidence_records("Fe")
-    oxygen_unresolved_isotope = find_unresolved_isotope_evidence_record("O")
+    lithium_unresolved_isotope = find_unresolved_isotope_evidence_record("Li")
     oxygen_unresolved_common_ion = find_unresolved_common_ion_evidence_record("O")
     bromine_properties = find_physical_property_evidence_record("Br")
     radon_properties = find_physical_property_evidence_record("Rn")
@@ -1145,8 +1156,8 @@ def main() -> None:
     assert carbon_14_evidence.half_life_value == 5730.0, carbon_14_evidence
     assert carbon_14_evidence.decay_mode == "beta_minus", carbon_14_evidence
     assert {record.charge for record in iron_ion_evidence} == {2, 3}, iron_ion_evidence
-    assert oxygen_unresolved_isotope.evidence_domain == "isotope_evidence", (
-        oxygen_unresolved_isotope
+    assert lithium_unresolved_isotope.evidence_domain == "isotope_evidence", (
+        lithium_unresolved_isotope
     )
     assert oxygen_unresolved_common_ion.evidence_domain == "common_ion_evidence", (
         oxygen_unresolved_common_ion
@@ -1657,7 +1668,10 @@ def main() -> None:
     api_sodium_ion = handle_api_request("GET", "/instances/ion/Na?charge=1")
     api_carbon_14 = handle_api_request("GET", "/instances/isotope/C?mass_number=14")
     api_carbon_14_evidence = handle_api_request("GET", "/evidence/isotopes/C?mass_number=14")
-    api_oxygen_unresolved_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/O")
+    api_lithium_unresolved_isotope = handle_api_request(
+        "GET",
+        "/evidence/isotopes/unresolved/Li",
+    )
     api_iron_ion_evidence = handle_api_request("GET", "/evidence/common-ions/Fe")
     api_oxygen_unresolved_common_ion = handle_api_request(
         "GET",
@@ -1788,21 +1802,25 @@ def main() -> None:
         "/evidence/physical-properties/secondary-evidence/template/At",
     )
     api_bromine_matter_profile = handle_api_request("GET", "/matter/profiles/Br")
-    api_oxygen_isotope_source_policy = handle_api_request(
+    api_lithium_isotope_source_policy = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-source-policy/O",
+        "/atom/behavior/isotope-source-policy/Li",
     )
-    api_oxygen_isotope_source_search = handle_api_request(
+    api_lithium_isotope_source_search = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-source-search/O",
+        "/atom/behavior/isotope-source-search/Li",
     )
     api_oxygen_isotope_candidate_evidence = handle_api_request(
         "GET",
         "/atom/behavior/isotope-candidate-evidence/O",
     )
-    api_oxygen_isotope_candidate_template = handle_api_request(
+    api_oxygen_isotope_candidate_admission = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-candidate-evidence/template/O",
+        "/atom/behavior/isotope-candidate-admission/O",
+    )
+    api_lithium_isotope_candidate_template = handle_api_request(
+        "GET",
+        "/atom/behavior/isotope-candidate-evidence/template/Li",
     )
     api_cs_rn_promotion_profiles = handle_api_request("GET", "/promotion/cs-rn")
     api_astatine_promotion_profile = handle_api_request("GET", "/promotion/cs-rn/At")
@@ -1813,6 +1831,9 @@ def main() -> None:
     dashboard = build_element_dashboard_view_model("Zn", relation_type="same_block")
     assert api_health.status_code == 200, api_health
     assert api_health.payload["seed_count"] == 54, api_health.payload
+    assert api_health.payload["isotope_candidate_admission_receipt_count"] == 1, (
+        api_health.payload
+    )
     assert api_graph.status_code == 200, api_graph
     assert api_graph.payload["graph"]["query"]["edge_count"] == 19, api_graph.payload
     assert api_dashboard.status_code == 200, api_dashboard
@@ -1841,9 +1862,11 @@ def main() -> None:
     assert api_carbon_14_evidence.payload["records"][0]["half_life_value"] == 5730.0, (
         api_carbon_14_evidence.payload
     )
-    assert api_oxygen_unresolved_isotope.status_code == 200, api_oxygen_unresolved_isotope
+    assert api_lithium_unresolved_isotope.status_code == 200, (
+        api_lithium_unresolved_isotope
+    )
     assert (
-        api_oxygen_unresolved_isotope.payload["record"]["evidence_domain"]
+        api_lithium_unresolved_isotope.payload["record"]["evidence_domain"]
         == "isotope_evidence"
     )
     assert api_iron_ion_evidence.status_code == 200, api_iron_ion_evidence
@@ -2049,41 +2072,42 @@ def main() -> None:
     assert api_bromine_matter_profile.payload["profile"]["standard_state"] == "Liquid", (
         api_bromine_matter_profile.payload
     )
-    assert api_oxygen_isotope_source_policy.status_code == 200, (
-        api_oxygen_isotope_source_policy
+    assert api_lithium_isotope_source_policy.status_code == 200, (
+        api_lithium_isotope_source_policy
     )
-    assert api_oxygen_isotope_source_policy.payload["policy"]["symbol"] == "O", (
-        api_oxygen_isotope_source_policy.payload
+    assert api_lithium_isotope_source_policy.payload["policy"]["symbol"] == "Li", (
+        api_lithium_isotope_source_policy.payload
     )
-    assert api_oxygen_isotope_source_policy.payload["policy"][
+    assert api_lithium_isotope_source_policy.payload["policy"][
         "atom_behavior_generation_allowed"
-    ] is False, api_oxygen_isotope_source_policy.payload
-    assert api_oxygen_isotope_source_search.status_code == 200, (
-        api_oxygen_isotope_source_search
+    ] is False, api_lithium_isotope_source_policy.payload
+    assert api_lithium_isotope_source_search.status_code == 200, (
+        api_lithium_isotope_source_search
     )
-    assert api_oxygen_isotope_source_search.payload["receipt"]["symbol"] == "O", (
-        api_oxygen_isotope_source_search.payload
+    assert api_lithium_isotope_source_search.payload["receipt"]["symbol"] == "Li", (
+        api_lithium_isotope_source_search.payload
     )
-    assert api_oxygen_isotope_source_search.payload["receipt"]["search_status"] == (
-        "isotope_source_search_complete_candidate_receipt_created"
-    ), api_oxygen_isotope_source_search.payload
-    assert api_oxygen_isotope_candidate_evidence.status_code == 200, (
+    assert (
+        api_lithium_isotope_source_search.payload["receipt"]["search_status"]
+        == "isotope_source_search_open"
+    ), api_lithium_isotope_source_search.payload
+    assert api_oxygen_isotope_candidate_evidence.status_code == 404, (
         api_oxygen_isotope_candidate_evidence
     )
-    assert api_oxygen_isotope_candidate_evidence.payload["receipt"]["symbol"] == "O", (
-        api_oxygen_isotope_candidate_evidence.payload
+    assert api_oxygen_isotope_candidate_admission.status_code == 200, (
+        api_oxygen_isotope_candidate_admission
     )
-    assert api_oxygen_isotope_candidate_evidence.payload["receipt"][
-        "admission_status"
-    ] == "isotope_evidence_candidate", api_oxygen_isotope_candidate_evidence.payload
-    assert api_oxygen_isotope_candidate_evidence.payload["receipt"][
-        "closes_gap"
-    ] is False, api_oxygen_isotope_candidate_evidence.payload
-    assert api_oxygen_isotope_candidate_template.status_code == 200, (
-        api_oxygen_isotope_candidate_template
+    assert api_oxygen_isotope_candidate_admission.payload["receipt"]["symbol"] == "O", (
+        api_oxygen_isotope_candidate_admission.payload
     )
-    assert api_oxygen_isotope_candidate_template.payload["template"]["symbol"] == "O", (
-        api_oxygen_isotope_candidate_template.payload
+    assert api_oxygen_isotope_candidate_admission.payload["receipt"][
+        "active_candidate_receipt_retained"
+    ] is False, api_oxygen_isotope_candidate_admission.payload
+    assert api_lithium_isotope_candidate_template.status_code == 200, (
+        api_lithium_isotope_candidate_template
+    )
+    assert api_lithium_isotope_candidate_template.payload["template"]["symbol"] == "Li", (
+        api_lithium_isotope_candidate_template.payload
     )
     assert api_cs_rn_promotion_profiles.status_code == 200, api_cs_rn_promotion_profiles
     assert api_cs_rn_promotion_profiles.payload["validation"]["profile_count"] == 32, (
@@ -2184,6 +2208,7 @@ def main() -> None:
         f"isotope_source_policies={len(isotope_source_policies)} "
         f"isotope_source_search_receipts={len(isotope_source_search_receipts)} "
         f"isotope_candidate_evidence_receipts={len(isotope_candidate_evidence_receipts)} "
+        f"isotope_candidate_admission_receipts={len(isotope_candidate_admission_receipts)} "
         f"cs_rn_promotion_readiness_profiles={len(cs_rn_promotion_profiles)} "
         f"configuration_evidence_records={len(configuration_evidence_records)} "
         f"frontier_valence_signature_records={len(frontier_valence_records)} "

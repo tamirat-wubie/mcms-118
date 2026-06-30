@@ -49,6 +49,7 @@ from mcms.elements import (
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_f_block_expansion_profile,
+    get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
     get_isotope_source_search_receipt,
@@ -86,6 +87,7 @@ from mcms.elements import (
     list_f_block_expansion_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_admission_receipts,
     list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
@@ -129,6 +131,7 @@ from mcms.elements import (
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
     validate_isotope_source_policies,
@@ -243,20 +246,21 @@ def _index_payload() -> dict[str, Any]:
             "GET /atom/behavior/C?mass_number=14",
             "GET /atom/behavior/C?mass_number=14&charge=1",
             "GET /atom/behavior/gaps",
-            "GET /atom/behavior/gaps/O",
+            "GET /atom/behavior/gaps/Li",
             "GET /atom/behavior/workplan",
-            "GET /atom/behavior/workplan/O",
+            "GET /atom/behavior/workplan/Li",
             "GET /atom/behavior/isotope-source-policy",
-            "GET /atom/behavior/isotope-source-policy/O",
+            "GET /atom/behavior/isotope-source-policy/Li",
             "GET /atom/behavior/isotope-source-search",
-            "GET /atom/behavior/isotope-source-search/O",
+            "GET /atom/behavior/isotope-source-search/Li",
             "GET /atom/behavior/isotope-candidate-evidence",
-            "GET /atom/behavior/isotope-candidate-evidence/O",
-            "GET /atom/behavior/isotope-candidate-evidence/template/O",
+            "GET /atom/behavior/isotope-candidate-evidence/template/Li",
+            "GET /atom/behavior/isotope-candidate-admission",
+            "GET /atom/behavior/isotope-candidate-admission/O",
             "GET /evidence/isotopes",
             "GET /evidence/isotopes/C?mass_number=14",
             "GET /evidence/isotopes/unresolved",
-            "GET /evidence/isotopes/unresolved/O",
+            "GET /evidence/isotopes/unresolved/Li",
             "GET /evidence/common-ions",
             "GET /evidence/common-ions/Fe",
             "GET /evidence/common-ions/unresolved",
@@ -1101,6 +1105,24 @@ def _isotope_candidate_evidence_template_payload(identifier: str) -> dict[str, A
     }
 
 
+def _isotope_candidate_admission_list_payload() -> dict[str, Any]:
+    receipts = list_isotope_candidate_admission_receipts()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_candidate_admission_receipts(receipts),
+        "receipts": [receipt.to_dict() for receipt in receipts],
+    }
+
+
+def _isotope_candidate_admission_payload(identifier: str) -> dict[str, Any]:
+    receipt = get_isotope_candidate_admission_receipt(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_candidate_admission_receipts((receipt,)),
+        "receipt": receipt.to_dict(),
+    }
+
+
 def _cs_rn_promotion_readiness_list_payload() -> dict[str, Any]:
     profiles = list_cs_rn_promotion_readiness_profiles()
     return {
@@ -1211,6 +1233,9 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                     ),
                     "isotope_candidate_evidence_receipt_count": len(
                         list_isotope_candidate_evidence_receipts()
+                    ),
+                    "isotope_candidate_admission_receipt_count": len(
+                        list_isotope_candidate_admission_receipts()
                     ),
                 },
             )
@@ -1691,6 +1716,19 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             return ApiResponse(
                 HTTPStatus.OK,
                 _isotope_candidate_evidence_payload(path_parts[3]),
+            )
+        if path_parts == ["atom", "behavior", "isotope-candidate-admission"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _isotope_candidate_admission_list_payload(),
+            )
+        if (
+            len(path_parts) == 4
+            and path_parts[:3] == ["atom", "behavior", "isotope-candidate-admission"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _isotope_candidate_admission_payload(path_parts[3]),
             )
         if len(path_parts) == 3 and path_parts[:2] == ["atom", "behavior"]:
             return ApiResponse(
