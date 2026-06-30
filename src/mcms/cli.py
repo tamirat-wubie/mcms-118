@@ -37,6 +37,7 @@ from mcms.elements import (
     get_atom_behavior_gap_receipt,
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
+    get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
     get_isotope_source_search_receipt,
@@ -70,6 +71,7 @@ from mcms.elements import (
     list_cs_rn_promotion_readiness_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_admission_receipts,
     list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
@@ -106,6 +108,7 @@ from mcms.elements import (
     validate_atom_behavior_gap_work_items,
     validate_atom_behavior_profiles,
     validate_full_snapshot,
+    validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_source_policies,
     validate_isotope_source_search_receipts,
@@ -203,7 +206,25 @@ def cmd_elements(
     isotope_source_search: bool = False,
     isotope_candidate_evidence: bool = False,
     isotope_candidate_evidence_template: bool = False,
+    isotope_candidate_admission: bool = False,
 ) -> None:
+    if isotope_candidate_admission:
+        receipts = (
+            (get_isotope_candidate_admission_receipt(symbol),)
+            if symbol
+            else list_isotope_candidate_admission_receipts()
+        )
+        print(
+            json.dumps(
+                {
+                    "validation": validate_isotope_candidate_admission_receipts(receipts),
+                    "receipts": [receipt.to_dict() for receipt in receipts],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
     if isotope_candidate_evidence_template:
         if symbol is None:
             raise ValueError("--isotope-candidate-evidence-template requires --symbol")
@@ -996,6 +1017,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print an isotope candidate evidence receipt template for --symbol",
     )
     elements_parser.add_argument(
+        "--isotope-candidate-admission",
+        action="store_true",
+        help="Print isotope candidate admission receipts, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
         "--isotope-evidence",
         action="store_true",
         help="Print isotope evidence records, optionally filtered by --symbol and --isotope-mass",
@@ -1231,6 +1257,7 @@ def main(argv: list[str] | None = None) -> None:
             args.isotope_source_search,
             args.isotope_candidate_evidence,
             args.isotope_candidate_evidence_template,
+            args.isotope_candidate_admission,
         )
 
 

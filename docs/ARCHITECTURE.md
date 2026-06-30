@@ -51,7 +51,7 @@ Relation-edge overlay: Cs-Rn
 Promotion decision receipts: Cs-Rn
 Promotion batch policy: hold full Cs-Rn span pending At evidence
 Ion/isotope state instances: derived electron and neutron count validators
-Isotope/common-ion evidence seeds: H/C isotope evidence and selected common-ion candidates
+Isotope/common-ion evidence seeds: H/He/C/N/O isotope evidence and selected common-ion candidates
 Unresolved isotope/common-ion evidence: snapshot and Level 1 evidence gaps
 Physical-property evidence: 93 complete PubChem rows
 Unresolved physical-property evidence: 25 incomplete PubChem rows
@@ -75,11 +75,12 @@ Physical-property operator decisions: 7 deferred receipts, zero approvals or rej
 Physical-property continued evidence: 7 plans, zero final resolutions or seed mutations applied
 Physical-property no-candidate review: 4 Fm/Md/No/Lr receipts, zero gap closures
 Matter-behavior profiles: H-Xe
-Atom behavior v2 profiles: 5 source-backed H/C isotope profiles
-Atom behavior v2 gaps: 116 receipts and 116 work items for unresolved isotope-backed profile coverage
-Isotope source policies: 52 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
-Isotope source-search receipts: 52 searches, 51 open and 1 candidate receipt created
-Isotope candidate evidence: 1 Oxygen NIST candidate receipt, zero admitted receipts
+Atom behavior v2 profiles: 13 source-backed H/He/C/N/O isotope profiles
+Atom behavior v2 gaps: 113 receipts and 113 work items for unresolved isotope-backed profile coverage
+Isotope source policies: 49 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
+Isotope source-search receipts: 49 open searches and zero active candidate receipts
+Isotope candidate evidence: 0 active receipts after Oxygen admission
+Isotope candidate admission: 1 Oxygen admission receipt, zero active candidate retention
 ```
 
 ## Boundary

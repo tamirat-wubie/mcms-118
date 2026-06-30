@@ -109,9 +109,10 @@ The active element-engine product boundary is MSPEE-118.
 | Promotion decisions | Cs through Rn carry decision receipts separating readiness from approval |
 | Batch policy | Cs through Rn are held as a full span until At evidence is complete |
 | State instances | Formal ion and isotope IDs derive electron and neutron counts without changing identity |
-| Evidence seeds | H/C isotope evidence and selected common-ion candidate evidence are validated |
+| Evidence seeds | H/He/C/N/O isotope evidence and selected common-ion candidate evidence are validated |
 | Unresolved isotope/common-ion evidence | Snapshot isotope gaps and Level 1 common-ion gaps emit unresolved receipts |
-| Isotope candidate evidence | Oxygen NIST isotope candidate receipt is recorded but not admitted |
+| Isotope candidate evidence | Oxygen candidate rows are admitted into canonical isotope evidence; active candidate receipts return to zero |
+| Isotope candidate admission | Oxygen admission receipt preserves the canonical closure decision without retaining an active candidate |
 | Physical-property evidence | 93 complete PubChem rows carry sourced standard-state, melting, boiling, and density values |
 | Unresolved property evidence | 25 incomplete PubChem rows are recorded as unresolved receipts |
 | Matter profiles | H through Xe combine identity, state, evidence, and bounded inference |
@@ -377,7 +378,7 @@ Lr no-candidate review = blocked because checked sources provide no admissible b
 gap workplan = 25 items, zero gap closures
 source-search receipts = Pa and Bk candidate receipts created
 partial-source-search receipts = 7 open searches, 14 field searches
-O isotope candidate evidence = NIST O-16/O-17/O-18 candidate receipt created, no admission
+O isotope candidate evidence = NIST O-16/O-17/O-18 candidate receipt created, then admitted into canonical isotope evidence
 At template = available for boiling_point_k
 ```
 
@@ -501,7 +502,7 @@ profile does not replace measured condition-specific data
 | f-block future idea -> bounded overlay | Lanthanide and actinide profiles exist without overclaiming |
 | Beyond Kr future idea -> period-5 seed promotion | Rb-Xe now have full Level 1 seeds and compact chemistry profiles |
 | Informal state examples -> validated state instances | Ion and isotope IDs now derive electron and neutron counts |
-| Derived state IDs -> bounded evidence records | H/C isotope evidence and common-ion candidates carry source lineage |
+| Derived state IDs -> bounded evidence records | H/He/C/N/O isotope evidence and common-ion candidates carry source lineage |
 | Missing isotope/common-ion data -> unresolved receipts | Evidence gaps are queryable without guessed values |
 | Behavior-only matter profile -> measured evidence seed | 93 complete PubChem rows expose physical-property evidence |
 | Missing measured property -> unresolved receipt | 25 incomplete PubChem rows are explicit unresolved evidence |
@@ -601,7 +602,8 @@ physical_property_escalation_resolution_receipts=7
 physical_property_operator_decision_receipts=7
 physical_property_continued_evidence_plans=7
 physical_property_no_candidate_review_receipts=4
-isotope_candidate_evidence_receipts=1
+isotope_candidate_evidence_receipts=0
+isotope_candidate_admission_receipts=1
 promotion_decision_receipts=32
 promotion_batch_policy=hold_full_cs_rn_span
 standard_files=ok

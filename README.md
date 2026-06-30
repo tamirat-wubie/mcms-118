@@ -133,9 +133,10 @@ python -m mcms.cli elements --symbol C --isotope-mass 14
 python -m mcms.cli elements --symbol C --isotope-mass 14 --atom-behavior
 python -m mcms.cli elements --symbol O --atom-behavior-gap
 python -m mcms.cli elements --symbol Rn --atom-behavior-workplan
-python -m mcms.cli elements --symbol O --isotope-source-policy
-python -m mcms.cli elements --symbol O --isotope-source-search
-python -m mcms.cli elements --symbol O --isotope-candidate-evidence
+python -m mcms.cli elements --symbol Li --isotope-source-policy
+python -m mcms.cli elements --symbol Li --isotope-source-search
+python -m mcms.cli elements --isotope-candidate-evidence
+python -m mcms.cli elements --symbol O --isotope-candidate-admission
 python -m mcms.cli elements --symbol C --isotope-mass 14 --isotope-evidence
 python -m mcms.cli elements --symbol Fe --common-ion-evidence
 python -m mcms.cli elements --symbol At --configuration-evidence
@@ -188,13 +189,14 @@ Key routes:
 | `GET /instances/ion/Na?charge=1` | Formal ion instance with derived electron count |
 | `GET /instances/isotope/C?mass_number=14` | Formal isotope instance with derived neutron count |
 | `GET /atom/behavior/C?mass_number=14` | Atom behavior v2 profile with identity, isotope, electron, force, and non-claim boundaries |
-| `GET /atom/behavior/gaps/O` | Atom behavior v2 source-gap receipt for missing isotope-backed profile coverage |
+| `GET /atom/behavior/gaps/Li` | Atom behavior v2 source-gap receipt for missing isotope-backed profile coverage |
 | `GET /atom/behavior/workplan/Rn` | Atom behavior v2 gap work item with dependency blockers |
-| `GET /atom/behavior/isotope-source-policy/O` | Isotope source policy for atom behavior v2 isotope-only blockers |
-| `GET /atom/behavior/isotope-source-search/O` | Isotope evidence source-search receipt under the atom behavior v2 policy |
-| `GET /atom/behavior/isotope-candidate-evidence/O` | Source-specific Oxygen isotope candidate receipt pending admission |
+| `GET /atom/behavior/isotope-source-policy/Li` | Isotope source policy for atom behavior v2 isotope-only blockers |
+| `GET /atom/behavior/isotope-source-search/Li` | Isotope evidence source-search receipt under the atom behavior v2 policy |
+| `GET /atom/behavior/isotope-candidate-evidence/template/Li` | Source-specific isotope candidate receipt template |
+| `GET /atom/behavior/isotope-candidate-admission/O` | Historical Oxygen isotope candidate admission receipt |
 | `GET /evidence/isotopes/C?mass_number=14` | Isotope evidence record, including C-14 half-life boundary |
-| `GET /evidence/isotopes/unresolved/O` | Unresolved isotope evidence receipt |
+| `GET /evidence/isotopes/unresolved/Li` | Unresolved isotope evidence receipt |
 | `GET /evidence/common-ions/Fe` | Common-ion candidate evidence from sourced oxidation states |
 | `GET /evidence/common-ions/unresolved/O` | Unresolved common-ion evidence receipt |
 | `GET /evidence/configurations/At` | NIST configuration evidence for Cs-Rn promotion readiness |
@@ -258,9 +260,9 @@ element_seeds=54
 element_snapshot_records=118
 f_block_profiles=30
 period_5_level_2_profiles=18
-isotope_evidence_records=5
+isotope_evidence_records=13
 common_ion_evidence_records=9
-unresolved_isotope_evidence_records=116
+unresolved_isotope_evidence_records=113
 unresolved_common_ion_evidence_records=47
 physical_property_evidence_records=93
 unresolved_physical_property_evidence_records=25
@@ -284,12 +286,13 @@ physical_property_operator_decision_receipts=7
 physical_property_continued_evidence_plans=7
 physical_property_no_candidate_review_receipts=4
 matter_behavior_profiles=54
-atom_behavior_profiles=5
-atom_behavior_gap_receipts=116
-atom_behavior_gap_work_items=116
-isotope_source_policies=52
-isotope_source_search_receipts=52
-isotope_candidate_evidence_receipts=1
+atom_behavior_profiles=13
+atom_behavior_gap_receipts=113
+atom_behavior_gap_work_items=113
+isotope_source_policies=49
+isotope_source_search_receipts=49
+isotope_candidate_evidence_receipts=0
+isotope_candidate_admission_receipts=1
 cs_rn_promotion_readiness_profiles=32
 configuration_evidence_records=32
 frontier_valence_signature_records=32

@@ -15,7 +15,6 @@ from typing import Any
 from mcms.elements.instances import build_isotope_instance
 from mcms.elements.isotope_source_policy import get_isotope_source_policy
 from mcms.elements.isotope_source_search import (
-    OXYGEN_NIST_CANDIDATE_RECEIPT_ID,
     get_isotope_source_search_receipt,
 )
 
@@ -172,85 +171,10 @@ class IsotopeCandidateEvidenceReceipt:
         return payload
 
 
-def _oxygen_nist_candidate_values() -> tuple[IsotopeCandidateValue, ...]:
-    return (
-        IsotopeCandidateValue(
-            isotope_id="MSPEE-Z008-O-isotope-16",
-            mass_number=16,
-            neutron_count=8,
-            relative_atomic_mass="15.99491461957(17)",
-            isotopic_composition="0.99757(16)",
-            stability_classification="stable",
-            half_life_value=None,
-            half_life_unit=None,
-            decay_mode=None,
-            source_value_note="NIST Oxygen isotope row for mass number 16.",
-        ),
-        IsotopeCandidateValue(
-            isotope_id="MSPEE-Z008-O-isotope-17",
-            mass_number=17,
-            neutron_count=9,
-            relative_atomic_mass="16.99913175650(69)",
-            isotopic_composition="0.00038(1)",
-            stability_classification="stable",
-            half_life_value=None,
-            half_life_unit=None,
-            decay_mode=None,
-            source_value_note="NIST Oxygen isotope row for mass number 17.",
-        ),
-        IsotopeCandidateValue(
-            isotope_id="MSPEE-Z008-O-isotope-18",
-            mass_number=18,
-            neutron_count=10,
-            relative_atomic_mass="17.99915961286(76)",
-            isotopic_composition="0.00205(14)",
-            stability_classification="stable",
-            half_life_value=None,
-            half_life_unit=None,
-            decay_mode=None,
-            source_value_note="NIST Oxygen isotope row for mass number 18.",
-        ),
-    )
-
-
-def _build_oxygen_nist_candidate_receipt() -> IsotopeCandidateEvidenceReceipt:
-    policy = get_isotope_source_policy("O")
-    search = get_isotope_source_search_receipt("O")
-    return IsotopeCandidateEvidenceReceipt(
-        receipt_id=OXYGEN_NIST_CANDIDATE_RECEIPT_ID,
-        policy_id=policy.policy_id,
-        source_search_id=search.search_id,
-        target_atom_behavior_gap_receipt_id=policy.target_atom_behavior_gap_receipt_id,
-        target_unresolved_isotope_receipt_id=policy.target_unresolved_isotope_receipt_id,
-        symbol=policy.symbol,
-        atomic_number=policy.atomic_number,
-        source_key="nist_atomic_weights_isotopic_compositions",
-        source_authority="NIST",
-        source_title="Atomic Weights and Isotopic Compositions",
-        source_citation="https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=O",
-        retrieval_date="2026-06-30",
-        field_name_mapping=(
-            "NIST isotope mass -> relative_atomic_mass; NIST composition "
-            "-> isotopic_composition"
-        ),
-        source_license_boundary=(
-            "NIST reference table; candidate values require source citation before admission"
-        ),
-        standard_atomic_weight_interval="[15.99903, 15.99977]",
-        candidate_values=_oxygen_nist_candidate_values(),
-        admission_status="isotope_evidence_candidate",
-        admission_decision="awaiting_isotope_admission_review",
-        conflict_status=(
-            "candidate requires admission review against isotope source policy and "
-            "cross-source consistency before canonical isotope evidence is updated"
-        ),
-    )
-
-
 def list_isotope_candidate_evidence_receipts() -> tuple[
     IsotopeCandidateEvidenceReceipt, ...
 ]:
-    return (_build_oxygen_nist_candidate_receipt(),)
+    return ()
 
 
 def get_isotope_candidate_evidence_receipt(
