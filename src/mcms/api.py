@@ -48,6 +48,7 @@ from mcms.elements import (
     get_atom_behavior_gap_receipt,
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
+    get_element_readiness_score,
     get_f_block_expansion_profile,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
@@ -84,6 +85,7 @@ from mcms.elements import (
     list_common_ion_evidence_records,
     list_configuration_evidence_records,
     list_cs_rn_promotion_readiness_profiles,
+    list_element_readiness_scores,
     list_f_block_expansion_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
@@ -128,6 +130,7 @@ from mcms.elements import (
     validate_common_ion_evidence_records,
     validate_configuration_evidence_records,
     validate_cs_rn_promotion_readiness_profiles,
+    validate_element_readiness_scores,
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
@@ -246,21 +249,23 @@ def _index_payload() -> dict[str, Any]:
             "GET /atom/behavior/C?mass_number=14",
             "GET /atom/behavior/C?mass_number=14&charge=1",
             "GET /atom/behavior/gaps",
-            "GET /atom/behavior/gaps/Li",
+            "GET /atom/behavior/gaps/Sc",
             "GET /atom/behavior/workplan",
-            "GET /atom/behavior/workplan/Li",
+            "GET /atom/behavior/workplan/Sc",
             "GET /atom/behavior/isotope-source-policy",
-            "GET /atom/behavior/isotope-source-policy/Li",
+            "GET /atom/behavior/isotope-source-policy/Sc",
             "GET /atom/behavior/isotope-source-search",
-            "GET /atom/behavior/isotope-source-search/Li",
+            "GET /atom/behavior/isotope-source-search/Sc",
             "GET /atom/behavior/isotope-candidate-evidence",
-            "GET /atom/behavior/isotope-candidate-evidence/template/Li",
+            "GET /atom/behavior/isotope-candidate-evidence/template/Sc",
             "GET /atom/behavior/isotope-candidate-admission",
             "GET /atom/behavior/isotope-candidate-admission/O",
+            "GET /scoring/readiness",
+            "GET /scoring/readiness/Sc",
             "GET /evidence/isotopes",
             "GET /evidence/isotopes/C?mass_number=14",
             "GET /evidence/isotopes/unresolved",
-            "GET /evidence/isotopes/unresolved/Li",
+            "GET /evidence/isotopes/unresolved/Sc",
             "GET /evidence/common-ions",
             "GET /evidence/common-ions/Fe",
             "GET /evidence/common-ions/unresolved",
@@ -1123,6 +1128,24 @@ def _isotope_candidate_admission_payload(identifier: str) -> dict[str, Any]:
     }
 
 
+def _readiness_score_list_payload() -> dict[str, Any]:
+    scores = list_element_readiness_scores()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_element_readiness_scores(scores),
+        "scores": [score.to_dict() for score in scores],
+    }
+
+
+def _readiness_score_payload(identifier: str) -> dict[str, Any]:
+    score = get_element_readiness_score(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_element_readiness_scores((score,)),
+        "score": score.to_dict(),
+    }
+
+
 def _cs_rn_promotion_readiness_list_payload() -> dict[str, Any]:
     profiles = list_cs_rn_promotion_readiness_profiles()
     return {
@@ -1236,6 +1259,9 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                     ),
                     "isotope_candidate_admission_receipt_count": len(
                         list_isotope_candidate_admission_receipts()
+                    ),
+                    "element_readiness_score_count": len(
+                        list_element_readiness_scores()
                     ),
                 },
             )
@@ -1730,6 +1756,10 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                 HTTPStatus.OK,
                 _isotope_candidate_admission_payload(path_parts[3]),
             )
+        if path_parts == ["scoring", "readiness"]:
+            return ApiResponse(HTTPStatus.OK, _readiness_score_list_payload())
+        if len(path_parts) == 3 and path_parts[:2] == ["scoring", "readiness"]:
+            return ApiResponse(HTTPStatus.OK, _readiness_score_payload(path_parts[2]))
         if len(path_parts) == 3 and path_parts[:2] == ["atom", "behavior"]:
             return ApiResponse(
                 HTTPStatus.OK,
