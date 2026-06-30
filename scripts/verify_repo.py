@@ -38,6 +38,7 @@ from mcms.elements import (  # noqa: E402
     get_f_block_expansion_profile,
     get_isotope_candidate_admission_receipt,
     get_partial_physical_property_source_search_receipt,
+    get_partial_promotion_eligibility_receipt,
     get_period_5_level_2_profile,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
@@ -125,6 +126,7 @@ from mcms.elements import (  # noqa: E402
     validate_matter_behavior_profiles,
     validate_oxidation_state_evidence_records,
     validate_partial_physical_property_source_search_receipts,
+    validate_partial_promotion_eligibility_receipt,
     validate_period_5_level_2_profiles,
     validate_physical_property_closure_approval_receipts,
     validate_physical_property_conflict_resolution_receipts,
@@ -426,6 +428,10 @@ def main() -> None:
     promotion_batch_policy = get_promotion_batch_policy_receipt()
     promotion_batch_policy_result = validate_promotion_batch_policy_receipt(
         promotion_batch_policy
+    )
+    partial_promotion_eligibility = get_partial_promotion_eligibility_receipt()
+    partial_promotion_eligibility_result = validate_partial_promotion_eligibility_receipt(
+        partial_promotion_eligibility
     )
     element_schema_validator = Draft202012Validator(element_schema)
     snapshot_schema_validator = Draft202012Validator(snapshot_schema)
@@ -1092,6 +1098,27 @@ def main() -> None:
     assert promotion_batch_policy_result["seed_mutation_allowed"] is False, (
         promotion_batch_policy_result
     )
+    assert partial_promotion_eligibility_result["validation_status"] == (
+        "partial_promotion_eligibility_receipt_validated"
+    ), partial_promotion_eligibility_result
+    assert partial_promotion_eligibility_result["eligible_count"] == 31, (
+        partial_promotion_eligibility_result
+    )
+    assert partial_promotion_eligibility_result["blocked_count"] == 1, (
+        partial_promotion_eligibility_result
+    )
+    assert partial_promotion_eligibility_result["partial_review_allowed"] is True, (
+        partial_promotion_eligibility_result
+    )
+    assert partial_promotion_eligibility_result["seed_mutation_allowed"] is False, (
+        partial_promotion_eligibility_result
+    )
+    assert partial_promotion_eligibility.blocked_symbols == ("At",), (
+        partial_promotion_eligibility
+    )
+    assert partial_promotion_eligibility.batch_policy_decision == "hold_full_cs_rn_span", (
+        partial_promotion_eligibility
+    )
     Draft202012Validator.check_schema(element_schema)
     Draft202012Validator.check_schema(snapshot_schema)
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
@@ -1707,6 +1734,10 @@ def main() -> None:
     api_gold_behavior = handle_api_request("GET", "/behavior/cs-rn/Au")
     api_gold_relation = handle_api_request("GET", "/relations/cs-rn/Au")
     api_promotion_batch_policy = handle_api_request("GET", "/promotion/batch-policy")
+    api_partial_promotion_eligibility = handle_api_request(
+        "GET",
+        "/promotion/partial-eligibility",
+    )
     api_astatine_decision = handle_api_request("GET", "/promotion/decisions/At")
     api_bromine_properties = handle_api_request("GET", "/evidence/physical-properties/Br")
     api_astatine_unresolved_properties = handle_api_request(
@@ -1927,6 +1958,18 @@ def main() -> None:
     assert api_promotion_batch_policy.payload["receipt"]["policy_decision"] == (
         "hold_full_cs_rn_span"
     ), api_promotion_batch_policy.payload
+    assert api_partial_promotion_eligibility.status_code == 200, (
+        api_partial_promotion_eligibility
+    )
+    assert api_partial_promotion_eligibility.payload["validation"]["eligible_count"] == 31, (
+        api_partial_promotion_eligibility.payload
+    )
+    assert api_partial_promotion_eligibility.payload["receipt"]["blocked_symbols"] == [
+        "At"
+    ], api_partial_promotion_eligibility.payload
+    assert api_partial_promotion_eligibility.payload["receipt"][
+        "seed_mutation_allowed"
+    ] is False, api_partial_promotion_eligibility.payload
     assert api_astatine_decision.status_code == 200, api_astatine_decision
     assert api_astatine_decision.payload["receipt"]["decision_status"] == (
         "promotion_blocked_unresolved_physical_property"
@@ -2235,7 +2278,8 @@ def main() -> None:
         f"behavior_tag_overlay_records={len(behavior_tag_records)} "
         f"relation_overlay_records={len(relation_overlay_records)} "
         f"promotion_decision_receipts={len(promotion_decision_receipts)} "
-        f"promotion_batch_policy={promotion_batch_policy.policy_decision}"
+        f"promotion_batch_policy={promotion_batch_policy.policy_decision} "
+        f"partial_promotion_eligible={len(partial_promotion_eligibility.eligible_symbols)}"
     )
 
 

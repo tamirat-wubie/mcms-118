@@ -43,6 +43,7 @@ from mcms.elements import (
     get_isotope_source_policy,
     get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
+    get_partial_promotion_eligibility_receipt,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
     get_physical_property_continued_evidence_plan,
@@ -201,6 +202,7 @@ def cmd_elements(
     relation_overlay: bool = False,
     promotion_decision: bool = False,
     promotion_batch_policy: bool = False,
+    partial_promotion_eligibility: bool = False,
     atom_behavior: bool = False,
     atom_charge: int = 0,
     atom_behavior_gap: bool = False,
@@ -658,6 +660,16 @@ def cmd_elements(
         return
     if promotion_batch_policy:
         receipt = get_promotion_batch_policy_receipt()
+        print(
+            json.dumps(
+                {"receipt": receipt.to_dict()},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if partial_promotion_eligibility:
+        receipt = get_partial_promotion_eligibility_receipt()
         print(
             json.dumps(
                 {"receipt": receipt.to_dict()},
@@ -1198,6 +1210,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print the Cs-Rn span-level promotion batch policy receipt",
     )
     elements_parser.add_argument(
+        "--partial-promotion-eligibility",
+        action="store_true",
+        help="Print the read-only Cs-Rn partial promotion eligibility receipt",
+    )
+    elements_parser.add_argument(
         "--configuration-evidence",
         action="store_true",
         help="Print Cs-Rn NIST configuration evidence, optionally filtered by --symbol",
@@ -1275,6 +1292,7 @@ def main(argv: list[str] | None = None) -> None:
             args.relation_overlay,
             args.promotion_decision,
             args.promotion_batch_policy,
+            args.partial_promotion_eligibility,
             args.atom_behavior,
             args.atom_charge,
             args.atom_behavior_gap,

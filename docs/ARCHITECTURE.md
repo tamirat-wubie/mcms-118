@@ -50,6 +50,7 @@ Behavior-tag overlay: Cs-Rn
 Relation-edge overlay: Cs-Rn
 Promotion decision receipts: Cs-Rn
 Promotion batch policy: hold full Cs-Rn span pending At evidence
+Partial promotion eligibility: 31 ready Cs-Rn records exposed for review, zero seed mutation authority
 Ion/isotope state instances: derived electron and neutron count validators
 Isotope/common-ion evidence seeds: H-Ca isotope evidence and selected common-ion candidates
 Unresolved isotope/common-ion evidence: snapshot and Level 1 evidence gaps

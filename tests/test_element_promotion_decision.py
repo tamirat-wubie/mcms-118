@@ -1,9 +1,13 @@
 import pytest
 
+from mcms.api import handle_api_request
+from mcms.cli import cmd_elements
 from mcms.elements import (
+    get_partial_promotion_eligibility_receipt,
     get_promotion_batch_policy_receipt,
     get_promotion_decision_receipt,
     list_promotion_decision_receipts,
+    validate_partial_promotion_eligibility_receipt,
     validate_promotion_batch_policy_receipt,
     validate_promotion_decision_receipts,
 )
@@ -46,6 +50,47 @@ def test_promotion_batch_policy_holds_full_span_until_astatine_is_resolved():
     assert result["seed_mutation_allowed"] is False
     assert receipt.blocked_symbols == ("At",)
     assert "contiguous_level_1_seed_span" in receipt.invariants_preserved
+
+
+def test_partial_promotion_eligibility_exposes_review_queue_without_seed_mutation():
+    receipt = get_partial_promotion_eligibility_receipt()
+    result = validate_partial_promotion_eligibility_receipt(receipt)
+
+    assert result["validation_status"] == "partial_promotion_eligibility_receipt_validated"
+    assert result["eligible_count"] == 31
+    assert result["blocked_count"] == 1
+    assert result["partial_review_allowed"] is True
+    assert result["seed_mutation_allowed"] is False
+    assert receipt.eligibility_status == "partial_review_available_seed_mutation_blocked"
+    assert receipt.eligible_symbols[0] == "Cs"
+    assert receipt.eligible_symbols[-1] == "Rn"
+    assert receipt.blocked_symbols == ("At",)
+    assert receipt.batch_policy_decision == "hold_full_cs_rn_span"
+    assert "no_partial_seed_hole" in receipt.invariants_preserved
+    assert receipt.validate() == []
+
+
+def test_partial_promotion_eligibility_api_and_cli_are_read_only(capsys):
+    response = handle_api_request("GET", "/promotion/partial-eligibility")
+
+    cmd_elements(
+        symbol=None,
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        partial_promotion_eligibility=True,
+    )
+    output = capsys.readouterr().out
+
+    assert response.status_code == 200
+    assert response.payload["validation"]["eligible_count"] == 31
+    assert response.payload["receipt"]["blocked_symbols"] == ["At"]
+    assert response.payload["receipt"]["seed_mutation_allowed"] is False
+    assert '"partial_review_allowed": true' in output
+    assert '"seed_mutation_allowed": false' in output
 
 
 def test_promotion_decision_rejects_out_of_span_lookup():
