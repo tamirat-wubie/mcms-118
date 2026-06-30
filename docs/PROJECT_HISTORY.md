@@ -109,7 +109,7 @@ The active element-engine product boundary is MSPEE-118.
 | Promotion decisions | Cs through Rn carry decision receipts separating readiness from approval |
 | Batch policy | Cs through Rn are held as a full span until At evidence is complete |
 | State instances | Formal ion and isotope IDs derive electron and neutron counts without changing identity |
-| Evidence seeds | H/He/C/N/O isotope evidence and selected common-ion candidate evidence are validated |
+| Evidence seeds | H-Ca isotope evidence and selected common-ion candidate evidence are validated |
 | Unresolved isotope/common-ion evidence | Snapshot isotope gaps and Level 1 common-ion gaps emit unresolved receipts |
 | Isotope candidate evidence | Oxygen candidate rows are admitted into canonical isotope evidence; active candidate receipts return to zero |
 | Isotope candidate admission | Oxygen admission receipt preserves the canonical closure decision without retaining an active candidate |
@@ -502,7 +502,7 @@ profile does not replace measured condition-specific data
 | f-block future idea -> bounded overlay | Lanthanide and actinide profiles exist without overclaiming |
 | Beyond Kr future idea -> period-5 seed promotion | Rb-Xe now have full Level 1 seeds and compact chemistry profiles |
 | Informal state examples -> validated state instances | Ion and isotope IDs now derive electron and neutron counts |
-| Derived state IDs -> bounded evidence records | H/He/C/N/O isotope evidence and common-ion candidates carry source lineage |
+| Derived state IDs -> bounded evidence records | H-Ca isotope evidence and common-ion candidates carry source lineage |
 | Missing isotope/common-ion data -> unresolved receipts | Evidence gaps are queryable without guessed values |
 | Behavior-only matter profile -> measured evidence seed | 93 complete PubChem rows expose physical-property evidence |
 | Missing measured property -> unresolved receipt | 25 incomplete PubChem rows are explicit unresolved evidence |
@@ -563,6 +563,7 @@ profile does not replace measured condition-specific data
 | Treating behavior tags as measured fact | Tags are labeled as symbolic inference and carry source-evidence basis |
 | Treating relation edges as substitutability | Relation edges carry reasons and do not claim equivalent compound behavior |
 | Treating readiness as approval | Decision receipts require explicit approval before seed mutation |
+| Treating scores as evidence | Readiness scores summarize evidence and gaps but close zero receipts |
 | Creating a Level 1 seed hole | Batch policy holds the span instead of promoting 31 records around At |
 | Treating a blank source field as zero | Gap audit records `source_row_incomplete` and enforces no-guess policy |
 | Treating policy as evidence | Secondary-source policy closes zero gaps and allows zero seed mutations |
@@ -604,6 +605,7 @@ physical_property_continued_evidence_plans=7
 physical_property_no_candidate_review_receipts=4
 isotope_candidate_evidence_receipts=0
 isotope_candidate_admission_receipts=1
+element_readiness_scores=118
 promotion_decision_receipts=32
 promotion_batch_policy=hold_full_cs_rn_span
 standard_files=ok
@@ -621,6 +623,7 @@ engineering steps are:
 4. Collect field-specific candidate evidence for partial-property targets without gap closure.
 5. Find higher-precedence Pa evidence and corroborating Bk evidence before any gap closure.
 6. Expand isotope evidence beyond H/C with sourced abundance, half-life, and decay data.
-7. Continue sourced Level 2 chemistry values beyond Xenon.
-8. Expand matter-behavior profiles as identity, state, measured property, and environment coverage grows.
+7. Use readiness scores to rank isotope-only blockers before sourcing new rows.
+8. Continue sourced Level 2 chemistry values beyond Xenon.
+9. Expand matter-behavior profiles as identity, state, measured property, and environment coverage grows.
 ```

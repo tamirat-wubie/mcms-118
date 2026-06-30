@@ -90,12 +90,27 @@ def test_isotope_evidence_records_validate_stable_and_radioactive_boundaries():
     oxygen_18 = find_isotope_evidence_records("O", mass_number=18)[0]
     hydrogen_records = find_isotope_evidence_records("H")
     helium_records = find_isotope_evidence_records("He")
+    lithium_records = find_isotope_evidence_records("Li")
+    beryllium_records = find_isotope_evidence_records("Be")
+    boron_records = find_isotope_evidence_records("B")
+    fluorine_records = find_isotope_evidence_records("F")
+    neon_records = find_isotope_evidence_records("Ne")
+    sodium_records = find_isotope_evidence_records("Na")
+    magnesium_records = find_isotope_evidence_records("Mg")
+    aluminum_records = find_isotope_evidence_records("Al")
+    silicon_records = find_isotope_evidence_records("Si")
+    phosphorus_records = find_isotope_evidence_records("P")
+    sulfur_records = find_isotope_evidence_records("S")
+    chlorine_records = find_isotope_evidence_records("Cl")
+    argon_records = find_isotope_evidence_records("Ar")
+    potassium_records = find_isotope_evidence_records("K")
+    calcium_records = find_isotope_evidence_records("Ca")
     nitrogen_records = find_isotope_evidence_records("N")
     oxygen_records = find_isotope_evidence_records("O")
 
     assert validation["validation_status"] == "isotope_evidence_records_validated"
-    assert validation["record_count"] == 13
-    assert validation["radioisotope_count"] == 2
+    assert validation["record_count"] == 49
+    assert validation["radioisotope_count"] == 4
     assert carbon_14.isotope_id == "MSPEE-Z006-C-isotope-14"
     assert carbon_14.neutron_count == 8
     assert carbon_14.half_life_value == 5730.0
@@ -105,6 +120,21 @@ def test_isotope_evidence_records_validate_stable_and_radioactive_boundaries():
     assert oxygen_18.neutron_count == 10
     assert len(hydrogen_records) == 3
     assert len(helium_records) == 2
+    assert len(lithium_records) == 2
+    assert len(beryllium_records) == 1
+    assert len(boron_records) == 2
+    assert len(fluorine_records) == 1
+    assert len(neon_records) == 3
+    assert len(sodium_records) == 1
+    assert len(magnesium_records) == 3
+    assert len(aluminum_records) == 1
+    assert len(silicon_records) == 3
+    assert len(phosphorus_records) == 1
+    assert len(sulfur_records) == 4
+    assert len(chlorine_records) == 2
+    assert len(argon_records) == 3
+    assert len(potassium_records) == 3
+    assert len(calcium_records) == 6
     assert len(nitrogen_records) == 2
     assert len(oxygen_records) == 3
 
@@ -134,19 +164,19 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
         common_ion_records,
         expected_domain="common_ion_evidence",
     )
-    lithium_isotope = find_unresolved_isotope_evidence_record("Li")
+    scandium_isotope = find_unresolved_isotope_evidence_record("Sc")
     oxygen_common_ion = find_unresolved_common_ion_evidence_record("O")
 
     assert isotope_validation["validation_status"] == (
         "isotope_evidence_unresolved_records_validated"
     )
-    assert isotope_validation["record_count"] == 113
+    assert isotope_validation["record_count"] == 98
     assert common_ion_validation["validation_status"] == (
         "common_ion_evidence_unresolved_records_validated"
     )
     assert common_ion_validation["record_count"] == 47
-    assert lithium_isotope.evidence_domain == "isotope_evidence"
-    assert "natural_abundance" in lithium_isotope.missing_evidence
+    assert scandium_isotope.evidence_domain == "isotope_evidence"
+    assert "natural_abundance" in scandium_isotope.missing_evidence
     assert oxygen_common_ion.evidence_domain == "common_ion_evidence"
     assert "common_ion_charge_set" in oxygen_common_ion.missing_evidence
     assert oxygen_common_ion.validate() == []
@@ -154,7 +184,7 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
 
 def test_evidence_lookup_rejects_unknown_records():
     with pytest.raises(KeyError, match="unknown isotope evidence record"):
-        find_isotope_evidence_records("Li", mass_number=7)
+        find_isotope_evidence_records("Sc", mass_number=45)
 
     with pytest.raises(KeyError, match="unknown common-ion evidence record"):
         find_common_ion_evidence_records("O")
@@ -842,7 +872,7 @@ def test_local_api_exposes_evidence_routes():
     isotope_list = handle_api_request("GET", "/evidence/isotopes")
     carbon_14 = handle_api_request("GET", "/evidence/isotopes/C?mass_number=14")
     unresolved_isotopes = handle_api_request("GET", "/evidence/isotopes/unresolved")
-    lithium_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Li")
+    scandium_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Sc")
     common_ion_list = handle_api_request("GET", "/evidence/common-ions")
     iron = handle_api_request("GET", "/evidence/common-ions/Fe")
     unresolved_common_ions = handle_api_request("GET", "/evidence/common-ions/unresolved")
@@ -930,13 +960,13 @@ def test_local_api_exposes_evidence_routes():
     bromine = handle_api_request("GET", "/evidence/physical-properties/Br")
 
     assert isotope_list.status_code == 200
-    assert isotope_list.payload["validation"]["record_count"] == 13
+    assert isotope_list.payload["validation"]["record_count"] == 49
     assert carbon_14.status_code == 200
     assert carbon_14.payload["records"][0]["isotope_id"] == "MSPEE-Z006-C-isotope-14"
     assert unresolved_isotopes.status_code == 200
-    assert unresolved_isotopes.payload["validation"]["record_count"] == 113
-    assert lithium_isotope.status_code == 200
-    assert lithium_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
+    assert unresolved_isotopes.payload["validation"]["record_count"] == 98
+    assert scandium_isotope.status_code == 200
+    assert scandium_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
     assert common_ion_list.status_code == 200
     assert common_ion_list.payload["validation"]["record_count"] == 9
     assert iron.status_code == 200
@@ -1067,7 +1097,7 @@ def test_element_cli_prints_evidence_records(capsys):
     common_ion_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="Li",
+        symbol="Sc",
         list_only=False,
         full_snapshot=False,
         schema_name=None,

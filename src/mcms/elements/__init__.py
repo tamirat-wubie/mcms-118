@@ -312,6 +312,13 @@ from mcms.elements.promotion_decision import (
     validate_promotion_batch_policy_receipt,
     validate_promotion_decision_receipts,
 )
+from mcms.elements.readiness_scoring import (
+    VALID_READINESS_SCORE_STATUSES,
+    ElementReadinessScore,
+    get_element_readiness_score,
+    list_element_readiness_scores,
+    validate_element_readiness_scores,
+)
 from mcms.elements.reasoning import (
     ElementReasoningResult,
     compare_outer_shell_similarity,
@@ -368,6 +375,7 @@ __all__ = [
     "ElementIsotopeInstance",
     "ElementLaws",
     "ElementPromotionReadinessProfile",
+    "ElementReadinessScore",
     "ElementRelationEdge",
     "ElementReasoningResult",
     "ElementRelationGraph",
@@ -445,6 +453,7 @@ __all__ = [
     "VALID_ISOTOPE_SOURCE_CANDIDATE_STATUSES",
     "VALID_ISOTOPE_SOURCE_POLICY_STATUSES",
     "VALID_ISOTOPE_SOURCE_SEARCH_STATUSES",
+    "VALID_READINESS_SCORE_STATUSES",
     "VALID_RELATION_TYPES",
     "build_element_receipt",
     "build_atom_behavior_profile",
@@ -503,6 +512,7 @@ __all__ = [
     "get_physical_property_secondary_source_policy",
     "get_promotion_batch_policy_receipt",
     "get_promotion_decision_receipt",
+    "get_element_readiness_score",
     "get_seed_element",
     "get_f_block_expansion_profile",
     "get_snapshot_record",
@@ -545,6 +555,7 @@ __all__ = [
     "list_physical_property_source_search_receipts",
     "list_physical_property_secondary_source_policies",
     "list_promotion_decision_receipts",
+    "list_element_readiness_scores",
     "list_relation_overlay_records",
     "list_unresolved_common_ion_evidence_records",
     "list_unresolved_isotope_evidence_records",
@@ -558,6 +569,7 @@ __all__ = [
     "validate_partial_physical_property_source_search_receipts",
     "validate_promotion_batch_policy_receipt",
     "validate_promotion_decision_receipts",
+    "validate_element_readiness_scores",
     "validate_cs_rn_promotion_readiness_profiles",
     "validate_common_ion_evidence_records",
     "validate_behavior_tag_overlay_records",

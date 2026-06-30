@@ -80,16 +80,17 @@ M8 = production-engineering-ready
 22. Full Level 1 seed promotion for Rb-Xe using source-backed configurations
 23. Formal ion instance IDs and validation
 24. Formal isotope instance IDs and validation
-25. Bounded isotope evidence seed for H/He/C/N/O isotope examples
+25. Bounded isotope evidence seed for H-Ca isotope examples
 26. Common-ion candidate evidence seed tied to sourced oxidation states
 27. Measured physical-property evidence for all complete PubChem rows
 28. Bounded matter-behavior profiles for H through Xe
-28a. Atom behavior v2 profiles for source-backed H/He/C/N/O isotope evidence
+28a. Atom behavior v2 profiles for source-backed H-Ca isotope evidence
 28b. Atom behavior v2 gap receipts and workplan for unresolved isotope-backed profile coverage
-28c. Isotope source policies for 49 Level 1 atom behavior isotope-only blockers
-28d. Isotope source-search receipts for 49 Level 1 atom behavior isotope-only blockers
+28c. Isotope source policies for 34 Level 1 atom behavior isotope-only blockers
+28d. Isotope source-search receipts for 34 Level 1 atom behavior isotope-only blockers
 28e. Oxygen NIST isotope candidate evidence admitted into canonical isotope evidence
 28f. Oxygen isotope candidate admission receipt for canonical evidence closure
+28g. Element readiness scoring for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension
 29. Source-drift checker for physical-property evidence
 30. Unresolved physical-property evidence receipts for incomplete PubChem rows
 31. Unresolved isotope and common-ion evidence receipts

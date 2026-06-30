@@ -37,6 +37,7 @@ from mcms.elements import (
     get_atom_behavior_gap_receipt,
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
+    get_element_readiness_score,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
@@ -69,6 +70,7 @@ from mcms.elements import (
     list_common_ion_evidence_records,
     list_configuration_evidence_records,
     list_cs_rn_promotion_readiness_profiles,
+    list_element_readiness_scores,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
     list_isotope_candidate_admission_receipts,
@@ -107,6 +109,7 @@ from mcms.elements import (
     validate_atom_behavior_gap_receipts,
     validate_atom_behavior_gap_work_items,
     validate_atom_behavior_profiles,
+    validate_element_readiness_scores,
     validate_full_snapshot,
     validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
@@ -207,7 +210,25 @@ def cmd_elements(
     isotope_candidate_evidence: bool = False,
     isotope_candidate_evidence_template: bool = False,
     isotope_candidate_admission: bool = False,
+    readiness_score: bool = False,
 ) -> None:
+    if readiness_score:
+        scores = (
+            (get_element_readiness_score(symbol),)
+            if symbol
+            else list_element_readiness_scores()
+        )
+        print(
+            json.dumps(
+                {
+                    "validation": validate_element_readiness_scores(scores),
+                    "scores": [score.to_dict() for score in scores],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
     if isotope_candidate_admission:
         receipts = (
             (get_isotope_candidate_admission_receipt(symbol),)
@@ -1022,6 +1043,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print isotope candidate admission receipts, optionally filtered by --symbol",
     )
     elements_parser.add_argument(
+        "--readiness-score",
+        action="store_true",
+        help="Print element readiness scores, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
         "--isotope-evidence",
         action="store_true",
         help="Print isotope evidence records, optionally filtered by --symbol and --isotope-mass",
@@ -1258,6 +1284,7 @@ def main(argv: list[str] | None = None) -> None:
             args.isotope_candidate_evidence,
             args.isotope_candidate_evidence_template,
             args.isotope_candidate_admission,
+            args.readiness_score,
         )
 
 
