@@ -27,6 +27,10 @@ VALID_PROMOTION_BATCH_POLICY_STATUSES = {
     "span_hold_pending_blocker_resolution",
     "span_ready_for_approval",
 }
+VALID_PARTIAL_PROMOTION_ELIGIBILITY_STATUSES = {
+    "partial_review_available_seed_mutation_blocked",
+    "partial_review_unavailable",
+}
 
 
 @dataclass(frozen=True)
@@ -126,6 +130,66 @@ class PromotionBatchPolicyReceipt:
         payload["span_symbols"] = list(self.span_symbols)
         payload["ready_symbols"] = list(self.ready_symbols)
         payload["blocked_symbols"] = list(self.blocked_symbols)
+        payload["blocking_receipt_ids"] = list(self.blocking_receipt_ids)
+        payload["invariants_preserved"] = list(self.invariants_preserved)
+        payload["notes"] = list(self.notes)
+        return payload
+
+
+@dataclass(frozen=True)
+class PartialPromotionEligibilityReceipt:
+    receipt_id: str
+    span_id: str
+    target_level: str
+    eligibility_status: str
+    eligible_symbols: tuple[str, ...]
+    blocked_symbols: tuple[str, ...]
+    eligible_decision_receipt_ids: tuple[str, ...]
+    blocking_receipt_ids: tuple[str, ...]
+    batch_policy_receipt_id: str
+    batch_policy_decision: str
+    partial_review_allowed: bool
+    seed_mutation_allowed: bool
+    required_next_action: str
+    invariants_preserved: tuple[str, ...]
+    evidence_status: str = "partial_promotion_eligibility_receipt"
+    notes: tuple[str, ...] = (
+        "Partial eligibility is a review queue, not a seed-promotion action.",
+        "Seed mutation remains blocked while full-span policy is held.",
+    )
+
+    def validate(self) -> list[str]:
+        errors: list[str] = []
+        if self.eligibility_status not in VALID_PARTIAL_PROMOTION_ELIGIBILITY_STATUSES:
+            errors.append("partial promotion eligibility status is unknown.")
+        observed_symbols = set(self.eligible_symbols) | set(self.blocked_symbols)
+        if observed_symbols != set(CS_RN_PROMOTION_SYMBOLS):
+            errors.append("eligible and blocked symbols must cover Cs-Rn.")
+        if set(self.eligible_symbols) & set(self.blocked_symbols):
+            errors.append("eligible and blocked symbols must not overlap.")
+        if len(self.eligible_symbols) != len(self.eligible_decision_receipt_ids):
+            errors.append("eligible symbols must map to eligible decision receipt ids.")
+        if len(self.blocked_symbols) != len(self.blocking_receipt_ids):
+            errors.append("blocked symbols must map to blocking receipt ids.")
+        if self.partial_review_allowed and not self.eligible_symbols:
+            errors.append("partial review cannot be allowed without eligible symbols.")
+        if self.seed_mutation_allowed:
+            errors.append("partial eligibility must not allow seed mutation.")
+        if self.batch_policy_decision == "hold_full_cs_rn_span" and not self.blocked_symbols:
+            errors.append("full-span hold requires at least one blocked symbol.")
+        if "readiness_is_not_approval" not in self.invariants_preserved:
+            errors.append("partial eligibility must preserve readiness-is-not-approval.")
+        if "no_partial_seed_hole" not in self.invariants_preserved:
+            errors.append("partial eligibility must preserve no partial seed holes.")
+        if not self.required_next_action:
+            errors.append("partial eligibility requires a next action.")
+        return errors
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["eligible_symbols"] = list(self.eligible_symbols)
+        payload["blocked_symbols"] = list(self.blocked_symbols)
+        payload["eligible_decision_receipt_ids"] = list(self.eligible_decision_receipt_ids)
         payload["blocking_receipt_ids"] = list(self.blocking_receipt_ids)
         payload["invariants_preserved"] = list(self.invariants_preserved)
         payload["notes"] = list(self.notes)
@@ -266,6 +330,72 @@ def validate_promotion_batch_policy_receipt(
         "policy_decision": checked_receipt.policy_decision,
         "ready_count": len(checked_receipt.ready_symbols),
         "blocked_count": len(checked_receipt.blocked_symbols),
+        "seed_mutation_allowed": checked_receipt.seed_mutation_allowed,
+        "errors": errors,
+    }
+
+
+def get_partial_promotion_eligibility_receipt() -> PartialPromotionEligibilityReceipt:
+    batch_policy = get_promotion_batch_policy_receipt()
+    decisions = list_promotion_decision_receipts()
+    eligible_decisions = tuple(
+        decision
+        for decision in decisions
+        if decision.decision_status == "promotion_ready_pending_approval"
+    )
+    blocked_decisions = tuple(
+        decision
+        for decision in decisions
+        if decision.decision_status != "promotion_ready_pending_approval"
+    )
+    return PartialPromotionEligibilityReceipt(
+        receipt_id="MSPEE-PARTIAL-PROMOTION-ELIGIBILITY-CS-RN",
+        span_id=batch_policy.span_id,
+        target_level=batch_policy.target_level,
+        eligibility_status=(
+            "partial_review_available_seed_mutation_blocked"
+            if eligible_decisions
+            else "partial_review_unavailable"
+        ),
+        eligible_symbols=tuple(decision.symbol for decision in eligible_decisions),
+        blocked_symbols=tuple(decision.symbol for decision in blocked_decisions),
+        eligible_decision_receipt_ids=tuple(
+            decision.receipt_id for decision in eligible_decisions
+        ),
+        blocking_receipt_ids=tuple(decision.receipt_id for decision in blocked_decisions),
+        batch_policy_receipt_id=batch_policy.receipt_id,
+        batch_policy_decision=batch_policy.policy_decision,
+        partial_review_allowed=bool(eligible_decisions),
+        seed_mutation_allowed=False,
+        required_next_action=(
+            "review ready Cs-Rn receipts as a partial queue while preserving the "
+            "full-span seed mutation hold until At evidence is closed"
+        ),
+        invariants_preserved=(
+            "contiguous_level_1_seed_span",
+            "no_partial_seed_hole",
+            "readiness_is_not_approval",
+            "seed_mutation_requires_full_span_policy_release",
+        ),
+    )
+
+
+def validate_partial_promotion_eligibility_receipt(
+    receipt: PartialPromotionEligibilityReceipt | None = None,
+) -> dict[str, Any]:
+    checked_receipt = (
+        receipt if receipt is not None else get_partial_promotion_eligibility_receipt()
+    )
+    errors = tuple(checked_receipt.validate())
+    return {
+        "validation_status": (
+            "partial_promotion_eligibility_receipt_validated"
+            if not errors
+            else "partial_promotion_eligibility_receipt_rejected"
+        ),
+        "eligible_count": len(checked_receipt.eligible_symbols),
+        "blocked_count": len(checked_receipt.blocked_symbols),
+        "partial_review_allowed": checked_receipt.partial_review_allowed,
         "seed_mutation_allowed": checked_receipt.seed_mutation_allowed,
         "errors": errors,
     }

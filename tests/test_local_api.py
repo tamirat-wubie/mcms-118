@@ -59,6 +59,7 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /matter/profiles/Br" in index["routes"]
     assert "GET /promotion/cs-rn/At" in index["routes"]
     assert "GET /promotion/batch-policy" in index["routes"]
+    assert "GET /promotion/partial-eligibility" in index["routes"]
     assert "GET /promotion/decisions/At" in index["routes"]
     assert "GET /phase3/f-block/U" in index["routes"]
     assert "GET /level2/period-5/Xe" in index["routes"]
@@ -214,6 +215,19 @@ def test_local_api_exposes_cs_rn_promotion_batch_policy():
     assert policy["receipt"]["policy_decision"] == "hold_full_cs_rn_span"
     assert policy["receipt"]["seed_mutation_allowed"] is False
     assert policy["receipt"]["blocked_symbols"] == ["At"]
+
+
+def test_local_api_exposes_partial_promotion_eligibility():
+    receipt = _payload(handle_api_request("GET", "/promotion/partial-eligibility"))
+
+    assert receipt["validation"]["validation_status"] == (
+        "partial_promotion_eligibility_receipt_validated"
+    )
+    assert receipt["validation"]["eligible_count"] == 31
+    assert receipt["validation"]["blocked_count"] == 1
+    assert receipt["receipt"]["blocked_symbols"] == ["At"]
+    assert receipt["receipt"]["partial_review_allowed"] is True
+    assert receipt["receipt"]["seed_mutation_allowed"] is False
 
 
 def test_local_api_exposes_cs_rn_frontier_valence_records():

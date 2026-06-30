@@ -55,6 +55,7 @@ from mcms.elements import (
     get_isotope_source_policy,
     get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
+    get_partial_promotion_eligibility_receipt,
     get_period_5_level_2_profile,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
@@ -142,6 +143,7 @@ from mcms.elements import (
     validate_matter_behavior_profiles,
     validate_oxidation_state_evidence_records,
     validate_partial_physical_property_source_search_receipts,
+    validate_partial_promotion_eligibility_receipt,
     validate_period_5_level_2_profiles,
     validate_physical_property_closure_approval_receipts,
     validate_physical_property_conflict_resolution_receipts,
@@ -311,6 +313,7 @@ def _index_payload() -> dict[str, Any]:
             "GET /promotion/cs-rn",
             "GET /promotion/cs-rn/At",
             "GET /promotion/batch-policy",
+            "GET /promotion/partial-eligibility",
             "GET /promotion/decisions",
             "GET /promotion/decisions/At",
             "GET /phase3/f-block",
@@ -1189,6 +1192,15 @@ def _promotion_batch_policy_payload() -> dict[str, Any]:
     }
 
 
+def _partial_promotion_eligibility_payload() -> dict[str, Any]:
+    receipt = get_partial_promotion_eligibility_receipt()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_partial_promotion_eligibility_receipt(receipt),
+        "receipt": receipt.to_dict(),
+    }
+
+
 def _f_block_list_payload() -> dict[str, Any]:
     profiles = list_f_block_expansion_profiles()
     return {
@@ -1776,6 +1788,8 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             )
         if path_parts == ["promotion", "batch-policy"]:
             return ApiResponse(HTTPStatus.OK, _promotion_batch_policy_payload())
+        if path_parts == ["promotion", "partial-eligibility"]:
+            return ApiResponse(HTTPStatus.OK, _partial_promotion_eligibility_payload())
         if path_parts == ["promotion", "decisions"]:
             return ApiResponse(HTTPStatus.OK, _promotion_decision_list_payload())
         if len(path_parts) == 3 and path_parts[:2] == ["promotion", "decisions"]:

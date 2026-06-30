@@ -61,6 +61,7 @@ physical-property evidence, preserving the contiguous Level 1 seed invariant.
 | Relation overlay | Same-position and shared-evidence relation edges | Implemented for Cs-Rn, Z=55..86 |
 | Promotion decisions | Readiness-to-approval receipts before seed mutation | Implemented for Cs-Rn, Z=55..86 |
 | Promotion batch policy | Span-level decision over partial versus full promotion | Implemented for Cs-Rn, Z=55..86 |
+| Partial promotion eligibility | Read-only review queue for ready Cs-Rn records while full-span seed mutation is held | Implemented for 31 ready records, zero seed mutation authority |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
 overclaiming while creating the causal spine required for later chemistry and
@@ -938,6 +939,7 @@ Routes:
 | `GET /promotion/cs-rn` | Cs-Rn promotion-readiness profile list and validation summary |
 | `GET /promotion/cs-rn/{symbol}` | Single Cs-Rn promotion-readiness profile |
 | `GET /promotion/batch-policy` | Cs-Rn span-level promotion batch policy receipt |
+| `GET /promotion/partial-eligibility` | Read-only partial promotion eligibility receipt |
 | `GET /promotion/decisions` | Cs-Rn promotion decision receipt list and validation summary |
 | `GET /promotion/decisions/{symbol}` | Single Cs-Rn promotion decision receipt |
 | `GET /phase3/f-block` | Phase 3 f-block profile list and validation summary |
@@ -1595,6 +1597,7 @@ Drift statuses:
 | Relation blocker -> evidence mesh overlay | Cs through Rn now carry relation-edge records |
 | Readiness result -> decision receipt | Cs through Rn now separate promotion readiness from explicit seed approval |
 | Decision ambiguity -> batch policy | Cs-Rn now hold the full span until At evidence is complete |
+| Batch hold -> partial eligibility receipt | 31 ready Cs-Rn records are exposed for review while seed mutation remains blocked |
 
 ## Fracture Deltas Avoided
 

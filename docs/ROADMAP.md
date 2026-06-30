@@ -103,6 +103,7 @@ M8 = production-engineering-ready
 37. Cs-Rn relation-edge overlay
 38. Cs-Rn promotion decision receipts
 39. Cs-Rn full-span hold batch policy
+39a. Cs-Rn partial promotion eligibility receipt with zero seed mutation authority
 40. Physical-property gap audit receipts
 41. Physical-property secondary-source admission policy
 42. Physical-property secondary evidence receipt workflow

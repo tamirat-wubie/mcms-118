@@ -304,11 +304,14 @@ from mcms.elements.promotion import (
     validate_cs_rn_promotion_readiness_profiles,
 )
 from mcms.elements.promotion_decision import (
+    PartialPromotionEligibilityReceipt,
     PromotionBatchPolicyReceipt,
     PromotionDecisionReceipt,
+    get_partial_promotion_eligibility_receipt,
     get_promotion_batch_policy_receipt,
     get_promotion_decision_receipt,
     list_promotion_decision_receipts,
+    validate_partial_promotion_eligibility_receipt,
     validate_promotion_batch_policy_receipt,
     validate_promotion_decision_receipts,
 )
@@ -427,6 +430,7 @@ __all__ = [
     "PhysicalPropertySecondarySourceCandidate",
     "PhysicalPropertySecondarySourcePolicy",
     "OxidationStateEvidenceRecord",
+    "PartialPromotionEligibilityReceipt",
     "PromotionBatchPolicyReceipt",
     "PromotionReadinessValidationResult",
     "PromotionDecisionReceipt",
@@ -491,6 +495,7 @@ __all__ = [
     "get_isotope_source_policy",
     "get_isotope_source_search_receipt",
     "get_period_5_level_2_profile",
+    "get_partial_promotion_eligibility_receipt",
     "get_partial_physical_property_source_search_receipt",
     "get_physical_property_gap_audit_receipt",
     "get_physical_property_continued_evidence_plan",
@@ -567,6 +572,7 @@ __all__ = [
     "validate_atom_behavior_gap_work_items",
     "validate_isotope_candidate_admission_receipts",
     "validate_partial_physical_property_source_search_receipts",
+    "validate_partial_promotion_eligibility_receipt",
     "validate_promotion_batch_policy_receipt",
     "validate_promotion_decision_receipts",
     "validate_element_readiness_scores",
