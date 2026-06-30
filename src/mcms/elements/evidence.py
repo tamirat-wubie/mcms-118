@@ -992,6 +992,67 @@ _ISOTOPE_EVIDENCE_ROWS = (
     },
 )
 
+_SC_ZN_ISOTOPE_EVIDENCE_ROWS = tuple(
+    {
+        "symbol": symbol,
+        "mass_number": mass_number,
+        "relative_atomic_mass": relative_atomic_mass,
+        "isotopic_composition": isotopic_composition,
+        "half_life_value": half_life_value,
+        "half_life_unit": half_life_unit,
+        "decay_mode": decay_mode,
+        "source_keys": (
+            "ciaaw_isotopic_compositions_2024",
+            "nist_atomic_weights_isotopic_compositions",
+        ),
+        "evidence_status": (
+            "radioisotope_evidence"
+            if half_life_value is not None
+            else "stable_isotope_evidence"
+        ),
+    }
+    for (
+        symbol,
+        mass_number,
+        relative_atomic_mass,
+        isotopic_composition,
+        half_life_value,
+        half_life_unit,
+        decay_mode,
+    ) in (
+        ("Sc", 45, "44.95590828(77)", "1", None, None, None),
+        ("Ti", 46, "45.95262772(35)", "0.0825(3)", None, None, None),
+        ("Ti", 47, "46.95175879(38)", "0.0744(2)", None, None, None),
+        ("Ti", 48, "47.94794198(38)", "0.7372(3)", None, None, None),
+        ("Ti", 49, "48.94786568(39)", "0.0541(2)", None, None, None),
+        ("Ti", 50, "49.94478689(39)", "0.0518(2)", None, None, None),
+        ("V", 50, "49.94715601(95)", "0.00250(4)", 1.5e17, "years", "electron_capture_or_beta_decay"),
+        ("V", 51, "50.94395704(94)", "0.99750(4)", None, None, None),
+        ("Cr", 50, "49.94604183(94)", "0.04345(13)", None, None, None),
+        ("Cr", 52, "51.94050623(63)", "0.83789(18)", None, None, None),
+        ("Cr", 53, "52.94064815(62)", "0.09501(17)", None, None, None),
+        ("Cr", 54, "53.93887916(61)", "0.02365(7)", None, None, None),
+        ("Mn", 55, "54.93804391(48)", "1", None, None, None),
+        ("Fe", 54, "53.93960899(53)", "0.05845(35)", None, None, None),
+        ("Fe", 56, "55.93493633(49)", "0.91754(36)", None, None, None),
+        ("Fe", 57, "56.93539284(49)", "0.02119(10)", None, None, None),
+        ("Fe", 58, "57.93327443(53)", "0.00282(4)", None, None, None),
+        ("Co", 59, "58.93319429(56)", "1", None, None, None),
+        ("Ni", 58, "57.93534241(52)", "0.68077(19)", None, None, None),
+        ("Ni", 60, "59.93078588(52)", "0.26223(15)", None, None, None),
+        ("Ni", 61, "60.93105557(52)", "0.011399(13)", None, None, None),
+        ("Ni", 62, "61.92834537(55)", "0.036346(40)", None, None, None),
+        ("Ni", 64, "63.92796682(58)", "0.009255(19)", None, None, None),
+        ("Cu", 63, "62.92959772(56)", "0.6915(15)", None, None, None),
+        ("Cu", 65, "64.92778970(71)", "0.3085(15)", None, None, None),
+        ("Zn", 64, "63.92914201(71)", "0.4917(75)", None, None, None),
+        ("Zn", 66, "65.92603381(94)", "0.2773(98)", None, None, None),
+        ("Zn", 67, "66.92712775(96)", "0.0404(16)", None, None, None),
+        ("Zn", 68, "67.92484455(98)", "0.1845(63)", None, None, None),
+        ("Zn", 70, "69.9253192(21)", "0.0061(10)", None, None, None),
+    )
+)
+
 _COMMON_ION_EVIDENCE_ROWS = (
     ("Na", 1),
     ("Mg", 2),
@@ -1224,7 +1285,10 @@ def _build_unresolved_physical_property_evidence(
 
 
 def list_isotope_evidence_records() -> tuple[IsotopeEvidenceRecord, ...]:
-    return tuple(_build_isotope_evidence(row) for row in _ISOTOPE_EVIDENCE_ROWS)
+    return tuple(
+        _build_isotope_evidence(row)
+        for row in (_ISOTOPE_EVIDENCE_ROWS + _SC_ZN_ISOTOPE_EVIDENCE_ROWS)
+    )
 
 
 def list_common_ion_evidence_records() -> tuple[CommonIonEvidenceRecord, ...]:
