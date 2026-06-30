@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mcms-118"
 version = "0.1.0"
-description = "MCMS-118 — Causal Matter Standard: symbolic matter standard and governed release-evidence engine"
+description = "MSPEE-118 Element Engine: standalone source-backed periodic-table element records"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [{name = "Tamirat Wube"}]
-keywords = ["symbolic", "matter", "governance", "evidence", "release", "audit", "mcms"]
+keywords = ["periodic-table", "elements", "chemistry", "evidence", "audit", "mspee", "mcms"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",

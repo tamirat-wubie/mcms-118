@@ -5,6 +5,8 @@ from jsonschema import Draft202012Validator, ValidationError
 
 from mcms.cli import cmd_elements
 from mcms.elements import (
+    atom_behavior_profile_json_schema,
+    build_atom_behavior_profile,
     element_schema_bundle,
     element_seed_json_schema,
     element_snapshot_json_schema,
@@ -204,13 +206,30 @@ def test_snapshot_schema_validates_grouped_and_ungrouped_records():
     ]
 
 
-def test_schema_bundle_exposes_both_contracts():
+def test_atom_behavior_schema_validates_profile_and_rejects_extra_fields():
+    schema = atom_behavior_profile_json_schema()
+    validator = Draft202012Validator(schema)
+    carbon_14_payload = _json_payload(build_atom_behavior_profile("C", 14).to_dict())
+    invalid_payload = {**carbon_14_payload, "unexpected_atom_field": True}
+    Draft202012Validator.check_schema(schema)
+    validator.validate(carbon_14_payload)
+    assert schema["title"] == "AtomBehaviorProfile"
+    assert carbon_14_payload["profile_status"] == "atom_behavior_v2"
+    assert carbon_14_payload["mass_number"] == 14
+    assert carbon_14_payload["neutron_count"] == 8
+    assert carbon_14_payload["electron_count"] == 6
+    with pytest.raises(ValidationError):
+        validator.validate(invalid_payload)
+
+
+def test_schema_bundle_exposes_element_snapshot_and_atom_contracts():
     bundle = element_schema_bundle()
     schema_keys = set(bundle["schemas"])
     assert bundle["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema_keys == {
         "mullu_standard_symbolic_element",
         "element_source_snapshot_record",
+        "atom_behavior_profile",
     }
     assert (
         bundle["schemas"]["mullu_standard_symbolic_element"]["$id"]
@@ -232,3 +251,4 @@ def test_element_schema_cli_prints_valid_bundle(capsys):
     assert output["$id"].endswith("/schema-bundle.json")
     assert "mullu_standard_symbolic_element" in output["schemas"]
     assert "element_source_snapshot_record" in output["schemas"]
+    assert "atom_behavior_profile" in output["schemas"]

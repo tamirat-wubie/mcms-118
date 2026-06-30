@@ -2,7 +2,7 @@ import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-from mcms.elements import get_seed_element
+from mcms.elements import get_period_5_level_2_profile, get_seed_element
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "check_element_level2_drift.py"
 SPEC = spec_from_file_location("check_element_level2_drift", SCRIPT_PATH)
@@ -13,6 +13,7 @@ sys.modules[SPEC.name] = DRIFT_MODULE
 SPEC.loader.exec_module(DRIFT_MODULE)
 
 SourceLevel2ChemistryRow = DRIFT_MODULE.SourceLevel2ChemistryRow
+build_period_5_level_2_drift_report = DRIFT_MODULE.build_period_5_level_2_drift_report
 build_drift_report = DRIFT_MODULE.build_drift_report
 derive_bond_tendency_tags = DRIFT_MODULE.derive_bond_tendency_tags
 parse_pubchem_periodic_table_csv = DRIFT_MODULE.parse_pubchem_periodic_table_csv
@@ -88,7 +89,7 @@ def test_level_2_drift_report_has_no_drift_for_fixture_rows():
     assert report["drift_status"] == "element_level_2_chemistry_no_drift"
     assert report["drift_count"] == 0
     assert report["source_count"] == 4
-    assert report["local_count"] == 36
+    assert report["local_count"] == 54
 
 
 def test_level_2_drift_report_detects_symbol_oxidation_and_electronegativity_changes():
@@ -140,7 +141,7 @@ def test_level_2_drift_report_requires_complete_promoted_source_when_enabled():
     missing_fields = {drift["field"] for drift in report["drifts"]}
     assert report["drift_status"] == "element_level_2_chemistry_drift_detected"
     assert report["source_count"] == 1
-    assert report["drift_count"] == 35
+    assert report["drift_count"] == 53
     assert missing_fields == {"missing_source_record"}
 
 
@@ -156,3 +157,86 @@ def test_pubchem_group_block_derives_bond_tendency_tags():
     )
     assert derive_bond_tendency_tags("Noble gas") == ("noble_gas_low_reactivity",)
     assert derive_bond_tendency_tags("Lanthanide") == ()
+
+
+def test_period_5_level_2_drift_report_has_no_drift_for_fixture_rows():
+    symbols = ("Rb", "Zr", "Xe")
+    source_rows = tuple(
+        SourceLevel2ChemistryRow(
+            atomic_number=get_period_5_level_2_profile(symbol).atomic_number,
+            symbol=symbol,
+            oxidation_states=get_period_5_level_2_profile(symbol).oxidation_states,
+            electronegativity_value=get_period_5_level_2_profile(
+                symbol
+            ).electronegativity_value,
+            first_ionization_energy_ev=get_period_5_level_2_profile(
+                symbol
+            ).first_ionization_energy_ev,
+            group_block=get_period_5_level_2_profile(symbol).pubchem_group_block,
+            bond_tendency_tags=get_period_5_level_2_profile(symbol).bond_tendency_tags,
+        )
+        for symbol in symbols
+    )
+    report = build_period_5_level_2_drift_report(
+        source_rows,
+        source_url="fixture://pubchem",
+        require_complete_source=False,
+    )
+    assert report["drift_status"] == "period_5_level_2_snapshot_no_drift"
+    assert report["drift_count"] == 0
+    assert report["source_count"] == 3
+    assert report["local_count"] == 18
+
+
+def test_period_5_level_2_drift_report_detects_profile_changes():
+    report = build_period_5_level_2_drift_report(
+        (
+            SourceLevel2ChemistryRow(
+                atomic_number=54,
+                symbol="Xx",
+                oxidation_states=(2, 0),
+                electronegativity_value=2.61,
+                first_ionization_energy_ev=12.14,
+                group_block="Halogen",
+                bond_tendency_tags=("covalent_bonding", "ionic_bonding", "molecular_covalent"),
+            ),
+        ),
+        source_url="fixture://pubchem",
+        require_complete_source=False,
+    )
+    drift_fields = {drift["field"] for drift in report["drifts"]}
+    assert report["drift_status"] == "period_5_level_2_snapshot_drift_detected"
+    assert report["drift_count"] == 6
+    assert drift_fields == {
+        "symbol",
+        "oxidation_states",
+        "electronegativity_value",
+        "first_ionization_energy_ev",
+        "pubchem_group_block",
+        "bond_tendency_tags",
+    }
+    assert all(drift["atomic_number"] == 54 for drift in report["drifts"])
+
+
+def test_period_5_level_2_drift_report_requires_complete_source_when_enabled():
+    xenon = get_period_5_level_2_profile("Xe")
+    report = build_period_5_level_2_drift_report(
+        (
+            SourceLevel2ChemistryRow(
+                atomic_number=xenon.atomic_number,
+                symbol=xenon.symbol,
+                oxidation_states=xenon.oxidation_states,
+                electronegativity_value=xenon.electronegativity_value,
+                first_ionization_energy_ev=xenon.first_ionization_energy_ev,
+                group_block=xenon.pubchem_group_block,
+                bond_tendency_tags=xenon.bond_tendency_tags,
+            ),
+        ),
+        source_url="fixture://pubchem",
+        require_complete_source=True,
+    )
+    missing_fields = {drift["field"] for drift in report["drifts"]}
+    assert report["drift_status"] == "period_5_level_2_snapshot_drift_detected"
+    assert report["source_count"] == 1
+    assert report["drift_count"] == 17
+    assert missing_fields == {"missing_source_record"}

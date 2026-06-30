@@ -1,39 +1,84 @@
 # Architecture
 
-MCMS-118 is organized into four engines.
+MSPEE-118 is the active standalone element-engine profile in this repository.
+Supporting MCMS modules remain for receipts, phase metadata, release evidence,
+and future matter-behavior work, but the current science-facing boundary is the
+periodic-table element engine.
+
+## Engine Split
 
 ```text
-1. Symbolic domain engine
-   matter, chemistry, metabolism, graph and circuit models
+1. Element science model
+   identity, laws, state, state instances, source evidence, chemistry fields, promotion readiness, promotion decisions, batch policy, matter profiles, atom behavior profiles, and relation graph
 
-2. Governance engine
-   evidence, receipts, boundaries, approvals, ledgers, waivers
+2. Evidence and receipt model
+   source references, configuration/isotope/common-ion/physical-property evidence, unresolved receipts, drift checks, and audit notes
 
-3. Runtime engine
-   adapters, storage, migrations, jobs, deployment lifecycle
+3. Runtime and release model
+   CLI, scripts, verification, schemas, release evidence, and package metadata
 
-4. Product interface engine
-   CLI, API contracts, dashboard models, demos, docs
+4. Product interface model
+   JSON API, dashboard read model, graph export, and documentation
 ```
 
-MSPEE-118 is the element-engine profile inside the symbolic domain engine.
-It turns each canonical element seed into:
+## Element Record
 
 ```text
-identity + laws + state + exposure + history
+element_record := identity + laws + state + exposure + history
+
+identity = atomic number, symbol, name, proton count
+laws = identity, charge, isotope, shell-capacity, and conservation rules
+state = configuration, periodic position, atomic-weight model, and chemistry fields
+exposure = human card, JSON, graph, dashboard, and API projections
+history = source references, derivation trace, audit notes, and validation status
 ```
 
-The current implementation includes a Level 1 seed pack for the first 36 elements,
-a full 118-element identity/weight snapshot, plus validation receipts and relation
-edges for same group, same period, and same block traversal.
-
-The common symbolic object model is:
+## Current Coverage
 
 ```text
-𝕊ˣ := ⟨ Ιˣ, Λˣ, Σˣ, Γˣ, Hˣ ⟩
-Ι = identity
-Λ = laws / rules
-Σ = state
-Γ = interface / exposure
-H = history / provenance / audit
+Level 1 seed pack: Z=1..54, H through Xe
+Full identity/weight snapshot: Z=1..118
+Transition frontier kernel: Sc-Zn and Y-Cd
+P-block d-core context: Ga-Kr and In-Xe
+F-block profile overlay: La-Lu and Ac-Lr
+Period-5 chemistry profile projection: Rb-Xe
+Promotion-readiness audit profiles: Cs-Rn
+Configuration evidence overlay: Cs-Rn
+Frontier/valence signature overlay: Cs-Rn
+Oxidation-state evidence overlay: Cs-Rn
+Behavior-tag overlay: Cs-Rn
+Relation-edge overlay: Cs-Rn
+Promotion decision receipts: Cs-Rn
+Promotion batch policy: hold full Cs-Rn span pending At evidence
+Ion/isotope state instances: derived electron and neutron count validators
+Isotope/common-ion evidence seeds: H/C isotope evidence and selected common-ion candidates
+Unresolved isotope/common-ion evidence: snapshot and Level 1 evidence gaps
+Physical-property evidence: 93 complete PubChem rows
+Unresolved physical-property evidence: 25 incomplete PubChem rows
+Physical-property gap audits: 25 receipts, At blocks Cs-Rn
+Physical-property gap workplan: 25 items, zero gap closures
+Physical-property source-search receipts: 2 Pa/Bk searches with candidate receipts created
+Partial physical-property source-search receipts: 7 open searches, 14 field searches
+Secondary-source policy: 25 physical-property gap policies, zero gaps closed by policy alone
+Secondary-source evidence: 8 At/Fr/Pa/Bk/Cf/Es candidate receipts, zero admitted receipts
+Secondary-source admission: 8 blocked decisions, zero gap closures
+Physical-property conflict resolution: 3 At/Fr/Pa receipts, zero gap closures
+Physical-property corroboration review: 4 Fr density and Bk/Cf/Es boiling-point receipts, zero gap closures
+Physical-property source review: 1 Cf density receipt, zero gap closures
+Physical-property gap closure: 1 Cf density decision, ready pending approval, zero seed mutations
+Physical-property closure approval: 1 Cf density receipt, approval deferred, zero seed mutations
+Physical-property seed update: 1 Cf density receipt, blocked by deferred approval, zero seed mutations
+Physical-property escalations: 8 receipts for conflict, corroboration, and approval blocks, zero seed mutations
+Physical-property escalation search: 7 receipts, including At/Fr/Pa boiling-point investigations and Fr/Bk/Cf/Es corroboration searches
+Physical-property no-candidate review: 4 Fm/Md/No/Lr receipts, zero gap closures
+Matter-behavior profiles: H-Xe
+Atom behavior v2 profiles: 5 source-backed H/C isotope profiles
+Atom behavior v2 gaps: 116 receipts and 116 work items for unresolved isotope-backed profile coverage
+Isotope source policies: 52 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
 ```
+
+## Boundary
+
+The engine validates and exposes source-backed element records. It does not claim
+complete reaction prediction, full quantum simulation, complete isotope physics,
+or laboratory certification.
