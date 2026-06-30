@@ -12,7 +12,7 @@ def test_full_element_relation_graph_exports_all_seed_nodes_and_edges():
     seed_symbols = {element.identity.symbol for element in list_seed_elements()}
     graph_symbols = {node["symbol"] for node in payload["nodes"]}
     assert payload["graph_status"] == "element_relation_graph_exported"
-    assert payload["query"]["node_count"] == 36
+    assert payload["query"]["node_count"] == 54
     assert graph_symbols == seed_symbols
     assert payload["query"]["edge_count"] == len(payload["edges"])
     assert payload["query"]["edge_count"] > payload["query"]["node_count"]
@@ -24,8 +24,28 @@ def test_symbol_relation_graph_filters_to_declared_relation_type():
     target_symbols = {edge["target_symbol"] for edge in payload["edges"]}
     assert payload["query"]["symbol"] == "Zn"
     assert payload["query"]["relation_type"] == "same_block"
-    assert payload["query"]["edge_count"] == 9
-    assert target_symbols == {"Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu"}
+    assert payload["query"]["edge_count"] == 19
+    assert target_symbols == {
+        "Sc",
+        "Ti",
+        "V",
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni",
+        "Cu",
+        "Y",
+        "Zr",
+        "Nb",
+        "Mo",
+        "Tc",
+        "Ru",
+        "Rh",
+        "Pd",
+        "Ag",
+        "Cd",
+    }
     assert {edge["relation_type"] for edge in payload["edges"]} == {"same_block"}
 
 
@@ -51,5 +71,6 @@ def test_element_graph_cli_prints_filtered_graph(capsys):
     )
     output = json.loads(capsys.readouterr().out)
     assert output["query"]["symbol"] == "Zn"
-    assert output["query"]["edge_count"] == 9
-    assert output["nodes"][-1]["symbol"] == "Zn"
+    assert output["query"]["edge_count"] == 19
+    assert any(node["symbol"] == "Zn" for node in output["nodes"])
+    assert output["nodes"][-1]["symbol"] == "Cd"

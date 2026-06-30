@@ -27,7 +27,7 @@ def test_dashboard_view_model_selects_level_1_element_and_graph_context():
     assert dashboard["selected_element"]["frontier_signature"]["d_shell"] == "3d^10"
     assert dashboard["selected_element"]["configuration_audit"]["is_exception"] is False
     assert dashboard["selected_element"]["transition_behavior_kernel"]["coordination_relevance"] is True
-    assert dashboard["graph"]["query"]["edge_count"] == 9
+    assert dashboard["graph"]["query"]["edge_count"] == 19
     assert len(dashboard["schema_cards"]) == 3
 
 
@@ -75,5 +75,5 @@ def test_dashboard_api_route_returns_read_model():
     payload = response.payload["dashboard"]
     assert response.status_code == 200
     assert payload["selected_element"]["symbol"] == "Zn"
-    assert payload["seed_summary"]["element_count"] == 36
+    assert payload["seed_summary"]["element_count"] == 54
     assert payload["snapshot_summary"]["element_count"] == 118

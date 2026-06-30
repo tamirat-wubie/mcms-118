@@ -16,6 +16,7 @@ VALID_BLOCKS = {"s", "p", "d", "f"}
 VALID_FRONTIER_VALENCE_MODELS = {
     "main_group",
     "period_4_p_block_d_core",
+    "period_5_p_block_d_core",
     "transition_metal",
 }
 VALID_D_SHELL_STABILITY_STATES = {
@@ -189,6 +190,8 @@ class FrontierSignature:
                 errors.append("transition-metal frontier requires d-shell stability state.")
         if self.valence_model == "period_4_p_block_d_core" and self.d_shell != "3d^10":
             errors.append("period-4 p-block frontier must preserve filled 3d core.")
+        if self.valence_model == "period_5_p_block_d_core" and self.d_shell != "4d^10":
+            errors.append("period-5 p-block frontier must preserve filled 4d core.")
         return errors
 
     def to_dict(self) -> dict:
@@ -368,6 +371,13 @@ class ElementState:
                 errors.append("period-4 p-block frontier must preserve filled d-core model.")
             elif self.frontier_signature.d_shell != "3d^10":
                 errors.append("period-4 p-block frontier must preserve filled 3d core.")
+        if self.block == "p" and self.period == 5:
+            if self.frontier_signature is None:
+                errors.append("period-5 p-block element requires filled d-core frontier signature.")
+            elif self.frontier_signature.valence_model != "period_5_p_block_d_core":
+                errors.append("period-5 p-block frontier must preserve filled d-core model.")
+            elif self.frontier_signature.d_shell != "4d^10":
+                errors.append("period-5 p-block frontier must preserve filled 4d core.")
         errors.extend(self.atomic_weight_model.validate())
         for edge in self.relation_edges:
             errors.extend(edge.validate())
@@ -469,16 +479,16 @@ class MulluStandardSymbolicElement:
                 errors.append(
                     "source-backed configuration must match neutral electron configuration."
                 )
-        if 21 <= self.identity.atomic_number <= 36:
+        if 21 <= self.identity.atomic_number <= 54:
             if self.state.frontier_signature is None:
-                errors.append("Phase 2 seed record requires frontier signature.")
+                errors.append("promoted transition/period p-block seed record requires frontier signature.")
             if self.state.configuration_audit is None:
-                errors.append("Phase 2 seed record requires configuration audit.")
-        if self.identity.symbol in {"Cr", "Cu"}:
+                errors.append("promoted transition/period p-block seed record requires configuration audit.")
+        if self.identity.symbol in {"Cr", "Cu", "Nb", "Mo", "Ru", "Rh", "Pd", "Ag"}:
             if self.state.configuration_audit is None:
-                errors.append("Cr and Cu require configuration exception audit.")
+                errors.append("configuration exception anchor requires configuration audit.")
             elif not self.state.configuration_audit.is_exception:
-                errors.append("Cr and Cu must be marked as configuration exceptions.")
+                errors.append("configuration exception anchor must be marked as an exception.")
         errors.extend(self.laws.validate())
         errors.extend(self.state.validate())
         errors.extend(self.exposure.validate())

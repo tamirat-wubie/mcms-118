@@ -24,12 +24,12 @@ from mcms.elements import (
 )
 
 
-def test_seed_pack_contains_first_36_elements_in_order():
+def test_seed_pack_contains_first_54_elements_in_order():
     elements = list_seed_elements()
-    assert len(elements) == 36
-    assert [element.identity.atomic_number for element in elements] == list(range(1, 37))
+    assert len(elements) == 54
+    assert [element.identity.atomic_number for element in elements] == list(range(1, 55))
     assert elements[0].identity.symbol == "H"
-    assert elements[-1].identity.symbol == "Kr"
+    assert elements[-1].identity.symbol == "Xe"
 
 
 def test_hydrogen_identity_state_and_sources_are_validated():
@@ -73,7 +73,7 @@ def test_invalid_element_reports_validation_errors():
 def test_element_lookup_and_seed_pack_validation_reject_unknowns():
     result = validate_seed_pack()
     assert result.validation_status == "element_seed_pack_validated"
-    assert result.element_count == 36
+    assert result.element_count == 54
     assert result.relation_edge_count > 0
     with pytest.raises(KeyError):
         get_seed_element("Xx")
@@ -350,7 +350,7 @@ def test_level_2_chemistry_boundaries_validate_ionization_and_bond_tendency_fiel
     assert any("tags are required" in error for error in source_without_bond_tags.validate())
 
 
-def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
+def test_first_54_seed_records_carry_source_backed_level_2_chemistry_values():
     source_key = "pubchem_periodic_table_properties"
     seed_symbols = [element.identity.symbol for element in list_seed_elements()]
     hydrogen = get_seed_element("H")
@@ -361,7 +361,9 @@ def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     titanium = get_seed_element("Ti")
     zinc = get_seed_element("Zn")
     krypton = get_seed_element("Kr")
-    assert len(seed_symbols) == 36
+    rubidium = get_seed_element("Rb")
+    xenon = get_seed_element("Xe")
+    assert len(seed_symbols) == 54
     assert all(get_seed_element(symbol).state.data_level == 2 for symbol in seed_symbols)
     assert all(source_key in get_seed_element(symbol).source_keys() for symbol in seed_symbols)
     assert all(
@@ -390,16 +392,24 @@ def test_first_36_seed_records_carry_source_backed_level_2_chemistry_values():
     assert krypton.state.electronegativity_value == 3.00
     assert krypton.state.first_ionization_energy_ev == 14.000
     assert krypton.state.bond_tendency_tags == ("noble_gas_low_reactivity",)
+    assert rubidium.state.oxidation_states == (1,)
+    assert rubidium.state.electronegativity_value == 0.82
+    assert rubidium.state.first_ionization_energy_ev == 4.177
+    assert xenon.state.oxidation_states == (0,)
+    assert xenon.state.electronegativity_value == 2.60
+    assert xenon.state.first_ionization_energy_ev == 12.130
     assert all(get_seed_element(symbol).validate() == [] for symbol in seed_symbols)
 
 
-def test_first_36_bond_tendency_tags_are_derived_from_pubchem_group_block_classes():
+def test_first_54_bond_tendency_tags_are_derived_from_pubchem_group_block_classes():
     hydrogen = get_seed_element("H")
     fluorine = get_seed_element("F")
     calcium = get_seed_element("Ca")
     zinc = get_seed_element("Zn")
     silicon = get_seed_element("Si")
     krypton = get_seed_element("Kr")
+    zirconium = get_seed_element("Zr")
+    iodine = get_seed_element("I")
     assert hydrogen.state.bond_tendency_tags == ("covalent_bonding", "molecular_covalent")
     assert fluorine.state.bond_tendency_tags == (
         "covalent_bonding",
@@ -410,6 +420,12 @@ def test_first_36_bond_tendency_tags_are_derived_from_pubchem_group_block_classe
     assert zinc.state.bond_tendency_tags == ("metallic_bonding", "coordination_complex")
     assert silicon.state.bond_tendency_tags == ("covalent_bonding", "network_covalent")
     assert krypton.state.bond_tendency_tags == ("noble_gas_low_reactivity",)
+    assert zirconium.state.bond_tendency_tags == ("metallic_bonding", "coordination_complex")
+    assert iodine.state.bond_tendency_tags == (
+        "covalent_bonding",
+        "ionic_bonding",
+        "molecular_covalent",
+    )
 
 
 def test_full_snapshot_contains_all_118_elements_in_order():
@@ -427,7 +443,7 @@ def test_full_snapshot_keeps_unavailable_atomic_weights_explicit():
     oganesson = get_snapshot_record(118)
     assert technetium.atomic_weight_model.model_type == "unavailable"
     assert oganesson.atomic_weight_model.model_type == "unavailable"
-    assert technetium.level_1_seed_available is False
+    assert technetium.level_1_seed_available is True
     assert oganesson.period == 7
     assert oganesson.group == 18
 
@@ -449,7 +465,7 @@ def test_snapshot_receipt_and_level_1_seed_linkage():
 def test_full_snapshot_rejects_unknown_lookup():
     result = validate_full_snapshot()
     assert result.element_count == 118
-    assert result.level_1_seed_count == 36
+    assert result.level_1_seed_count == 54
     assert result.unavailable_weight_count == 34
     with pytest.raises(KeyError):
         get_snapshot_record("Mx")

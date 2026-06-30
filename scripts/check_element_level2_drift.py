@@ -1,6 +1,6 @@
 """Purpose: compare local MSPEE Level 2 chemistry values with the PubChem CSV source.
 
-Governance scope: detects source drift without mutating element seed records.
+Project scope: detects source drift without mutating element seed or snapshot-overlay records.
 Dependencies: standard-library CSV parsing, URL fetching, JSON, and mcms element APIs.
 Invariants: local promoted Level 2 records are source-backed; every drift is explicit.
 """
@@ -24,7 +24,7 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from mcms.elements import list_seed_elements  # noqa: E402
+from mcms.elements import list_period_5_level_2_profiles, list_seed_elements  # noqa: E402
 
 PUBCHEM_SOURCE_URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV"
 PUBCHEM_SOURCE_KEY = "pubchem_periodic_table_properties"
@@ -107,23 +107,34 @@ def parse_pubchem_periodic_table_csv(csv_text: str) -> tuple[SourceLevel2Chemist
         "IonizationEnergy",
         "GroupBlock",
     }
-    if reader.fieldnames is None or not required_fields <= set(reader.fieldnames):
+    normalized_fieldnames = {
+        field_name.strip().lstrip("\ufeff")
+        for field_name in (reader.fieldnames or ())
+    }
+    if reader.fieldnames is None or not required_fields <= normalized_fieldnames:
         raise ValueError("PubChem CSV is missing required Level 2 chemistry columns.")
     source_rows: list[SourceLevel2ChemistryRow] = []
     for row in reader:
-        atomic_number = row["AtomicNumber"].strip()
-        symbol = row["Symbol"].strip()
-        group_block = row["GroupBlock"].strip()
+        normalized_row = {
+            field_name.strip().lstrip("\ufeff"): value
+            for field_name, value in row.items()
+            if field_name is not None
+        }
+        atomic_number = normalized_row["AtomicNumber"].strip()
+        symbol = normalized_row["Symbol"].strip()
+        group_block = normalized_row["GroupBlock"].strip()
         if not atomic_number or not symbol:
             continue
         source_rows.append(
             SourceLevel2ChemistryRow(
                 atomic_number=int(atomic_number),
                 symbol=symbol,
-                oxidation_states=normalize_oxidation_states(row["OxidationStates"]),
-                electronegativity_value=normalize_electronegativity(row["Electronegativity"]),
+                oxidation_states=normalize_oxidation_states(normalized_row["OxidationStates"]),
+                electronegativity_value=normalize_electronegativity(
+                    normalized_row["Electronegativity"]
+                ),
                 first_ionization_energy_ev=normalize_first_ionization_energy(
-                    row["IonizationEnergy"]
+                    normalized_row["IonizationEnergy"]
                 ),
                 group_block=group_block,
                 bond_tendency_tags=derive_bond_tendency_tags(group_block),
@@ -149,6 +160,10 @@ def _local_level_2_records() -> dict[int, Any]:
         for element in list_seed_elements()
         if element.state.data_level == 2 and PUBCHEM_SOURCE_KEY in element.source_keys()
     }
+
+
+def _local_period_5_level_2_profiles() -> dict[int, Any]:
+    return {profile.atomic_number: profile for profile in list_period_5_level_2_profiles()}
 
 
 def _json_ready_value(value: Any) -> Any:
@@ -221,6 +236,71 @@ def compare_level_2_to_source(
     return tuple(sorted(drifts, key=lambda drift: (drift.atomic_number, drift.field)))
 
 
+def compare_period_5_level_2_to_source(
+    source_rows: Sequence[SourceLevel2ChemistryRow],
+    *,
+    require_complete_source: bool,
+) -> tuple[Level2ChemistryDrift, ...]:
+    local_by_atomic_number = _local_period_5_level_2_profiles()
+    source_by_atomic_number = {row.atomic_number: row for row in source_rows}
+    drifts: list[Level2ChemistryDrift] = []
+
+    if require_complete_source:
+        for atomic_number, local_profile in local_by_atomic_number.items():
+            if atomic_number not in source_by_atomic_number:
+                drifts.append(
+                    Level2ChemistryDrift(
+                        atomic_number=atomic_number,
+                        symbol=local_profile.symbol,
+                        field="missing_source_record",
+                        local_value=local_profile.symbol,
+                        source_value="missing",
+                    )
+                )
+
+    for atomic_number, source_row in source_by_atomic_number.items():
+        local_profile = local_by_atomic_number.get(atomic_number)
+        if local_profile is None:
+            continue
+        comparison_fields = (
+            ("symbol", local_profile.symbol, source_row.symbol),
+            (
+                "oxidation_states",
+                local_profile.oxidation_states,
+                source_row.oxidation_states,
+            ),
+            (
+                "electronegativity_value",
+                local_profile.electronegativity_value,
+                source_row.electronegativity_value,
+            ),
+            (
+                "first_ionization_energy_ev",
+                local_profile.first_ionization_energy_ev,
+                source_row.first_ionization_energy_ev,
+            ),
+            ("pubchem_group_block", local_profile.pubchem_group_block, source_row.group_block),
+            (
+                "bond_tendency_tags",
+                local_profile.bond_tendency_tags,
+                source_row.bond_tendency_tags,
+            ),
+        )
+        for field, local_value, source_value in comparison_fields:
+            if local_value != source_value:
+                drifts.append(
+                    Level2ChemistryDrift(
+                        atomic_number=atomic_number,
+                        symbol=local_profile.symbol,
+                        field=field,
+                        local_value=_json_ready_value(local_value),
+                        source_value=_json_ready_value(source_value),
+                    )
+                )
+
+    return tuple(sorted(drifts, key=lambda drift: (drift.atomic_number, drift.field)))
+
+
 def build_drift_report(
     source_rows: Sequence[SourceLevel2ChemistryRow],
     *,
@@ -245,7 +325,41 @@ def build_drift_report(
     }
 
 
-def build_unavailable_report(source_url: str, error: Exception) -> dict[str, Any]:
+def build_period_5_level_2_drift_report(
+    source_rows: Sequence[SourceLevel2ChemistryRow],
+    *,
+    source_url: str,
+    require_complete_source: bool = True,
+) -> dict[str, Any]:
+    drifts = compare_period_5_level_2_to_source(
+        source_rows,
+        require_complete_source=require_complete_source,
+    )
+    return {
+        "source_url": source_url,
+        "local_count": len(_local_period_5_level_2_profiles()),
+        "source_count": len(source_rows),
+        "drift_count": len(drifts),
+        "drift_status": (
+            "period_5_level_2_snapshot_drift_detected"
+            if drifts
+            else "period_5_level_2_snapshot_no_drift"
+        ),
+        "drifts": [drift.to_dict() for drift in drifts],
+    }
+
+
+def build_unavailable_report(source_url: str, error: Exception, *, scope: str = "seed") -> dict[str, Any]:
+    if scope == "period-5":
+        return {
+            "source_url": source_url,
+            "local_count": len(_local_period_5_level_2_profiles()),
+            "source_count": 0,
+            "drift_count": 0,
+            "drift_status": "period_5_level_2_snapshot_source_unavailable",
+            "causal_error": f"{type(error).__name__}: {error}",
+            "drifts": [],
+        }
     return {
         "source_url": source_url,
         "local_count": len(_local_level_2_records()),
@@ -260,6 +374,15 @@ def build_unavailable_report(source_url: str, error: Exception) -> dict[str, Any
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Check whether local MSPEE Level 2 chemistry values drifted from PubChem."
+    )
+    parser.add_argument(
+        "--scope",
+        choices=("seed", "period-5"),
+        default="seed",
+        help=(
+            "Compare first-54 seed Level 2 values, or the Rb-Xe period-5 "
+            "Level 2 profile projection."
+        ),
     )
     parser.add_argument("--source-url", default=PUBCHEM_SOURCE_URL)
     parser.add_argument(
@@ -289,16 +412,28 @@ def main(argv: Sequence[str] | None = None) -> int:
             else fetch_source_csv(args.source_url)
         )
         source_rows = parse_pubchem_periodic_table_csv(csv_text)
-        report = build_drift_report(
-            source_rows,
-            source_url=args.source_url,
-            require_complete_source=not args.allow_partial_source,
-        )
+        if args.scope == "period-5":
+            report = build_period_5_level_2_drift_report(
+                source_rows,
+                source_url=args.source_url,
+                require_complete_source=not args.allow_partial_source,
+            )
+        else:
+            report = build_drift_report(
+                source_rows,
+                source_url=args.source_url,
+                require_complete_source=not args.allow_partial_source,
+            )
     except (OSError, URLError, ValueError) as error:
-        report = build_unavailable_report(args.source_url, error)
+        report = build_unavailable_report(args.source_url, error, scope=args.scope)
 
     print(json.dumps(report, indent=2, sort_keys=True))
-    if args.fail_on_drift and report["drift_status"] != "element_level_2_chemistry_no_drift":
+    no_drift_status = (
+        "period_5_level_2_snapshot_no_drift"
+        if args.scope == "period-5"
+        else "element_level_2_chemistry_no_drift"
+    )
+    if args.fail_on_drift and report["drift_status"] != no_drift_status:
         return 1
     return 0
 

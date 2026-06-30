@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+from mcms.elements.atom_behavior import (
+    ATOM_BEHAVIOR_NON_CLAIMS,
+    VALID_ATOM_BEHAVIOR_STATUSES,
+)
 from mcms.elements.model import (
     ELECTRONEGATIVITY_MAX,
     ELECTRONEGATIVITY_MIN,
@@ -34,6 +38,10 @@ ELEMENT_SCHEMA_ID = (
 SNAPSHOT_SCHEMA_ID = (
     "https://schemas.mullusi.com/mcms/elements/"
     "element-source-snapshot-record.schema.json"
+)
+ATOM_BEHAVIOR_SCHEMA_ID = (
+    "https://schemas.mullusi.com/mcms/elements/"
+    "atom-behavior-profile.schema.json"
 )
 SCHEMA_BUNDLE_ID = "https://schemas.mullusi.com/mcms/elements/schema-bundle.json"
 
@@ -524,6 +532,84 @@ def element_snapshot_json_schema() -> dict:
     )
 
 
+def atom_behavior_profile_json_schema() -> dict:
+    return deepcopy(
+        {
+            "$schema": JSON_SCHEMA_DRAFT,
+            "$id": ATOM_BEHAVIOR_SCHEMA_ID,
+            "title": "AtomBehaviorProfile",
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "profile_id",
+                "isotope_id",
+                "element_id",
+                "symbol",
+                "atomic_number",
+                "proton_count",
+                "neutron_count",
+                "mass_number",
+                "charge",
+                "electron_count",
+                "isotope_evidence_status",
+                "neutral_electron_configuration",
+                "quantum_state_basis",
+                "nuclear_behavior_basis",
+                "electron_behavior_basis",
+                "force_layer_basis",
+                "matter_behavior_tags",
+                "source_keys",
+                "profile_status",
+                "derivation_trace",
+                "non_claims",
+            ],
+            "properties": {
+                "profile_id": {
+                    "type": "string",
+                    "pattern": (
+                        "^MSPEE-Z[0-9]{3}-[A-Z][a-z]?-isotope-[0-9]+-"
+                        "charge-(neutral-0|plus-[0-9]+|minus-[0-9]+)-"
+                        "atom-behavior-v2$"
+                    ),
+                },
+                "isotope_id": {
+                    "type": "string",
+                    "pattern": "^MSPEE-Z[0-9]{3}-[A-Z][a-z]?-isotope-[0-9]+$",
+                },
+                "element_id": {"type": "string", "pattern": "^MSPEE-Z[0-9]{3}-[A-Z][a-z]?$"},
+                "symbol": {"type": "string", "minLength": 1},
+                "atomic_number": {"type": "integer", "minimum": 1, "maximum": 118},
+                "proton_count": {"type": "integer", "minimum": 1, "maximum": 118},
+                "neutron_count": {"type": "integer", "minimum": 0},
+                "mass_number": {"type": "integer", "minimum": 1},
+                "charge": {"type": "integer", "minimum": -118, "maximum": 118},
+                "electron_count": {"type": "integer", "minimum": 0},
+                "isotope_evidence_status": {
+                    "type": "string",
+                    "enum": ["radioisotope_evidence", "stable_isotope_evidence"],
+                },
+                "neutral_electron_configuration": {"type": "string", "minLength": 1},
+                "quantum_state_basis": _string_array(),
+                "nuclear_behavior_basis": _string_array(),
+                "electron_behavior_basis": _string_array(),
+                "force_layer_basis": _string_array(),
+                "matter_behavior_tags": _string_array(),
+                "source_keys": _string_array(),
+                "profile_status": {
+                    "type": "string",
+                    "enum": sorted(VALID_ATOM_BEHAVIOR_STATUSES),
+                },
+                "derivation_trace": _string_array(),
+                "non_claims": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "const": list(ATOM_BEHAVIOR_NON_CLAIMS),
+                },
+            },
+        }
+    )
+
+
 def element_schema_bundle() -> dict:
     return {
         "$schema": JSON_SCHEMA_DRAFT,
@@ -531,5 +617,6 @@ def element_schema_bundle() -> dict:
         "schemas": {
             "mullu_standard_symbolic_element": element_seed_json_schema(),
             "element_source_snapshot_record": element_snapshot_json_schema(),
+            "atom_behavior_profile": atom_behavior_profile_json_schema(),
         },
     }
