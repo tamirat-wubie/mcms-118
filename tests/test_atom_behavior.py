@@ -17,9 +17,9 @@ def test_atom_behavior_profiles_preserve_identity_isotope_and_electron_rules():
     carbon_14 = build_atom_behavior_profile("C", 14)
 
     assert validation["validation_status"] == "atom_behavior_profiles_validated"
-    assert validation["profile_count"] == 101
-    assert validation["neutral_profile_count"] == 101
-    assert validation["stable_isotope_profile_count"] == 96
+    assert validation["profile_count"] == 177
+    assert validation["neutral_profile_count"] == 177
+    assert validation["stable_isotope_profile_count"] == 172
     assert validation["radioisotope_profile_count"] == 5
     assert carbon_14.profile_id == (
         "MSPEE-Z006-C-isotope-14-charge-neutral-0-atom-behavior-v2"

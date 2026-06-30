@@ -453,7 +453,7 @@ def main() -> None:
     assert isotope_evidence_result["validation_status"] == "isotope_evidence_records_validated", (
         isotope_evidence_result
     )
-    assert isotope_evidence_result["record_count"] == 101, isotope_evidence_result
+    assert isotope_evidence_result["record_count"] == 177, isotope_evidence_result
     assert isotope_evidence_result["radioisotope_count"] == 5, isotope_evidence_result
     assert common_ion_evidence_result["validation_status"] == (
         "common_ion_evidence_records_validated"
@@ -462,7 +462,7 @@ def main() -> None:
     assert unresolved_isotope_evidence_result["validation_status"] == (
         "isotope_evidence_unresolved_records_validated"
     ), unresolved_isotope_evidence_result
-    assert unresolved_isotope_evidence_result["record_count"] == 82, (
+    assert unresolved_isotope_evidence_result["record_count"] == 65, (
         unresolved_isotope_evidence_result
     )
     assert unresolved_common_ion_evidence_result["validation_status"] == (
@@ -841,9 +841,9 @@ def main() -> None:
     assert atom_behavior_result["validation_status"] == "atom_behavior_profiles_validated", (
         atom_behavior_result
     )
-    assert atom_behavior_result["profile_count"] == 101, atom_behavior_result
-    assert atom_behavior_result["neutral_profile_count"] == 101, atom_behavior_result
-    assert atom_behavior_result["stable_isotope_profile_count"] == 96, atom_behavior_result
+    assert atom_behavior_result["profile_count"] == 177, atom_behavior_result
+    assert atom_behavior_result["neutral_profile_count"] == 177, atom_behavior_result
+    assert atom_behavior_result["stable_isotope_profile_count"] == 172, atom_behavior_result
     assert atom_behavior_result["radioisotope_profile_count"] == 5, atom_behavior_result
     carbon_14_atom_behavior = build_atom_behavior_profile("C", 14)
     assert carbon_14_atom_behavior.proton_count == 6, carbon_14_atom_behavior
@@ -855,54 +855,54 @@ def main() -> None:
     assert atom_behavior_gap_result["validation_status"] == (
         "atom_behavior_gap_receipts_validated"
     ), atom_behavior_gap_result
-    assert atom_behavior_gap_result["receipt_count"] == 82, atom_behavior_gap_result
-    assert atom_behavior_gap_result["isotope_only_gap_count"] == 18, atom_behavior_gap_result
+    assert atom_behavior_gap_result["receipt_count"] == 65, atom_behavior_gap_result
+    assert atom_behavior_gap_result["isotope_only_gap_count"] == 1, atom_behavior_gap_result
     assert atom_behavior_gap_result["seed_and_matter_gap_count"] == 64, atom_behavior_gap_result
     assert atom_behavior_gap_work_result["validation_status"] == (
         "atom_behavior_gap_work_items_validated"
     ), atom_behavior_gap_work_result
-    assert atom_behavior_gap_work_result["work_item_count"] == 82, (
+    assert atom_behavior_gap_work_result["work_item_count"] == 65, (
         atom_behavior_gap_work_result
     )
-    assert atom_behavior_gap_work_result["isotope_evidence_required_count"] == 18, (
+    assert atom_behavior_gap_work_result["isotope_evidence_required_count"] == 1, (
         atom_behavior_gap_work_result
     )
     assert atom_behavior_gap_work_result["seed_and_matter_profile_required_count"] == 64, (
         atom_behavior_gap_work_result
     )
-    rubidium_atom_gap = get_atom_behavior_gap_receipt("Rb")
+    technetium_atom_gap = get_atom_behavior_gap_receipt("Tc")
     radon_atom_work = get_atom_behavior_gap_work_item("Rn")
-    assert rubidium_atom_gap.profile_blockers == ("isotope_evidence",), rubidium_atom_gap
+    assert technetium_atom_gap.profile_blockers == ("isotope_evidence",), technetium_atom_gap
     assert radon_atom_work.work_status == "seed_and_matter_profile_required", radon_atom_work
     assert radon_atom_work.seed_mutation_allowed is False, radon_atom_work
     assert element_readiness_result["validation_status"] == (
         "element_readiness_scores_validated"
     ), element_readiness_result
     assert element_readiness_result["score_count"] == 118, element_readiness_result
-    assert element_readiness_result["ready_count"] == 36, element_readiness_result
-    assert element_readiness_result["blocked_by_isotope_evidence_count"] == 18, (
+    assert element_readiness_result["ready_count"] == 53, element_readiness_result
+    assert element_readiness_result["blocked_by_isotope_evidence_count"] == 1, (
         element_readiness_result
     )
     assert element_readiness_result["blocked_by_seed_and_matter_count"] == 64, (
         element_readiness_result
     )
-    assert element_readiness_result["high_priority_gap_count"] == 18, (
+    assert element_readiness_result["high_priority_gap_count"] == 1, (
         element_readiness_result
     )
     assert element_readiness_result["seed_mutation_allowed_count"] == 0, (
         element_readiness_result
     )
     oxygen_readiness = get_element_readiness_score("O")
-    rubidium_readiness = get_element_readiness_score("Rb")
+    technetium_readiness = get_element_readiness_score("Tc")
     radon_readiness = get_element_readiness_score("Rn")
     assert oxygen_readiness.readiness_status == "atom_behavior_ready_from_evidence", (
         oxygen_readiness
     )
     assert oxygen_readiness.constraint_tension_score == 0.0, oxygen_readiness
-    assert rubidium_readiness.readiness_status == (
+    assert technetium_readiness.readiness_status == (
         "atom_behavior_blocked_by_isotope_evidence"
-    ), rubidium_readiness
-    assert rubidium_readiness.gap_priority_score == 1.0, rubidium_readiness
+    ), technetium_readiness
+    assert technetium_readiness.gap_priority_score == 1.0, technetium_readiness
     assert radon_readiness.readiness_status == (
         "atom_behavior_blocked_by_seed_and_matter"
     ), radon_readiness
@@ -910,7 +910,7 @@ def main() -> None:
     assert isotope_source_policy_result["validation_status"] == (
         "isotope_source_policies_validated"
     ), isotope_source_policy_result
-    assert isotope_source_policy_result["policy_count"] == 18, (
+    assert isotope_source_policy_result["policy_count"] == 1, (
         isotope_source_policy_result
     )
     assert isotope_source_policy_result["candidate_source_count"] == 3, (
@@ -931,20 +931,20 @@ def main() -> None:
     assert isotope_source_policy_result["seed_mutation_allowed_count"] == 0, (
         isotope_source_policy_result
     )
-    rubidium_isotope_policy = get_isotope_source_policy("Rb")
-    assert rubidium_isotope_policy.target_atom_behavior_gap_receipt_id == (
-        "MSPEE-ATOM-BEHAVIOR-GAP-Z037-Rb"
-    ), rubidium_isotope_policy
-    assert rubidium_isotope_policy.atom_behavior_generation_allowed is False, (
-        rubidium_isotope_policy
+    technetium_isotope_policy = get_isotope_source_policy("Tc")
+    assert technetium_isotope_policy.target_atom_behavior_gap_receipt_id == (
+        "MSPEE-ATOM-BEHAVIOR-GAP-Z043-Tc"
+    ), technetium_isotope_policy
+    assert technetium_isotope_policy.atom_behavior_generation_allowed is False, (
+        technetium_isotope_policy
     )
     assert isotope_source_search_result["validation_status"] == (
         "isotope_source_search_receipts_validated"
     ), isotope_source_search_result
-    assert isotope_source_search_result["search_receipt_count"] == 18, (
+    assert isotope_source_search_result["search_receipt_count"] == 1, (
         isotope_source_search_result
     )
-    assert isotope_source_search_result["open_search_count"] == 18, (
+    assert isotope_source_search_result["open_search_count"] == 1, (
         isotope_source_search_result
     )
     assert isotope_source_search_result["candidate_receipt_created_count"] == 0, (
@@ -962,14 +962,14 @@ def main() -> None:
     assert isotope_source_search_result["seed_mutation_allowed_count"] == 0, (
         isotope_source_search_result
     )
-    rubidium_isotope_search = get_isotope_source_search_receipt("Rb")
-    assert rubidium_isotope_search.policy_id == rubidium_isotope_policy.policy_id, (
-        rubidium_isotope_search
+    technetium_isotope_search = get_isotope_source_search_receipt("Tc")
+    assert technetium_isotope_search.policy_id == technetium_isotope_policy.policy_id, (
+        technetium_isotope_search
     )
-    assert rubidium_isotope_search.search_status == "isotope_source_search_open", (
-        rubidium_isotope_search
+    assert technetium_isotope_search.search_status == "isotope_source_search_open", (
+        technetium_isotope_search
     )
-    assert rubidium_isotope_search.candidate_receipt_id is None, rubidium_isotope_search
+    assert technetium_isotope_search.candidate_receipt_id is None, technetium_isotope_search
     assert isotope_candidate_evidence_result["validation_status"] == (
         "isotope_candidate_evidence_receipts_validated"
     ), isotope_candidate_evidence_result
@@ -1022,10 +1022,10 @@ def main() -> None:
     assert oxygen_candidate_admission.active_candidate_receipt_retained is False, (
         oxygen_candidate_admission
     )
-    rubidium_candidate_template = build_isotope_candidate_evidence_template("Rb")
-    assert rubidium_candidate_template["symbol"] == "Rb", rubidium_candidate_template
-    assert rubidium_candidate_template["seed_mutation_allowed"] is False, (
-        rubidium_candidate_template
+    technetium_candidate_template = build_isotope_candidate_evidence_template("Tc")
+    assert technetium_candidate_template["symbol"] == "Tc", technetium_candidate_template
+    assert technetium_candidate_template["seed_mutation_allowed"] is False, (
+        technetium_candidate_template
     )
     assert cs_rn_promotion_result.validation_status == (
         "cs_rn_promotion_readiness_profiles_validated"
@@ -1160,7 +1160,7 @@ def main() -> None:
     assert oganesson_294.neutron_count == 176, oganesson_294
     carbon_14_evidence = find_isotope_evidence_records("C", mass_number=14)[0]
     iron_ion_evidence = find_common_ion_evidence_records("Fe")
-    rubidium_unresolved_isotope = find_unresolved_isotope_evidence_record("Rb")
+    technetium_unresolved_isotope = find_unresolved_isotope_evidence_record("Tc")
     oxygen_unresolved_common_ion = find_unresolved_common_ion_evidence_record("O")
     bromine_properties = find_physical_property_evidence_record("Br")
     radon_properties = find_physical_property_evidence_record("Rn")
@@ -1195,8 +1195,8 @@ def main() -> None:
     assert carbon_14_evidence.half_life_value == 5730.0, carbon_14_evidence
     assert carbon_14_evidence.decay_mode == "beta_minus", carbon_14_evidence
     assert {record.charge for record in iron_ion_evidence} == {2, 3}, iron_ion_evidence
-    assert rubidium_unresolved_isotope.evidence_domain == "isotope_evidence", (
-        rubidium_unresolved_isotope
+    assert technetium_unresolved_isotope.evidence_domain == "isotope_evidence", (
+        technetium_unresolved_isotope
     )
     assert oxygen_unresolved_common_ion.evidence_domain == "common_ion_evidence", (
         oxygen_unresolved_common_ion
@@ -1707,9 +1707,9 @@ def main() -> None:
     api_sodium_ion = handle_api_request("GET", "/instances/ion/Na?charge=1")
     api_carbon_14 = handle_api_request("GET", "/instances/isotope/C?mass_number=14")
     api_carbon_14_evidence = handle_api_request("GET", "/evidence/isotopes/C?mass_number=14")
-    api_rubidium_unresolved_isotope = handle_api_request(
+    api_technetium_unresolved_isotope = handle_api_request(
         "GET",
-        "/evidence/isotopes/unresolved/Rb",
+        "/evidence/isotopes/unresolved/Tc",
     )
     api_iron_ion_evidence = handle_api_request("GET", "/evidence/common-ions/Fe")
     api_oxygen_unresolved_common_ion = handle_api_request(
@@ -1841,13 +1841,13 @@ def main() -> None:
         "/evidence/physical-properties/secondary-evidence/template/At",
     )
     api_bromine_matter_profile = handle_api_request("GET", "/matter/profiles/Br")
-    api_rubidium_isotope_source_policy = handle_api_request(
+    api_technetium_isotope_source_policy = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-source-policy/Rb",
+        "/atom/behavior/isotope-source-policy/Tc",
     )
-    api_rubidium_isotope_source_search = handle_api_request(
+    api_technetium_isotope_source_search = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-source-search/Rb",
+        "/atom/behavior/isotope-source-search/Tc",
     )
     api_oxygen_isotope_candidate_evidence = handle_api_request(
         "GET",
@@ -1857,9 +1857,9 @@ def main() -> None:
         "GET",
         "/atom/behavior/isotope-candidate-admission/O",
     )
-    api_rubidium_isotope_candidate_template = handle_api_request(
+    api_technetium_isotope_candidate_template = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-candidate-evidence/template/Rb",
+        "/atom/behavior/isotope-candidate-evidence/template/Tc",
     )
     api_cs_rn_promotion_profiles = handle_api_request("GET", "/promotion/cs-rn")
     api_astatine_promotion_profile = handle_api_request("GET", "/promotion/cs-rn/At")
@@ -1901,11 +1901,11 @@ def main() -> None:
     assert api_carbon_14_evidence.payload["records"][0]["half_life_value"] == 5730.0, (
         api_carbon_14_evidence.payload
     )
-    assert api_rubidium_unresolved_isotope.status_code == 200, (
-        api_rubidium_unresolved_isotope
+    assert api_technetium_unresolved_isotope.status_code == 200, (
+        api_technetium_unresolved_isotope
     )
     assert (
-        api_rubidium_unresolved_isotope.payload["record"]["evidence_domain"]
+        api_technetium_unresolved_isotope.payload["record"]["evidence_domain"]
         == "isotope_evidence"
     )
     assert api_iron_ion_evidence.status_code == 200, api_iron_ion_evidence
@@ -2111,25 +2111,25 @@ def main() -> None:
     assert api_bromine_matter_profile.payload["profile"]["standard_state"] == "Liquid", (
         api_bromine_matter_profile.payload
     )
-    assert api_rubidium_isotope_source_policy.status_code == 200, (
-        api_rubidium_isotope_source_policy
+    assert api_technetium_isotope_source_policy.status_code == 200, (
+        api_technetium_isotope_source_policy
     )
-    assert api_rubidium_isotope_source_policy.payload["policy"]["symbol"] == "Rb", (
-        api_rubidium_isotope_source_policy.payload
+    assert api_technetium_isotope_source_policy.payload["policy"]["symbol"] == "Tc", (
+        api_technetium_isotope_source_policy.payload
     )
-    assert api_rubidium_isotope_source_policy.payload["policy"][
+    assert api_technetium_isotope_source_policy.payload["policy"][
         "atom_behavior_generation_allowed"
-    ] is False, api_rubidium_isotope_source_policy.payload
-    assert api_rubidium_isotope_source_search.status_code == 200, (
-        api_rubidium_isotope_source_search
+    ] is False, api_technetium_isotope_source_policy.payload
+    assert api_technetium_isotope_source_search.status_code == 200, (
+        api_technetium_isotope_source_search
     )
-    assert api_rubidium_isotope_source_search.payload["receipt"]["symbol"] == "Rb", (
-        api_rubidium_isotope_source_search.payload
+    assert api_technetium_isotope_source_search.payload["receipt"]["symbol"] == "Tc", (
+        api_technetium_isotope_source_search.payload
     )
     assert (
-        api_rubidium_isotope_source_search.payload["receipt"]["search_status"]
+        api_technetium_isotope_source_search.payload["receipt"]["search_status"]
         == "isotope_source_search_open"
-    ), api_rubidium_isotope_source_search.payload
+    ), api_technetium_isotope_source_search.payload
     assert api_oxygen_isotope_candidate_evidence.status_code == 404, (
         api_oxygen_isotope_candidate_evidence
     )
@@ -2142,11 +2142,11 @@ def main() -> None:
     assert api_oxygen_isotope_candidate_admission.payload["receipt"][
         "active_candidate_receipt_retained"
     ] is False, api_oxygen_isotope_candidate_admission.payload
-    assert api_rubidium_isotope_candidate_template.status_code == 200, (
-        api_rubidium_isotope_candidate_template
+    assert api_technetium_isotope_candidate_template.status_code == 200, (
+        api_technetium_isotope_candidate_template
     )
-    assert api_rubidium_isotope_candidate_template.payload["template"]["symbol"] == "Rb", (
-        api_rubidium_isotope_candidate_template.payload
+    assert api_technetium_isotope_candidate_template.payload["template"]["symbol"] == "Tc", (
+        api_technetium_isotope_candidate_template.payload
     )
     assert api_cs_rn_promotion_profiles.status_code == 200, api_cs_rn_promotion_profiles
     assert api_cs_rn_promotion_profiles.payload["validation"]["profile_count"] == 32, (
