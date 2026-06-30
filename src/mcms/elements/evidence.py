@@ -1053,6 +1053,52 @@ _SC_ZN_ISOTOPE_EVIDENCE_ROWS = tuple(
     )
 )
 
+_GA_KR_ISOTOPE_EVIDENCE_ROWS = tuple(
+    {
+        "symbol": symbol,
+        "mass_number": mass_number,
+        "relative_atomic_mass": relative_atomic_mass,
+        "isotopic_composition": isotopic_composition,
+        "half_life_value": None,
+        "half_life_unit": None,
+        "decay_mode": None,
+        "source_keys": (
+            "ciaaw_isotopic_compositions_2024",
+            "nist_atomic_weights_isotopic_compositions",
+        ),
+        "evidence_status": "stable_isotope_evidence",
+    }
+    for (
+        symbol,
+        mass_number,
+        relative_atomic_mass,
+        isotopic_composition,
+    ) in (
+        ("Ga", 69, "68.9255735(13)", "0.60108(9)"),
+        ("Ga", 71, "70.92470258(87)", "0.39892(9)"),
+        ("Ge", 70, "69.92424875(90)", "0.2057(27)"),
+        ("Ge", 72, "71.922075826(81)", "0.2745(32)"),
+        ("Ge", 73, "72.923458956(61)", "0.0775(12)"),
+        ("Ge", 74, "73.921177761(13)", "0.3650(20)"),
+        ("Ge", 76, "75.921402726(19)", "0.0773(12)"),
+        ("As", 75, "74.92159457(95)", "1"),
+        ("Se", 74, "73.922475934(15)", "0.0089(4)"),
+        ("Se", 76, "75.919213704(17)", "0.0937(29)"),
+        ("Se", 77, "76.919914154(67)", "0.0763(16)"),
+        ("Se", 78, "77.91730928(20)", "0.2377(28)"),
+        ("Se", 80, "79.9165218(13)", "0.4961(41)"),
+        ("Se", 82, "81.9166995(15)", "0.0873(22)"),
+        ("Br", 79, "78.9183376(14)", "0.5069(7)"),
+        ("Br", 81, "80.9162897(14)", "0.4931(7)"),
+        ("Kr", 78, "77.92036494(76)", "0.00355(3)"),
+        ("Kr", 80, "79.91637808(75)", "0.02286(10)"),
+        ("Kr", 82, "81.91348273(94)", "0.11593(31)"),
+        ("Kr", 83, "82.91412716(32)", "0.11500(19)"),
+        ("Kr", 84, "83.9114977282(44)", "0.56987(15)"),
+        ("Kr", 86, "85.9106106269(41)", "0.17279(41)"),
+    )
+)
+
 _COMMON_ION_EVIDENCE_ROWS = (
     ("Na", 1),
     ("Mg", 2),
@@ -1287,7 +1333,11 @@ def _build_unresolved_physical_property_evidence(
 def list_isotope_evidence_records() -> tuple[IsotopeEvidenceRecord, ...]:
     return tuple(
         _build_isotope_evidence(row)
-        for row in (_ISOTOPE_EVIDENCE_ROWS + _SC_ZN_ISOTOPE_EVIDENCE_ROWS)
+        for row in (
+            _ISOTOPE_EVIDENCE_ROWS
+            + _SC_ZN_ISOTOPE_EVIDENCE_ROWS
+            + _GA_KR_ISOTOPE_EVIDENCE_ROWS
+        )
     )
 
 
