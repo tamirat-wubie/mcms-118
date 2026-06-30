@@ -87,6 +87,8 @@ M8 = production-engineering-ready
 28a. Atom behavior v2 profiles for source-backed H/C isotope evidence
 28b. Atom behavior v2 gap receipts and workplan for unresolved isotope-backed profile coverage
 28c. Isotope source policies for 52 Level 1 atom behavior isotope-only blockers
+28d. Isotope source-search receipts for 52 Level 1 atom behavior isotope-only blockers
+28e. Oxygen NIST isotope candidate evidence receipt pending admission
 29. Source-drift checker for physical-property evidence
 30. Unresolved physical-property evidence receipts for incomplete PubChem rows
 31. Unresolved isotope and common-ion evidence receipts
@@ -126,6 +128,9 @@ M8 = production-engineering-ready
 65. Bk boiling-point corroboration-search receipt with no independent source found
 66. Cf boiling-point corroboration-search receipt with no independent source found
 67. Es boiling-point corroboration-search receipt with no independent source found
+68. Escalation-resolution recommendation receipts for all blocked searches
+69. Deferred operator-decision receipts for all blocked recommendations
+70. Continued-evidence plans for deferred operator decisions
 ```
 
 ## Next Build Order
@@ -134,7 +139,7 @@ M8 = production-engineering-ready
 1. Resolve Astatine physical-property evidence gap before full Cs-Rn seed promotion
 2. Resolve measured-property gaps as authoritative complete values become available
 3. Resolve At boiling-point conflict receipt with a higher-precedence field source
-4. Work the escalation queue: decide Cf density approval or continue unresolved evidence discovery
+4. Execute continued-evidence plans or convert deferred operator decisions into explicit approvals/rejections
 5. Decide whether to approve or reject Cf density seed update through explicit operator approval
 6. Collect source-specific isotope evidence receipts under the isotope source policy
 7. Continue sourced Level 2 chemistry values beyond Xenon

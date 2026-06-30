@@ -14,6 +14,7 @@ from mcms.elements import (
     build_element_receipt,
     build_element_relation_graph,
     build_ion_instance,
+    build_isotope_candidate_evidence_template,
     build_isotope_instance,
     build_matter_behavior_profile,
     build_physical_property_secondary_evidence_template,
@@ -36,17 +37,22 @@ from mcms.elements import (
     get_atom_behavior_gap_receipt,
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
+    get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
+    get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
+    get_physical_property_continued_evidence_plan,
     get_physical_property_corroboration_review_receipt,
     get_physical_property_escalation_receipt,
+    get_physical_property_escalation_resolution_receipt,
     get_physical_property_escalation_search_receipt,
     get_physical_property_gap_audit_receipt,
     get_physical_property_gap_closure_decision,
     get_physical_property_gap_work_item,
     get_physical_property_no_candidate_review_receipt,
+    get_physical_property_operator_decision_receipt,
     get_physical_property_review_receipt,
     get_physical_property_secondary_source_policy,
     get_physical_property_seed_update_receipt,
@@ -64,21 +70,26 @@ from mcms.elements import (
     list_cs_rn_promotion_readiness_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
+    list_isotope_source_search_receipts,
     list_matter_behavior_profiles,
     list_oxidation_state_evidence_records,
     list_partial_physical_property_source_search_receipts,
     list_physical_property_closure_approval_receipts,
     list_physical_property_conflict_resolution_receipts,
+    list_physical_property_continued_evidence_plans,
     list_physical_property_corroboration_review_receipts,
     list_physical_property_escalation_receipts,
+    list_physical_property_escalation_resolution_receipts,
     list_physical_property_escalation_search_receipts,
     list_physical_property_evidence_records,
     list_physical_property_gap_audit_receipts,
     list_physical_property_gap_closure_decisions,
     list_physical_property_gap_work_items,
     list_physical_property_no_candidate_review_receipts,
+    list_physical_property_operator_decision_receipts,
     list_physical_property_review_receipts,
     list_physical_property_secondary_evidence_admission_decisions,
     list_physical_property_secondary_evidence_receipts,
@@ -95,7 +106,9 @@ from mcms.elements import (
     validate_atom_behavior_gap_work_items,
     validate_atom_behavior_profiles,
     validate_full_snapshot,
+    validate_isotope_candidate_evidence_receipts,
     validate_isotope_source_policies,
+    validate_isotope_source_search_receipts,
     validate_seed_pack,
 )
 from mcms.release.robust_evidence_network import analyze_robust_evidence_network
@@ -167,6 +180,9 @@ def cmd_elements(
     physical_property_seed_update: bool = False,
     physical_property_escalation: bool = False,
     physical_property_escalation_search: bool = False,
+    physical_property_escalation_resolution: bool = False,
+    physical_property_operator_decision: bool = False,
+    physical_property_continued_evidence: bool = False,
     physical_property_no_candidate_review: bool = False,
     physical_property_secondary_evidence_template: bool = False,
     physical_property_secondary_source_policy: bool = False,
@@ -184,7 +200,57 @@ def cmd_elements(
     atom_behavior_gap: bool = False,
     atom_behavior_workplan: bool = False,
     isotope_source_policy: bool = False,
+    isotope_source_search: bool = False,
+    isotope_candidate_evidence: bool = False,
+    isotope_candidate_evidence_template: bool = False,
 ) -> None:
+    if isotope_candidate_evidence_template:
+        if symbol is None:
+            raise ValueError("--isotope-candidate-evidence-template requires --symbol")
+        print(
+            json.dumps(
+                {
+                    "template": build_isotope_candidate_evidence_template(symbol),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if isotope_candidate_evidence:
+        receipts = (
+            (get_isotope_candidate_evidence_receipt(symbol),)
+            if symbol
+            else list_isotope_candidate_evidence_receipts()
+        )
+        print(
+            json.dumps(
+                {
+                    "validation": validate_isotope_candidate_evidence_receipts(receipts),
+                    "receipts": [receipt.to_dict() for receipt in receipts],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if isotope_source_search:
+        receipts = (
+            (get_isotope_source_search_receipt(symbol),)
+            if symbol
+            else list_isotope_source_search_receipts()
+        )
+        print(
+            json.dumps(
+                {
+                    "validation": validate_isotope_source_search_receipts(receipts),
+                    "receipts": [receipt.to_dict() for receipt in receipts],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
     if isotope_source_policy:
         policies = (
             (get_isotope_source_policy(symbol),)
@@ -414,6 +480,48 @@ def cmd_elements(
         print(
             json.dumps(
                 {"receipts": [receipt.to_dict() for receipt in receipts]},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if physical_property_escalation_resolution:
+        receipts = (
+            (get_physical_property_escalation_resolution_receipt(symbol),)
+            if symbol
+            else list_physical_property_escalation_resolution_receipts()
+        )
+        print(
+            json.dumps(
+                {"receipts": [receipt.to_dict() for receipt in receipts]},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if physical_property_operator_decision:
+        receipts = (
+            (get_physical_property_operator_decision_receipt(symbol),)
+            if symbol
+            else list_physical_property_operator_decision_receipts()
+        )
+        print(
+            json.dumps(
+                {"receipts": [receipt.to_dict() for receipt in receipts]},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if physical_property_continued_evidence:
+        plans = (
+            (get_physical_property_continued_evidence_plan(symbol),)
+            if symbol
+            else list_physical_property_continued_evidence_plans()
+        )
+        print(
+            json.dumps(
+                {"plans": [plan.to_dict() for plan in plans]},
                 indent=2,
                 sort_keys=True,
             )
@@ -873,6 +981,21 @@ def main(argv: list[str] | None = None) -> None:
         help="Print isotope source policies for atom behavior v2 gaps, optionally filtered by --symbol",
     )
     elements_parser.add_argument(
+        "--isotope-source-search",
+        action="store_true",
+        help="Print isotope source-search receipts for atom behavior v2 gaps, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
+        "--isotope-candidate-evidence",
+        action="store_true",
+        help="Print source-specific isotope candidate evidence receipts, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
+        "--isotope-candidate-evidence-template",
+        action="store_true",
+        help="Print an isotope candidate evidence receipt template for --symbol",
+    )
+    elements_parser.add_argument(
         "--isotope-evidence",
         action="store_true",
         help="Print isotope evidence records, optionally filtered by --symbol and --isotope-mass",
@@ -978,6 +1101,21 @@ def main(argv: list[str] | None = None) -> None:
         help="Print physical-property escalation-search receipts",
     )
     elements_parser.add_argument(
+        "--physical-property-escalation-resolution",
+        action="store_true",
+        help="Print physical-property escalation-resolution recommendation receipts",
+    )
+    elements_parser.add_argument(
+        "--physical-property-operator-decision",
+        action="store_true",
+        help="Print physical-property operator-decision receipts",
+    )
+    elements_parser.add_argument(
+        "--physical-property-continued-evidence",
+        action="store_true",
+        help="Print physical-property continued-evidence plans",
+    )
+    elements_parser.add_argument(
         "--physical-property-no-candidate-review",
         action="store_true",
         help="Print physical-property no-candidate review receipts",
@@ -1070,6 +1208,9 @@ def main(argv: list[str] | None = None) -> None:
             args.physical_property_seed_update,
             args.physical_property_escalation,
             args.physical_property_escalation_search,
+            args.physical_property_escalation_resolution,
+            args.physical_property_operator_decision,
+            args.physical_property_continued_evidence,
             args.physical_property_no_candidate_review,
             args.physical_property_secondary_evidence_template,
             args.physical_property_secondary_source_policy,
@@ -1087,6 +1228,9 @@ def main(argv: list[str] | None = None) -> None:
             args.atom_behavior_gap,
             args.atom_behavior_workplan,
             args.isotope_source_policy,
+            args.isotope_source_search,
+            args.isotope_candidate_evidence,
+            args.isotope_candidate_evidence_template,
         )
 
 

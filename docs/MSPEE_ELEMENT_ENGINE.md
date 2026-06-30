@@ -49,6 +49,8 @@ physical-property evidence, preserving the contiguous Level 1 seed invariant.
 | Atom behavior v2 | Source-backed atom profiles binding proton identity, neutron isotope state, electron charge state, force context, and matter-profile tags | Implemented for H/C isotope evidence records, 5 profiles |
 | Atom behavior gaps | No-guess source-gap receipts and work items for missing atom behavior coverage | Implemented for 116 unresolved isotope-evidence elements |
 | Isotope source policy | Admission rules for isotope evidence needed by atom behavior v2 isotope-only gaps | Implemented for 52 Level 1 blockers; policy alone closes zero gaps |
+| Isotope source search | Evidence-collection receipts for isotope-only atom behavior blockers | Implemented for 52 Level 1 blockers; 51 open searches and 1 candidate receipt created |
+| Isotope candidate evidence | Source-specific isotope rows collected before admission | Implemented for Oxygen NIST candidate receipt; zero admitted receipts |
 | Promotion readiness | Evidence-gap audit before promoting snapshot-only records | Implemented for Cs-Rn, Z=55..86 |
 | Configuration evidence | Neutral and first-cation electronic configurations | Implemented for Cs-Rn, Z=55..86 |
 | Frontier/valence overlay | Outer shell, inner d/f participation, p-shell context, and shell-stability flags | Implemented for Cs-Rn, Z=55..86 |
@@ -856,6 +858,9 @@ Routes:
 | `GET /atom/behavior/gaps/{symbol}` | Single atom behavior v2 gap receipt |
 | `GET /atom/behavior/workplan/{symbol}` | Single atom behavior v2 gap work item |
 | `GET /atom/behavior/isotope-source-policy/{symbol}` | Isotope source policy for an isotope-only atom behavior blocker |
+| `GET /atom/behavior/isotope-source-search/{symbol}` | Isotope source-search receipt for an isotope-only atom behavior blocker |
+| `GET /atom/behavior/isotope-candidate-evidence/{symbol}` | Source-specific isotope candidate evidence receipt pending admission |
+| `GET /atom/behavior/isotope-candidate-evidence/template/{symbol}` | Isotope candidate evidence receipt template |
 | `GET /evidence/isotopes` | Isotope evidence list and validation summary |
 | `GET /evidence/isotopes/{symbol}?mass_number=14` | Filtered isotope evidence |
 | `GET /evidence/isotopes/unresolved` | Unresolved isotope evidence receipts |
@@ -890,6 +895,9 @@ Routes:
 | `GET /evidence/physical-properties/seed-update/{symbol}` | Secondary-source seed-update receipt |
 | `GET /evidence/physical-properties/escalations/{symbol}` | Blocked-work escalation receipt |
 | `GET /evidence/physical-properties/escalation-search/{symbol}` | Source-investigation receipt for blocked escalation |
+| `GET /evidence/physical-properties/escalation-resolution/{symbol}` | Resolution recommendation receipt for blocked escalation |
+| `GET /evidence/physical-properties/operator-decisions/{symbol}` | Deferred operator-decision receipt |
+| `GET /evidence/physical-properties/continued-evidence/{symbol}` | Continued-evidence plan for deferred operator decision |
 | `GET /evidence/physical-properties/secondary-evidence/template/{symbol}` | Secondary evidence receipt template |
 | `GET /evidence/physical-properties/secondary-source-policy` | Physical-property secondary-source policies |
 | `GET /evidence/physical-properties/secondary-source-policy/{symbol}` | Single secondary-source policy |
@@ -1256,6 +1264,38 @@ gap closure: false
 seed mutation allowed: false
 ```
 
+The escalation-resolution receipts recommend next action without applying it:
+
+```text
+At/Fr/Pa conflicts: conflict_resolution_blocked_pending_operator_decision
+Fr/Bk/Cf/Es uncorroborated candidates: candidate_rejection_recommended_pending_operator_decision
+final resolution applied: false
+gap closure: false
+seed mutation allowed: false
+```
+
+The operator-decision receipts add the final approval slot while keeping it deferred:
+
+```text
+operator decision status: operator_decision_deferred
+approved resolutions: 0
+rejected resolutions: 0
+final resolution applied: false
+gap closure: false
+seed mutation allowed: false
+```
+
+The continued-evidence plans convert deferred decisions into bounded next work:
+
+```text
+At/Fr/Pa: higher_precedence_source_discovery
+Fr/Bk/Cf/Es: independent_corroboration_discovery
+continued evidence required: true
+final resolution applied: false
+gap closure: false
+seed mutation allowed: false
+```
+
 The no-candidate review receipts record the Fm, Md, No, and Lr checked-source boundaries:
 
 ```text
@@ -1509,10 +1549,15 @@ Drift statuses:
 | Bk boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Cf boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Es boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
+| Escalation-search receipts -> resolution recommendations | Conflicts remain blocked and uncorroborated candidates are recommended for operator-reviewed rejection |
+| Resolution recommendations -> operator decisions | All operator decisions are deferred until explicit approval or rejection is recorded |
+| Deferred operator decisions -> continued-evidence plans | Blocked recommendations now carry bounded search plans without final resolution or seed mutation |
 | Gap-closure decision -> closure-approval receipt | Cf density approval is deferred, preserving the unresolved seed boundary |
 | Partial source search -> no-candidate receipt | Fm, Md, No, and Lr checked-source absence is recorded without guessing values |
 | Evidence records -> matter profiles | H through Xe now expose bounded matter-behavior read models |
 | Atom behavior gaps -> isotope source policy | 52 isotope-only blockers now define CIAAW/IUPAC and NIST primary candidates plus PubChem bounded secondary context, with zero gap closure |
+| Isotope source policy -> source-search receipts | 52 isotope-only blockers now have source-search receipts; Oxygen has a NIST candidate receipt, with zero admitted receipts and zero profile generation |
+| Isotope source-search receipt -> candidate evidence | Oxygen now has a NIST candidate isotope receipt for O-16/O-17/O-18, with zero admission and zero profile generation |
 | Snapshot-only Cs-Rn -> promotion-readiness audit | Cs through Rn now expose evidence gaps before Level 1 promotion |
 | Configuration blocker -> source evidence overlay | Cs through Rn now carry NIST neutral and first-cation configuration evidence |
 | Frontier blocker -> derived signature overlay | Cs through Rn now carry frontier and valence-signature records |

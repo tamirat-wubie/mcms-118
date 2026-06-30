@@ -111,6 +111,7 @@ The active element-engine product boundary is MSPEE-118.
 | State instances | Formal ion and isotope IDs derive electron and neutron counts without changing identity |
 | Evidence seeds | H/C isotope evidence and selected common-ion candidate evidence are validated |
 | Unresolved isotope/common-ion evidence | Snapshot isotope gaps and Level 1 common-ion gaps emit unresolved receipts |
+| Isotope candidate evidence | Oxygen NIST isotope candidate receipt is recorded but not admitted |
 | Physical-property evidence | 93 complete PubChem rows carry sourced standard-state, melting, boiling, and density values |
 | Unresolved property evidence | 25 incomplete PubChem rows are recorded as unresolved receipts |
 | Matter profiles | H through Xe combine identity, state, evidence, and bounded inference |
@@ -365,6 +366,9 @@ Fr density corroboration search = no independent source found, no gap closure
 Bk boiling-point corroboration search = no independent source found, no gap closure
 Cf boiling-point corroboration search = no independent source found, no gap closure
 Es boiling-point corroboration search = no independent source found, no gap closure
+escalation-resolution recommendations = 7 receipts, no final resolution applied
+operator decisions = 7 deferred receipts, no final resolution applied
+continued-evidence plans = 7 plans, no final resolution applied
 Es boiling-point corroboration review = blocked pending corroborating source
 Fm no-candidate review = blocked because checked sources provide no admissible boiling-point or density value
 Md no-candidate review = blocked because checked sources provide no admissible boiling-point or density value
@@ -373,6 +377,7 @@ Lr no-candidate review = blocked because checked sources provide no admissible b
 gap workplan = 25 items, zero gap closures
 source-search receipts = Pa and Bk candidate receipts created
 partial-source-search receipts = 7 open searches, 14 field searches
+O isotope candidate evidence = NIST O-16/O-17/O-18 candidate receipt created, no admission
 At template = available for boiling_point_k
 ```
 
@@ -518,6 +523,9 @@ profile does not replace measured condition-specific data
 | Bk boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Cf boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Es boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
+| Escalation-search receipts -> resolution recommendations | Conflicts remain blocked and uncorroborated candidates are recommended for operator-reviewed rejection |
+| Resolution recommendations -> operator decisions | All operator decisions are deferred until explicit approval or rejection is recorded |
+| Deferred operator decisions -> continued-evidence plans | Blocked recommendations now carry bounded search plans without final resolution or seed mutation |
 | Gap-closure decision -> closure-approval receipt | Cf density approval is deferred, preserving the unresolved seed boundary |
 | Partial source search -> no-candidate receipt | Fm, Md, No, and Lr checked-source absence is recorded without guessing values |
 | Evidence seed -> matter profile | H through Xe now expose bounded matter-behavior read models |
@@ -589,7 +597,11 @@ physical_property_closure_approval_receipts=1
 physical_property_seed_update_receipts=1
 physical_property_escalation_receipts=8
 physical_property_escalation_search_receipts=7
+physical_property_escalation_resolution_receipts=7
+physical_property_operator_decision_receipts=7
+physical_property_continued_evidence_plans=7
 physical_property_no_candidate_review_receipts=4
+isotope_candidate_evidence_receipts=1
 promotion_decision_receipts=32
 promotion_batch_policy=hold_full_cs_rn_span
 standard_files=ok

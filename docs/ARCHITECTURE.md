@@ -70,11 +70,16 @@ Physical-property closure approval: 1 Cf density receipt, approval deferred, zer
 Physical-property seed update: 1 Cf density receipt, blocked by deferred approval, zero seed mutations
 Physical-property escalations: 8 receipts for conflict, corroboration, and approval blocks, zero seed mutations
 Physical-property escalation search: 7 receipts, including At/Fr/Pa boiling-point investigations and Fr/Bk/Cf/Es corroboration searches
+Physical-property escalation resolution: 7 recommendation receipts, zero final resolutions applied
+Physical-property operator decisions: 7 deferred receipts, zero approvals or rejections applied
+Physical-property continued evidence: 7 plans, zero final resolutions or seed mutations applied
 Physical-property no-candidate review: 4 Fm/Md/No/Lr receipts, zero gap closures
 Matter-behavior profiles: H-Xe
 Atom behavior v2 profiles: 5 source-backed H/C isotope profiles
 Atom behavior v2 gaps: 116 receipts and 116 work items for unresolved isotope-backed profile coverage
 Isotope source policies: 52 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
+Isotope source-search receipts: 52 searches, 51 open and 1 candidate receipt created
+Isotope candidate evidence: 1 Oxygen NIST candidate receipt, zero admitted receipts
 ```
 
 ## Boundary

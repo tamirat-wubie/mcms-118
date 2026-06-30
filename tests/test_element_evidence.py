@@ -15,13 +15,16 @@ from mcms.elements import (
     get_partial_physical_property_source_search_receipt,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
+    get_physical_property_continued_evidence_plan,
     get_physical_property_corroboration_review_receipt,
     get_physical_property_escalation_receipt,
+    get_physical_property_escalation_resolution_receipt,
     get_physical_property_escalation_search_receipt,
     get_physical_property_gap_audit_receipt,
     get_physical_property_gap_closure_decision,
     get_physical_property_gap_work_item,
     get_physical_property_no_candidate_review_receipt,
+    get_physical_property_operator_decision_receipt,
     get_physical_property_review_receipt,
     get_physical_property_secondary_evidence_admission_decision,
     get_physical_property_secondary_source_policy,
@@ -32,14 +35,17 @@ from mcms.elements import (
     list_partial_physical_property_source_search_receipts,
     list_physical_property_closure_approval_receipts,
     list_physical_property_conflict_resolution_receipts,
+    list_physical_property_continued_evidence_plans,
     list_physical_property_corroboration_review_receipts,
     list_physical_property_escalation_receipts,
+    list_physical_property_escalation_resolution_receipts,
     list_physical_property_escalation_search_receipts,
     list_physical_property_evidence_records,
     list_physical_property_gap_audit_receipts,
     list_physical_property_gap_closure_decisions,
     list_physical_property_gap_work_items,
     list_physical_property_no_candidate_review_receipts,
+    list_physical_property_operator_decision_receipts,
     list_physical_property_review_receipts,
     list_physical_property_secondary_evidence_admission_decisions,
     list_physical_property_secondary_evidence_receipts,
@@ -54,14 +60,17 @@ from mcms.elements import (
     validate_partial_physical_property_source_search_receipts,
     validate_physical_property_closure_approval_receipts,
     validate_physical_property_conflict_resolution_receipts,
+    validate_physical_property_continued_evidence_plans,
     validate_physical_property_corroboration_review_receipts,
     validate_physical_property_escalation_receipts,
+    validate_physical_property_escalation_resolution_receipts,
     validate_physical_property_escalation_search_receipts,
     validate_physical_property_evidence_records,
     validate_physical_property_gap_audit_receipts,
     validate_physical_property_gap_closure_decisions,
     validate_physical_property_gap_work_items,
     validate_physical_property_no_candidate_review_receipts,
+    validate_physical_property_operator_decision_receipts,
     validate_physical_property_review_receipts,
     validate_physical_property_secondary_evidence_admission_decisions,
     validate_physical_property_secondary_evidence_receipts,
@@ -610,6 +619,87 @@ def test_physical_property_escalation_search_records_at_source_attempt():
     assert protactinium.validate() == []
 
 
+def test_physical_property_escalation_resolution_recommends_without_applying():
+    receipts = list_physical_property_escalation_resolution_receipts()
+    validation = validate_physical_property_escalation_resolution_receipts(receipts)
+    astatine = get_physical_property_escalation_resolution_receipt("At")
+    californium = get_physical_property_escalation_resolution_receipt("Cf")
+
+    assert validation["validation_status"] == (
+        "physical_property_escalation_resolution_receipts_validated"
+    )
+    assert validation["receipt_count"] == 7
+    assert validation["conflict_resolution_blocked_count"] == 3
+    assert validation["candidate_rejection_recommended_count"] == 4
+    assert validation["final_resolution_applied_count"] == 0
+    assert validation["gap_closure_count"] == 0
+    assert validation["seed_mutation_allowed_count"] == 0
+    assert astatine.resolution_status == (
+        "conflict_resolution_blocked_pending_operator_decision"
+    )
+    assert californium.resolution_status == (
+        "candidate_rejection_recommended_pending_operator_decision"
+    )
+    assert astatine.final_resolution_applied is False
+    assert californium.final_resolution_applied is False
+    assert astatine.closes_gap is False
+    assert californium.seed_mutation_allowed is False
+    assert astatine.validate() == []
+    assert californium.validate() == []
+
+
+def test_physical_property_operator_decisions_are_deferred():
+    receipts = list_physical_property_operator_decision_receipts()
+    validation = validate_physical_property_operator_decision_receipts(receipts)
+    astatine = get_physical_property_operator_decision_receipt("At")
+    californium = get_physical_property_operator_decision_receipt("Cf")
+
+    assert validation["validation_status"] == (
+        "physical_property_operator_decision_receipts_validated"
+    )
+    assert validation["receipt_count"] == 7
+    assert validation["deferred_decision_count"] == 7
+    assert validation["approved_resolution_count"] == 0
+    assert validation["rejected_resolution_count"] == 0
+    assert validation["final_resolution_applied_count"] == 0
+    assert validation["gap_closure_count"] == 0
+    assert validation["seed_mutation_allowed_count"] == 0
+    assert astatine.operator_decision_status == "operator_decision_deferred"
+    assert californium.operator_decision_status == "operator_decision_deferred"
+    assert astatine.final_resolution_applied is False
+    assert californium.final_resolution_applied is False
+    assert astatine.closes_gap is False
+    assert californium.seed_mutation_allowed is False
+    assert astatine.validate() == []
+    assert californium.validate() == []
+
+
+def test_physical_property_continued_evidence_plans_keep_search_open():
+    plans = list_physical_property_continued_evidence_plans()
+    validation = validate_physical_property_continued_evidence_plans(plans)
+    astatine = get_physical_property_continued_evidence_plan("At")
+    californium = get_physical_property_continued_evidence_plan("Cf")
+
+    assert validation["validation_status"] == (
+        "physical_property_continued_evidence_plans_validated"
+    )
+    assert validation["plan_count"] == 7
+    assert validation["continued_evidence_required_count"] == 7
+    assert validation["higher_precedence_source_discovery_count"] == 3
+    assert validation["independent_corroboration_discovery_count"] == 4
+    assert validation["final_resolution_applied_count"] == 0
+    assert validation["gap_closure_count"] == 0
+    assert validation["seed_mutation_allowed_count"] == 0
+    assert astatine.plan_class == "higher_precedence_source_discovery"
+    assert californium.plan_class == "independent_corroboration_discovery"
+    assert astatine.final_resolution_applied is False
+    assert californium.final_resolution_applied is False
+    assert astatine.closes_gap is False
+    assert californium.seed_mutation_allowed is False
+    assert astatine.validate() == []
+    assert californium.validate() == []
+
+
 def test_physical_property_no_candidate_review_blocks_gap_closure():
     receipts = list_physical_property_no_candidate_review_receipts()
     validation = validate_physical_property_no_candidate_review_receipts(receipts)
@@ -806,6 +896,18 @@ def test_local_api_exposes_evidence_routes():
         "GET",
         "/evidence/physical-properties/escalation-search/At",
     )
+    physical_property_escalation_resolution = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/escalation-resolution/At",
+    )
+    physical_property_operator_decision = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/operator-decisions/At",
+    )
+    physical_property_continued_evidence = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/continued-evidence/At",
+    )
     physical_property_no_candidate = handle_api_request(
         "GET",
         "/evidence/physical-properties/no-candidate/Fm",
@@ -898,6 +1000,27 @@ def test_local_api_exposes_evidence_routes():
         "higher_precedence_source_not_found"
     )
     assert physical_property_escalation_search.payload["receipt"]["closes_gap"] is False
+    assert physical_property_escalation_resolution.status_code == 200
+    assert physical_property_escalation_resolution.payload["receipt"]["resolution_status"] == (
+        "conflict_resolution_blocked_pending_operator_decision"
+    )
+    assert (
+        physical_property_escalation_resolution.payload["receipt"]["final_resolution_applied"]
+        is False
+    )
+    assert physical_property_operator_decision.status_code == 200
+    assert physical_property_operator_decision.payload["receipt"][
+        "operator_decision_status"
+    ] == "operator_decision_deferred"
+    assert (
+        physical_property_operator_decision.payload["receipt"]["final_resolution_applied"]
+        is False
+    )
+    assert physical_property_continued_evidence.status_code == 200
+    assert physical_property_continued_evidence.payload["plan"]["plan_status"] == (
+        "continued_evidence_required"
+    )
+    assert physical_property_continued_evidence.payload["plan"]["closes_gap"] is False
     assert physical_property_no_candidate.status_code == 200
     assert physical_property_no_candidate.payload["receipt"]["review_decision"] == (
         "blocked_no_admissible_candidate_found"
@@ -1077,6 +1200,42 @@ def test_element_cli_prints_evidence_records(capsys):
     escalation_search_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
+        symbol="At",
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        physical_property_escalation_resolution=True,
+    )
+    escalation_resolution_output = json.loads(capsys.readouterr().out)
+
+    cmd_elements(
+        symbol="At",
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        physical_property_operator_decision=True,
+    )
+    operator_decision_output = json.loads(capsys.readouterr().out)
+
+    cmd_elements(
+        symbol="At",
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        physical_property_continued_evidence=True,
+    )
+    continued_evidence_output = json.loads(capsys.readouterr().out)
+
+    cmd_elements(
         symbol="Cf",
         list_only=False,
         full_snapshot=False,
@@ -1172,6 +1331,18 @@ def test_element_cli_prints_evidence_records(capsys):
         "higher_precedence_source_not_found"
     )
     assert escalation_search_output["receipts"][0]["closes_gap"] is False
+    assert escalation_resolution_output["receipts"][0]["resolution_status"] == (
+        "conflict_resolution_blocked_pending_operator_decision"
+    )
+    assert escalation_resolution_output["receipts"][0]["final_resolution_applied"] is False
+    assert operator_decision_output["receipts"][0]["operator_decision_status"] == (
+        "operator_decision_deferred"
+    )
+    assert operator_decision_output["receipts"][0]["final_resolution_applied"] is False
+    assert continued_evidence_output["plans"][0]["plan_status"] == (
+        "continued_evidence_required"
+    )
+    assert continued_evidence_output["plans"][0]["closes_gap"] is False
     assert {receipt["field_name"] for receipt in secondary_evidence_output["receipts"]} == {
         "boiling_point_k",
         "density_value",
