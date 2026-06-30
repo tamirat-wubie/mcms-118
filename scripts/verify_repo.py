@@ -16,6 +16,7 @@ from mcms.elements import (  # noqa: E402
     build_element_dashboard_view_model,
     build_element_relation_graph,
     build_ion_instance,
+    build_isotope_candidate_evidence_template,
     build_isotope_instance,
     build_matter_behavior_profile,
     build_physical_property_secondary_evidence_template,
@@ -36,18 +37,23 @@ from mcms.elements import (  # noqa: E402
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_f_block_expansion_profile,
+    get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
+    get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
     get_period_5_level_2_profile,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
+    get_physical_property_continued_evidence_plan,
     get_physical_property_corroboration_review_receipt,
     get_physical_property_escalation_receipt,
+    get_physical_property_escalation_resolution_receipt,
     get_physical_property_escalation_search_receipt,
     get_physical_property_gap_audit_receipt,
     get_physical_property_gap_closure_decision,
     get_physical_property_gap_work_item,
     get_physical_property_no_candidate_review_receipt,
+    get_physical_property_operator_decision_receipt,
     get_physical_property_review_receipt,
     get_physical_property_secondary_evidence_admission_decision,
     get_physical_property_secondary_evidence_receipt,
@@ -68,22 +74,27 @@ from mcms.elements import (  # noqa: E402
     list_f_block_expansion_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
+    list_isotope_source_search_receipts,
     list_matter_behavior_profiles,
     list_oxidation_state_evidence_records,
     list_partial_physical_property_source_search_receipts,
     list_period_5_level_2_profiles,
     list_physical_property_closure_approval_receipts,
     list_physical_property_conflict_resolution_receipts,
+    list_physical_property_continued_evidence_plans,
     list_physical_property_corroboration_review_receipts,
     list_physical_property_escalation_receipts,
+    list_physical_property_escalation_resolution_receipts,
     list_physical_property_escalation_search_receipts,
     list_physical_property_evidence_records,
     list_physical_property_gap_audit_receipts,
     list_physical_property_gap_closure_decisions,
     list_physical_property_gap_work_items,
     list_physical_property_no_candidate_review_receipts,
+    list_physical_property_operator_decision_receipts,
     list_physical_property_review_receipts,
     list_physical_property_secondary_evidence_admission_decisions,
     list_physical_property_secondary_evidence_receipts,
@@ -106,22 +117,27 @@ from mcms.elements import (  # noqa: E402
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
     validate_isotope_source_policies,
+    validate_isotope_source_search_receipts,
     validate_matter_behavior_profiles,
     validate_oxidation_state_evidence_records,
     validate_partial_physical_property_source_search_receipts,
     validate_period_5_level_2_profiles,
     validate_physical_property_closure_approval_receipts,
     validate_physical_property_conflict_resolution_receipts,
+    validate_physical_property_continued_evidence_plans,
     validate_physical_property_corroboration_review_receipts,
     validate_physical_property_escalation_receipts,
+    validate_physical_property_escalation_resolution_receipts,
     validate_physical_property_escalation_search_receipts,
     validate_physical_property_evidence_records,
     validate_physical_property_gap_audit_receipts,
     validate_physical_property_gap_closure_decisions,
     validate_physical_property_gap_work_items,
     validate_physical_property_no_candidate_review_receipts,
+    validate_physical_property_operator_decision_receipts,
     validate_physical_property_review_receipts,
     validate_physical_property_secondary_evidence_admission_decisions,
     validate_physical_property_secondary_evidence_receipts,
@@ -320,6 +336,30 @@ def main() -> None:
             physical_property_escalation_search_receipts
         )
     )
+    physical_property_escalation_resolution_receipts = (
+        list_physical_property_escalation_resolution_receipts()
+    )
+    physical_property_escalation_resolution_result = (
+        validate_physical_property_escalation_resolution_receipts(
+            physical_property_escalation_resolution_receipts
+        )
+    )
+    physical_property_operator_decision_receipts = (
+        list_physical_property_operator_decision_receipts()
+    )
+    physical_property_operator_decision_result = (
+        validate_physical_property_operator_decision_receipts(
+            physical_property_operator_decision_receipts
+        )
+    )
+    physical_property_continued_evidence_plans = (
+        list_physical_property_continued_evidence_plans()
+    )
+    physical_property_continued_evidence_result = (
+        validate_physical_property_continued_evidence_plans(
+            physical_property_continued_evidence_plans
+        )
+    )
     physical_property_no_candidate_review_receipts = (
         list_physical_property_no_candidate_review_receipts()
     )
@@ -341,6 +381,14 @@ def main() -> None:
     isotope_source_policies = list_isotope_source_policies()
     isotope_source_policy_result = validate_isotope_source_policies(
         isotope_source_policies
+    )
+    isotope_source_search_receipts = list_isotope_source_search_receipts()
+    isotope_source_search_result = validate_isotope_source_search_receipts(
+        isotope_source_search_receipts
+    )
+    isotope_candidate_evidence_receipts = list_isotope_candidate_evidence_receipts()
+    isotope_candidate_evidence_result = validate_isotope_candidate_evidence_receipts(
+        isotope_candidate_evidence_receipts
     )
     cs_rn_promotion_profiles = list_cs_rn_promotion_readiness_profiles()
     cs_rn_promotion_result = validate_cs_rn_promotion_readiness_profiles(
@@ -686,6 +734,75 @@ def main() -> None:
     assert physical_property_escalation_search_result["seed_mutation_allowed_count"] == 0, (
         physical_property_escalation_search_result
     )
+    assert physical_property_escalation_resolution_result["validation_status"] == (
+        "physical_property_escalation_resolution_receipts_validated"
+    ), physical_property_escalation_resolution_result
+    assert physical_property_escalation_resolution_result["receipt_count"] == 7, (
+        physical_property_escalation_resolution_result
+    )
+    assert physical_property_escalation_resolution_result[
+        "conflict_resolution_blocked_count"
+    ] == 3, physical_property_escalation_resolution_result
+    assert physical_property_escalation_resolution_result[
+        "candidate_rejection_recommended_count"
+    ] == 4, physical_property_escalation_resolution_result
+    assert physical_property_escalation_resolution_result[
+        "final_resolution_applied_count"
+    ] == 0, physical_property_escalation_resolution_result
+    assert physical_property_escalation_resolution_result["gap_closure_count"] == 0, (
+        physical_property_escalation_resolution_result
+    )
+    assert physical_property_escalation_resolution_result[
+        "seed_mutation_allowed_count"
+    ] == 0, physical_property_escalation_resolution_result
+    assert physical_property_operator_decision_result["validation_status"] == (
+        "physical_property_operator_decision_receipts_validated"
+    ), physical_property_operator_decision_result
+    assert physical_property_operator_decision_result["receipt_count"] == 7, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_operator_decision_result["deferred_decision_count"] == 7, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_operator_decision_result["approved_resolution_count"] == 0, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_operator_decision_result["rejected_resolution_count"] == 0, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_operator_decision_result[
+        "final_resolution_applied_count"
+    ] == 0, physical_property_operator_decision_result
+    assert physical_property_operator_decision_result["gap_closure_count"] == 0, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_operator_decision_result["seed_mutation_allowed_count"] == 0, (
+        physical_property_operator_decision_result
+    )
+    assert physical_property_continued_evidence_result["validation_status"] == (
+        "physical_property_continued_evidence_plans_validated"
+    ), physical_property_continued_evidence_result
+    assert physical_property_continued_evidence_result["plan_count"] == 7, (
+        physical_property_continued_evidence_result
+    )
+    assert physical_property_continued_evidence_result[
+        "continued_evidence_required_count"
+    ] == 7, physical_property_continued_evidence_result
+    assert physical_property_continued_evidence_result[
+        "higher_precedence_source_discovery_count"
+    ] == 3, physical_property_continued_evidence_result
+    assert physical_property_continued_evidence_result[
+        "independent_corroboration_discovery_count"
+    ] == 4, physical_property_continued_evidence_result
+    assert physical_property_continued_evidence_result[
+        "final_resolution_applied_count"
+    ] == 0, physical_property_continued_evidence_result
+    assert physical_property_continued_evidence_result["gap_closure_count"] == 0, (
+        physical_property_continued_evidence_result
+    )
+    assert physical_property_continued_evidence_result[
+        "seed_mutation_allowed_count"
+    ] == 0, physical_property_continued_evidence_result
     assert physical_property_no_candidate_review_result["validation_status"] == (
         "physical_property_no_candidate_review_receipts_validated"
     ), physical_property_no_candidate_review_result
@@ -774,6 +891,91 @@ def main() -> None:
     ), oxygen_isotope_policy
     assert oxygen_isotope_policy.atom_behavior_generation_allowed is False, (
         oxygen_isotope_policy
+    )
+    assert isotope_source_search_result["validation_status"] == (
+        "isotope_source_search_receipts_validated"
+    ), isotope_source_search_result
+    assert isotope_source_search_result["search_receipt_count"] == 52, (
+        isotope_source_search_result
+    )
+    assert isotope_source_search_result["open_search_count"] == 51, (
+        isotope_source_search_result
+    )
+    assert isotope_source_search_result["candidate_receipt_created_count"] == 1, (
+        isotope_source_search_result
+    )
+    assert isotope_source_search_result["candidate_source_count"] == 3, (
+        isotope_source_search_result
+    )
+    assert isotope_source_search_result["gap_closure_count"] == 0, (
+        isotope_source_search_result
+    )
+    assert isotope_source_search_result[
+        "atom_behavior_generation_allowed_count"
+    ] == 0, isotope_source_search_result
+    assert isotope_source_search_result["seed_mutation_allowed_count"] == 0, (
+        isotope_source_search_result
+    )
+    oxygen_isotope_search = get_isotope_source_search_receipt("O")
+    assert oxygen_isotope_search.policy_id == oxygen_isotope_policy.policy_id, (
+        oxygen_isotope_search
+    )
+    assert oxygen_isotope_search.search_status == (
+        "isotope_source_search_complete_candidate_receipt_created"
+    ), oxygen_isotope_search
+    assert oxygen_isotope_search.candidate_receipt_id == (
+        "MSPEE-ISOTOPE-CANDIDATE-EVIDENCE-Z008-O-NIST"
+    ), oxygen_isotope_search
+    assert isotope_candidate_evidence_result["validation_status"] == (
+        "isotope_candidate_evidence_receipts_validated"
+    ), isotope_candidate_evidence_result
+    assert isotope_candidate_evidence_result["receipt_count"] == 1, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result["candidate_isotope_count"] == 3, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result["stable_candidate_count"] == 3, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result["radioisotope_candidate_count"] == 0, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result["admitted_count"] == 0, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result["gap_closure_count"] == 0, (
+        isotope_candidate_evidence_result
+    )
+    assert isotope_candidate_evidence_result[
+        "atom_behavior_generation_allowed_count"
+    ] == 0, isotope_candidate_evidence_result
+    assert isotope_candidate_evidence_result["seed_mutation_allowed_count"] == 0, (
+        isotope_candidate_evidence_result
+    )
+    oxygen_candidate_evidence = get_isotope_candidate_evidence_receipt("O")
+    oxygen_candidate_template = build_isotope_candidate_evidence_template("O")
+    assert oxygen_candidate_evidence.source_key == (
+        "nist_atomic_weights_isotopic_compositions"
+    ), oxygen_candidate_evidence
+    assert tuple(value.mass_number for value in oxygen_candidate_evidence.candidate_values) == (
+        16,
+        17,
+        18,
+    ), oxygen_candidate_evidence
+    assert oxygen_candidate_evidence.candidate_values[0].relative_atomic_mass == (
+        "15.99491461957(17)"
+    ), oxygen_candidate_evidence
+    assert oxygen_candidate_evidence.admission_status == "isotope_evidence_candidate", (
+        oxygen_candidate_evidence
+    )
+    assert oxygen_candidate_evidence.closes_gap is False, oxygen_candidate_evidence
+    assert oxygen_candidate_evidence.atom_behavior_generation_allowed is False, (
+        oxygen_candidate_evidence
+    )
+    assert oxygen_candidate_template["symbol"] == "O", oxygen_candidate_template
+    assert oxygen_candidate_template["seed_mutation_allowed"] is False, (
+        oxygen_candidate_template
     )
     assert cs_rn_promotion_result.validation_status == (
         "cs_rn_promotion_readiness_profiles_validated"
@@ -1051,6 +1253,14 @@ def main() -> None:
     californium_escalation_search = get_physical_property_escalation_search_receipt("Cf")
     einsteinium_escalation_search = get_physical_property_escalation_search_receipt("Es")
     protactinium_escalation_search = get_physical_property_escalation_search_receipt("Pa")
+    astatine_escalation_resolution = get_physical_property_escalation_resolution_receipt("At")
+    californium_escalation_resolution = (
+        get_physical_property_escalation_resolution_receipt("Cf")
+    )
+    astatine_operator_decision = get_physical_property_operator_decision_receipt("At")
+    californium_operator_decision = get_physical_property_operator_decision_receipt("Cf")
+    astatine_continued_evidence = get_physical_property_continued_evidence_plan("At")
+    californium_continued_evidence = get_physical_property_continued_evidence_plan("Cf")
     fermium_no_candidate_review = get_physical_property_no_candidate_review_receipt("Fm")
     mendelevium_no_candidate_review = get_physical_property_no_candidate_review_receipt("Md")
     nobelium_no_candidate_review = get_physical_property_no_candidate_review_receipt("No")
@@ -1221,6 +1431,38 @@ def main() -> None:
     ), protactinium_escalation_search
     assert protactinium_escalation_search.closes_gap is False, (
         protactinium_escalation_search
+    )
+    assert astatine_escalation_resolution.resolution_status == (
+        "conflict_resolution_blocked_pending_operator_decision"
+    ), astatine_escalation_resolution
+    assert astatine_escalation_resolution.final_resolution_applied is False, (
+        astatine_escalation_resolution
+    )
+    assert californium_escalation_resolution.resolution_status == (
+        "candidate_rejection_recommended_pending_operator_decision"
+    ), californium_escalation_resolution
+    assert californium_escalation_resolution.closes_gap is False, (
+        californium_escalation_resolution
+    )
+    assert astatine_operator_decision.operator_decision_status == (
+        "operator_decision_deferred"
+    ), astatine_operator_decision
+    assert astatine_operator_decision.final_resolution_applied is False, (
+        astatine_operator_decision
+    )
+    assert californium_operator_decision.operator_decision_status == (
+        "operator_decision_deferred"
+    ), californium_operator_decision
+    assert californium_operator_decision.closes_gap is False, californium_operator_decision
+    assert astatine_continued_evidence.plan_class == (
+        "higher_precedence_source_discovery"
+    ), astatine_continued_evidence
+    assert astatine_continued_evidence.closes_gap is False, astatine_continued_evidence
+    assert californium_continued_evidence.plan_class == (
+        "independent_corroboration_discovery"
+    ), californium_continued_evidence
+    assert californium_continued_evidence.seed_mutation_allowed is False, (
+        californium_continued_evidence
     )
     assert fermium_no_candidate_review.review_decision == (
         "blocked_no_admissible_candidate_found"
@@ -1513,6 +1755,18 @@ def main() -> None:
         "GET",
         "/evidence/physical-properties/escalation-search/At",
     )
+    api_astatine_escalation_resolution = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/escalation-resolution/At",
+    )
+    api_astatine_operator_decision = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/operator-decisions/At",
+    )
+    api_astatine_continued_evidence = handle_api_request(
+        "GET",
+        "/evidence/physical-properties/continued-evidence/At",
+    )
     api_fermium_no_candidate_review = handle_api_request(
         "GET",
         "/evidence/physical-properties/no-candidate/Fm",
@@ -1537,6 +1791,18 @@ def main() -> None:
     api_oxygen_isotope_source_policy = handle_api_request(
         "GET",
         "/atom/behavior/isotope-source-policy/O",
+    )
+    api_oxygen_isotope_source_search = handle_api_request(
+        "GET",
+        "/atom/behavior/isotope-source-search/O",
+    )
+    api_oxygen_isotope_candidate_evidence = handle_api_request(
+        "GET",
+        "/atom/behavior/isotope-candidate-evidence/O",
+    )
+    api_oxygen_isotope_candidate_template = handle_api_request(
+        "GET",
+        "/atom/behavior/isotope-candidate-evidence/template/O",
     )
     api_cs_rn_promotion_profiles = handle_api_request("GET", "/promotion/cs-rn")
     api_astatine_promotion_profile = handle_api_request("GET", "/promotion/cs-rn/At")
@@ -1733,6 +1999,22 @@ def main() -> None:
     assert api_astatine_escalation_search.payload["receipt"]["search_status"] == (
         "higher_precedence_source_not_found"
     ), api_astatine_escalation_search.payload
+    assert api_astatine_escalation_resolution.status_code == 200, (
+        api_astatine_escalation_resolution
+    )
+    assert api_astatine_escalation_resolution.payload["receipt"]["resolution_status"] == (
+        "conflict_resolution_blocked_pending_operator_decision"
+    ), api_astatine_escalation_resolution.payload
+    assert api_astatine_operator_decision.status_code == 200, api_astatine_operator_decision
+    assert api_astatine_operator_decision.payload["receipt"]["operator_decision_status"] == (
+        "operator_decision_deferred"
+    ), api_astatine_operator_decision.payload
+    assert api_astatine_continued_evidence.status_code == 200, (
+        api_astatine_continued_evidence
+    )
+    assert api_astatine_continued_evidence.payload["plan"]["plan_status"] == (
+        "continued_evidence_required"
+    ), api_astatine_continued_evidence.payload
     assert api_fermium_no_candidate_review.status_code == 200, (
         api_fermium_no_candidate_review
     )
@@ -1776,6 +2058,33 @@ def main() -> None:
     assert api_oxygen_isotope_source_policy.payload["policy"][
         "atom_behavior_generation_allowed"
     ] is False, api_oxygen_isotope_source_policy.payload
+    assert api_oxygen_isotope_source_search.status_code == 200, (
+        api_oxygen_isotope_source_search
+    )
+    assert api_oxygen_isotope_source_search.payload["receipt"]["symbol"] == "O", (
+        api_oxygen_isotope_source_search.payload
+    )
+    assert api_oxygen_isotope_source_search.payload["receipt"]["search_status"] == (
+        "isotope_source_search_complete_candidate_receipt_created"
+    ), api_oxygen_isotope_source_search.payload
+    assert api_oxygen_isotope_candidate_evidence.status_code == 200, (
+        api_oxygen_isotope_candidate_evidence
+    )
+    assert api_oxygen_isotope_candidate_evidence.payload["receipt"]["symbol"] == "O", (
+        api_oxygen_isotope_candidate_evidence.payload
+    )
+    assert api_oxygen_isotope_candidate_evidence.payload["receipt"][
+        "admission_status"
+    ] == "isotope_evidence_candidate", api_oxygen_isotope_candidate_evidence.payload
+    assert api_oxygen_isotope_candidate_evidence.payload["receipt"][
+        "closes_gap"
+    ] is False, api_oxygen_isotope_candidate_evidence.payload
+    assert api_oxygen_isotope_candidate_template.status_code == 200, (
+        api_oxygen_isotope_candidate_template
+    )
+    assert api_oxygen_isotope_candidate_template.payload["template"]["symbol"] == "O", (
+        api_oxygen_isotope_candidate_template.payload
+    )
     assert api_cs_rn_promotion_profiles.status_code == 200, api_cs_rn_promotion_profiles
     assert api_cs_rn_promotion_profiles.payload["validation"]["profile_count"] == 32, (
         api_cs_rn_promotion_profiles.payload
@@ -1860,6 +2169,12 @@ def main() -> None:
         f"{len(physical_property_escalation_receipts)} "
         f"physical_property_escalation_search_receipts="
         f"{len(physical_property_escalation_search_receipts)} "
+        f"physical_property_escalation_resolution_receipts="
+        f"{len(physical_property_escalation_resolution_receipts)} "
+        f"physical_property_operator_decision_receipts="
+        f"{len(physical_property_operator_decision_receipts)} "
+        f"physical_property_continued_evidence_plans="
+        f"{len(physical_property_continued_evidence_plans)} "
         f"physical_property_no_candidate_review_receipts="
         f"{len(physical_property_no_candidate_review_receipts)} "
         f"matter_behavior_profiles={len(matter_behavior_profiles)} "
@@ -1867,6 +2182,8 @@ def main() -> None:
         f"atom_behavior_gap_receipts={len(atom_behavior_gap_receipts)} "
         f"atom_behavior_gap_work_items={len(atom_behavior_gap_work_items)} "
         f"isotope_source_policies={len(isotope_source_policies)} "
+        f"isotope_source_search_receipts={len(isotope_source_search_receipts)} "
+        f"isotope_candidate_evidence_receipts={len(isotope_candidate_evidence_receipts)} "
         f"cs_rn_promotion_readiness_profiles={len(cs_rn_promotion_profiles)} "
         f"configuration_evidence_records={len(configuration_evidence_records)} "
         f"frontier_valence_signature_records={len(frontier_valence_records)} "

@@ -23,6 +23,7 @@ from mcms.elements import (
     build_element_receipt,
     build_element_relation_graph,
     build_ion_instance,
+    build_isotope_candidate_evidence_template,
     build_isotope_instance,
     build_matter_behavior_profile,
     build_physical_property_secondary_evidence_template,
@@ -48,18 +49,23 @@ from mcms.elements import (
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_f_block_expansion_profile,
+    get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
+    get_isotope_source_search_receipt,
     get_partial_physical_property_source_search_receipt,
     get_period_5_level_2_profile,
     get_physical_property_closure_approval_receipt,
     get_physical_property_conflict_resolution_receipt,
+    get_physical_property_continued_evidence_plan,
     get_physical_property_corroboration_review_receipt,
     get_physical_property_escalation_receipt,
+    get_physical_property_escalation_resolution_receipt,
     get_physical_property_escalation_search_receipt,
     get_physical_property_gap_audit_receipt,
     get_physical_property_gap_closure_decision,
     get_physical_property_gap_work_item,
     get_physical_property_no_candidate_review_receipt,
+    get_physical_property_operator_decision_receipt,
     get_physical_property_review_receipt,
     get_physical_property_secondary_evidence_admission_decision,
     get_physical_property_secondary_evidence_receipt,
@@ -80,22 +86,27 @@ from mcms.elements import (
     list_f_block_expansion_profiles,
     list_frontier_valence_signature_records,
     list_full_snapshot_records,
+    list_isotope_candidate_evidence_receipts,
     list_isotope_evidence_records,
     list_isotope_source_policies,
+    list_isotope_source_search_receipts,
     list_matter_behavior_profiles,
     list_oxidation_state_evidence_records,
     list_partial_physical_property_source_search_receipts,
     list_period_5_level_2_profiles,
     list_physical_property_closure_approval_receipts,
     list_physical_property_conflict_resolution_receipts,
+    list_physical_property_continued_evidence_plans,
     list_physical_property_corroboration_review_receipts,
     list_physical_property_escalation_receipts,
+    list_physical_property_escalation_resolution_receipts,
     list_physical_property_escalation_search_receipts,
     list_physical_property_evidence_records,
     list_physical_property_gap_audit_receipts,
     list_physical_property_gap_closure_decisions,
     list_physical_property_gap_work_items,
     list_physical_property_no_candidate_review_receipts,
+    list_physical_property_operator_decision_receipts,
     list_physical_property_review_receipts,
     list_physical_property_secondary_evidence_admission_decisions,
     list_physical_property_secondary_evidence_receipts,
@@ -118,22 +129,27 @@ from mcms.elements import (
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
     validate_isotope_source_policies,
+    validate_isotope_source_search_receipts,
     validate_matter_behavior_profiles,
     validate_oxidation_state_evidence_records,
     validate_partial_physical_property_source_search_receipts,
     validate_period_5_level_2_profiles,
     validate_physical_property_closure_approval_receipts,
     validate_physical_property_conflict_resolution_receipts,
+    validate_physical_property_continued_evidence_plans,
     validate_physical_property_corroboration_review_receipts,
     validate_physical_property_escalation_receipts,
+    validate_physical_property_escalation_resolution_receipts,
     validate_physical_property_escalation_search_receipts,
     validate_physical_property_evidence_records,
     validate_physical_property_gap_audit_receipts,
     validate_physical_property_gap_closure_decisions,
     validate_physical_property_gap_work_items,
     validate_physical_property_no_candidate_review_receipts,
+    validate_physical_property_operator_decision_receipts,
     validate_physical_property_review_receipts,
     validate_physical_property_secondary_evidence_admission_decisions,
     validate_physical_property_secondary_evidence_receipts,
@@ -232,6 +248,11 @@ def _index_payload() -> dict[str, Any]:
             "GET /atom/behavior/workplan/O",
             "GET /atom/behavior/isotope-source-policy",
             "GET /atom/behavior/isotope-source-policy/O",
+            "GET /atom/behavior/isotope-source-search",
+            "GET /atom/behavior/isotope-source-search/O",
+            "GET /atom/behavior/isotope-candidate-evidence",
+            "GET /atom/behavior/isotope-candidate-evidence/O",
+            "GET /atom/behavior/isotope-candidate-evidence/template/O",
             "GET /evidence/isotopes",
             "GET /evidence/isotopes/C?mass_number=14",
             "GET /evidence/isotopes/unresolved",
@@ -265,6 +286,9 @@ def _index_payload() -> dict[str, Any]:
             "GET /evidence/physical-properties/seed-update/Cf",
             "GET /evidence/physical-properties/escalations/At",
             "GET /evidence/physical-properties/escalation-search/At",
+            "GET /evidence/physical-properties/escalation-resolution/At",
+            "GET /evidence/physical-properties/operator-decisions/At",
+            "GET /evidence/physical-properties/continued-evidence/At",
             "GET /evidence/physical-properties/no-candidate/Fm",
             "GET /evidence/physical-properties/secondary-evidence/template/At",
             "GET /evidence/physical-properties/secondary-source-policy",
@@ -842,6 +866,62 @@ def _physical_property_escalation_search_payload(identifier: str) -> dict[str, A
     }
 
 
+def _physical_property_escalation_resolution_list_payload() -> dict[str, Any]:
+    receipts = list_physical_property_escalation_resolution_receipts()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_escalation_resolution_receipts(receipts),
+        "receipts": [receipt.to_dict() for receipt in receipts],
+    }
+
+
+def _physical_property_escalation_resolution_payload(identifier: str) -> dict[str, Any]:
+    receipt = get_physical_property_escalation_resolution_receipt(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_escalation_resolution_receipts(
+            (receipt,)
+        ),
+        "receipt": receipt.to_dict(),
+    }
+
+
+def _physical_property_operator_decision_list_payload() -> dict[str, Any]:
+    receipts = list_physical_property_operator_decision_receipts()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_operator_decision_receipts(receipts),
+        "receipts": [receipt.to_dict() for receipt in receipts],
+    }
+
+
+def _physical_property_operator_decision_payload(identifier: str) -> dict[str, Any]:
+    receipt = get_physical_property_operator_decision_receipt(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_operator_decision_receipts((receipt,)),
+        "receipt": receipt.to_dict(),
+    }
+
+
+def _physical_property_continued_evidence_list_payload() -> dict[str, Any]:
+    plans = list_physical_property_continued_evidence_plans()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_continued_evidence_plans(plans),
+        "plans": [plan.to_dict() for plan in plans],
+    }
+
+
+def _physical_property_continued_evidence_payload(identifier: str) -> dict[str, Any]:
+    plan = get_physical_property_continued_evidence_plan(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_physical_property_continued_evidence_plans((plan,)),
+        "plan": plan.to_dict(),
+    }
+
+
 def _physical_property_no_candidate_review_list_payload() -> dict[str, Any]:
     receipts = list_physical_property_no_candidate_review_receipts()
     return {
@@ -978,6 +1058,49 @@ def _isotope_source_policy_payload(identifier: str) -> dict[str, Any]:
     }
 
 
+def _isotope_source_search_list_payload() -> dict[str, Any]:
+    receipts = list_isotope_source_search_receipts()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_source_search_receipts(receipts),
+        "receipts": [receipt.to_dict() for receipt in receipts],
+    }
+
+
+def _isotope_source_search_payload(identifier: str) -> dict[str, Any]:
+    receipt = get_isotope_source_search_receipt(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_source_search_receipts((receipt,)),
+        "receipt": receipt.to_dict(),
+    }
+
+
+def _isotope_candidate_evidence_list_payload() -> dict[str, Any]:
+    receipts = list_isotope_candidate_evidence_receipts()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_candidate_evidence_receipts(receipts),
+        "receipts": [receipt.to_dict() for receipt in receipts],
+    }
+
+
+def _isotope_candidate_evidence_payload(identifier: str) -> dict[str, Any]:
+    receipt = get_isotope_candidate_evidence_receipt(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_isotope_candidate_evidence_receipts((receipt,)),
+        "receipt": receipt.to_dict(),
+    }
+
+
+def _isotope_candidate_evidence_template_payload(identifier: str) -> dict[str, Any]:
+    return {
+        "api_status": API_STATUS,
+        "template": build_isotope_candidate_evidence_template(identifier),
+    }
+
+
 def _cs_rn_promotion_readiness_list_payload() -> dict[str, Any]:
     profiles = list_cs_rn_promotion_readiness_profiles()
     return {
@@ -1083,6 +1206,12 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                         list_atom_behavior_gap_work_items()
                     ),
                     "isotope_source_policy_count": len(list_isotope_source_policies()),
+                    "isotope_source_search_receipt_count": len(
+                        list_isotope_source_search_receipts()
+                    ),
+                    "isotope_candidate_evidence_receipt_count": len(
+                        list_isotope_candidate_evidence_receipts()
+                    ),
                 },
             )
         if path_parts == ["elements"]:
@@ -1414,6 +1543,46 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                 HTTPStatus.OK,
                 _physical_property_escalation_search_payload(path_parts[3]),
             )
+        if path_parts == ["evidence", "physical-properties", "escalation-resolution"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_escalation_resolution_list_payload(),
+            )
+        if (
+            len(path_parts) == 4
+            and path_parts[:3]
+            == ["evidence", "physical-properties", "escalation-resolution"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_escalation_resolution_payload(path_parts[3]),
+            )
+        if path_parts == ["evidence", "physical-properties", "operator-decisions"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_operator_decision_list_payload(),
+            )
+        if (
+            len(path_parts) == 4
+            and path_parts[:3] == ["evidence", "physical-properties", "operator-decisions"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_operator_decision_payload(path_parts[3]),
+            )
+        if path_parts == ["evidence", "physical-properties", "continued-evidence"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_continued_evidence_list_payload(),
+            )
+        if (
+            len(path_parts) == 4
+            and path_parts[:3] == ["evidence", "physical-properties", "continued-evidence"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _physical_property_continued_evidence_payload(path_parts[3]),
+            )
         if path_parts == ["evidence", "physical-properties", "no-candidate"]:
             return ApiResponse(
                 HTTPStatus.OK,
@@ -1489,6 +1658,39 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             return ApiResponse(
                 HTTPStatus.OK,
                 _isotope_source_policy_payload(path_parts[3]),
+            )
+        if path_parts == ["atom", "behavior", "isotope-source-search"]:
+            return ApiResponse(HTTPStatus.OK, _isotope_source_search_list_payload())
+        if (
+            len(path_parts) == 4
+            and path_parts[:3] == ["atom", "behavior", "isotope-source-search"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _isotope_source_search_payload(path_parts[3]),
+            )
+        if path_parts == ["atom", "behavior", "isotope-candidate-evidence"]:
+            return ApiResponse(HTTPStatus.OK, _isotope_candidate_evidence_list_payload())
+        if (
+            len(path_parts) == 5
+            and path_parts[:4] == [
+                "atom",
+                "behavior",
+                "isotope-candidate-evidence",
+                "template",
+            ]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _isotope_candidate_evidence_template_payload(path_parts[4]),
+            )
+        if (
+            len(path_parts) == 4
+            and path_parts[:3] == ["atom", "behavior", "isotope-candidate-evidence"]
+        ):
+            return ApiResponse(
+                HTTPStatus.OK,
+                _isotope_candidate_evidence_payload(path_parts[3]),
             )
         if len(path_parts) == 3 and path_parts[:2] == ["atom", "behavior"]:
             return ApiResponse(

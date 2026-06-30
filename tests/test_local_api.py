@@ -22,6 +22,8 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /atom/behavior/gaps/O" in index["routes"]
     assert "GET /atom/behavior/workplan/O" in index["routes"]
     assert "GET /atom/behavior/isotope-source-policy/O" in index["routes"]
+    assert "GET /atom/behavior/isotope-source-search/O" in index["routes"]
+    assert "GET /atom/behavior/isotope-candidate-evidence/O" in index["routes"]
     assert "GET /evidence/isotopes/C?mass_number=14" in index["routes"]
     assert "GET /evidence/isotopes/unresolved/O" in index["routes"]
     assert "GET /evidence/common-ions/Fe" in index["routes"]
@@ -43,6 +45,9 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /evidence/physical-properties/seed-update/Cf" in index["routes"]
     assert "GET /evidence/physical-properties/escalations/At" in index["routes"]
     assert "GET /evidence/physical-properties/escalation-search/At" in index["routes"]
+    assert "GET /evidence/physical-properties/escalation-resolution/At" in index["routes"]
+    assert "GET /evidence/physical-properties/operator-decisions/At" in index["routes"]
+    assert "GET /evidence/physical-properties/continued-evidence/At" in index["routes"]
     assert "GET /evidence/physical-properties/no-candidate/Fm" in index["routes"]
     assert "GET /evidence/physical-properties/secondary-evidence/template/At" in index["routes"]
     assert "GET /evidence/physical-properties/secondary-source-policy/At" in index["routes"]
@@ -61,6 +66,8 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert health["atom_behavior_gap_count"] == 116
     assert health["atom_behavior_gap_work_item_count"] == 116
     assert health["isotope_source_policy_count"] == 52
+    assert health["isotope_source_search_receipt_count"] == 52
+    assert health["isotope_candidate_evidence_receipt_count"] == 1
     assert method_error.status_code == 405
 
 
