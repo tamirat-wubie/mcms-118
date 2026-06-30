@@ -84,10 +84,10 @@ M8 = production-engineering-ready
 26. Common-ion candidate evidence seed tied to sourced oxidation states
 27. Measured physical-property evidence for all complete PubChem rows
 28. Bounded matter-behavior profiles for H through Xe
-28a. Atom behavior v2 profiles for source-backed H-Kr isotope evidence
+28a. Atom behavior v2 profiles for source-backed H-Xe isotope evidence, excluding Tc pending radioisotope admission
 28b. Atom behavior v2 gap receipts and workplan for unresolved isotope-backed profile coverage
-28c. Isotope source policies for 18 Level 1 atom behavior isotope-only blockers
-28d. Isotope source-search receipts for 18 Level 1 atom behavior isotope-only blockers
+28c. Isotope source policy for the remaining Tc Level 1 atom behavior isotope-only blocker
+28d. Isotope source-search receipt for the remaining Tc Level 1 atom behavior isotope-only blocker
 28e. Oxygen NIST isotope candidate evidence admitted into canonical isotope evidence
 28f. Oxygen isotope candidate admission receipt for canonical evidence closure
 28g. Element readiness scoring for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension
