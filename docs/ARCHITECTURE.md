@@ -75,10 +75,10 @@ Physical-property operator decisions: 7 deferred receipts, zero approvals or rej
 Physical-property continued evidence: 7 plans, zero final resolutions or seed mutations applied
 Physical-property no-candidate review: 4 Fm/Md/No/Lr receipts, zero gap closures
 Matter-behavior profiles: H-Xe
-Atom behavior v2 profiles: 49 source-backed H-Ca isotope profiles
-Atom behavior v2 gaps: 98 receipts and 98 work items for unresolved isotope-backed profile coverage
-Isotope source policies: 34 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
-Isotope source-search receipts: 34 open searches and zero active candidate receipts
+Atom behavior v2 profiles: 79 source-backed H-Zn isotope profiles
+Atom behavior v2 gaps: 88 receipts and 88 work items for unresolved isotope-backed profile coverage
+Isotope source policies: 24 Level 1 atom behavior isotope-only blockers, zero gaps closed by policy
+Isotope source-search receipts: 24 open searches and zero active candidate receipts
 Isotope candidate evidence: 0 active receipts after Oxygen admission
 Isotope candidate admission: 1 Oxygen admission receipt, zero active candidate retention
 Element readiness scores: 118 read-only score records for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension

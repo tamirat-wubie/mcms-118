@@ -109,8 +109,8 @@ def test_isotope_evidence_records_validate_stable_and_radioactive_boundaries():
     oxygen_records = find_isotope_evidence_records("O")
 
     assert validation["validation_status"] == "isotope_evidence_records_validated"
-    assert validation["record_count"] == 49
-    assert validation["radioisotope_count"] == 4
+    assert validation["record_count"] == 79
+    assert validation["radioisotope_count"] == 5
     assert carbon_14.isotope_id == "MSPEE-Z006-C-isotope-14"
     assert carbon_14.neutron_count == 8
     assert carbon_14.half_life_value == 5730.0
@@ -164,19 +164,19 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
         common_ion_records,
         expected_domain="common_ion_evidence",
     )
-    scandium_isotope = find_unresolved_isotope_evidence_record("Sc")
+    gallium_isotope = find_unresolved_isotope_evidence_record("Ga")
     oxygen_common_ion = find_unresolved_common_ion_evidence_record("O")
 
     assert isotope_validation["validation_status"] == (
         "isotope_evidence_unresolved_records_validated"
     )
-    assert isotope_validation["record_count"] == 98
+    assert isotope_validation["record_count"] == 88
     assert common_ion_validation["validation_status"] == (
         "common_ion_evidence_unresolved_records_validated"
     )
     assert common_ion_validation["record_count"] == 47
-    assert scandium_isotope.evidence_domain == "isotope_evidence"
-    assert "natural_abundance" in scandium_isotope.missing_evidence
+    assert gallium_isotope.evidence_domain == "isotope_evidence"
+    assert "natural_abundance" in gallium_isotope.missing_evidence
     assert oxygen_common_ion.evidence_domain == "common_ion_evidence"
     assert "common_ion_charge_set" in oxygen_common_ion.missing_evidence
     assert oxygen_common_ion.validate() == []
@@ -184,7 +184,7 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
 
 def test_evidence_lookup_rejects_unknown_records():
     with pytest.raises(KeyError, match="unknown isotope evidence record"):
-        find_isotope_evidence_records("Sc", mass_number=45)
+        find_isotope_evidence_records("Ga", mass_number=45)
 
     with pytest.raises(KeyError, match="unknown common-ion evidence record"):
         find_common_ion_evidence_records("O")
@@ -872,7 +872,7 @@ def test_local_api_exposes_evidence_routes():
     isotope_list = handle_api_request("GET", "/evidence/isotopes")
     carbon_14 = handle_api_request("GET", "/evidence/isotopes/C?mass_number=14")
     unresolved_isotopes = handle_api_request("GET", "/evidence/isotopes/unresolved")
-    scandium_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Sc")
+    gallium_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Ga")
     common_ion_list = handle_api_request("GET", "/evidence/common-ions")
     iron = handle_api_request("GET", "/evidence/common-ions/Fe")
     unresolved_common_ions = handle_api_request("GET", "/evidence/common-ions/unresolved")
@@ -960,13 +960,13 @@ def test_local_api_exposes_evidence_routes():
     bromine = handle_api_request("GET", "/evidence/physical-properties/Br")
 
     assert isotope_list.status_code == 200
-    assert isotope_list.payload["validation"]["record_count"] == 49
+    assert isotope_list.payload["validation"]["record_count"] == 79
     assert carbon_14.status_code == 200
     assert carbon_14.payload["records"][0]["isotope_id"] == "MSPEE-Z006-C-isotope-14"
     assert unresolved_isotopes.status_code == 200
-    assert unresolved_isotopes.payload["validation"]["record_count"] == 98
-    assert scandium_isotope.status_code == 200
-    assert scandium_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
+    assert unresolved_isotopes.payload["validation"]["record_count"] == 88
+    assert gallium_isotope.status_code == 200
+    assert gallium_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
     assert common_ion_list.status_code == 200
     assert common_ion_list.payload["validation"]["record_count"] == 9
     assert iron.status_code == 200
@@ -1097,7 +1097,7 @@ def test_element_cli_prints_evidence_records(capsys):
     common_ion_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="Sc",
+        symbol="Ga",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
