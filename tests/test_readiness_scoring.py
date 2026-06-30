@@ -18,20 +18,22 @@ def test_element_readiness_scores_partition_ready_and_blocked_elements():
 
     assert validation["validation_status"] == "element_readiness_scores_validated"
     assert validation["score_count"] == 118
-    assert validation["ready_count"] == 53
-    assert validation["blocked_by_isotope_evidence_count"] == 1
+    assert validation["ready_count"] == 54
+    assert validation["blocked_by_isotope_evidence_count"] == 0
     assert validation["blocked_by_seed_and_matter_count"] == 64
-    assert validation["high_priority_gap_count"] == 1
+    assert validation["high_priority_gap_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
     assert oxygen.readiness_status == "atom_behavior_ready_from_evidence"
     assert oxygen.isotope_record_count == 3
     assert oxygen.atom_behavior_profile_count == 3
     assert oxygen.behavior_readiness_score == 1.0
     assert oxygen.constraint_tension_score == 0.0
-    assert technetium.readiness_status == "atom_behavior_blocked_by_isotope_evidence"
-    assert technetium.source_policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z043-Tc"
-    assert technetium.gap_priority_score == 1.0
-    assert technetium.constraint_tension_score == 0.9
+    assert technetium.readiness_status == "atom_behavior_ready_from_evidence"
+    assert technetium.source_policy_id is None
+    assert technetium.isotope_record_count == 1
+    assert technetium.atom_behavior_profile_count == 1
+    assert technetium.behavior_readiness_score == 1.0
+    assert technetium.constraint_tension_score == 0.0
     assert radon.readiness_status == "atom_behavior_blocked_by_seed_and_matter"
     assert radon.gap_priority_score == 0.5
     assert radon.constraint_tension_score == 1.0
@@ -48,17 +50,15 @@ def test_local_api_exposes_readiness_score_routes():
 
     assert scores.status_code == 200
     assert scores.payload["validation"]["score_count"] == 118
-    assert scores.payload["validation"]["ready_count"] == 53
+    assert scores.payload["validation"]["ready_count"] == 54
     assert oxygen.status_code == 200
     assert oxygen.payload["score"]["readiness_status"] == "atom_behavior_ready_from_evidence"
     assert oxygen.payload["score"]["seed_mutation_allowed"] is False
     assert technetium.status_code == 200
     assert technetium.payload["score"]["readiness_status"] == (
-        "atom_behavior_blocked_by_isotope_evidence"
+        "atom_behavior_ready_from_evidence"
     )
-    assert technetium.payload["score"]["source_policy_id"] == (
-        "MSPEE-ISOTOPE-SOURCE-POLICY-Z043-Tc"
-    )
+    assert technetium.payload["score"]["source_policy_id"] is None
     assert unknown.status_code == 404
 
 
@@ -76,7 +76,7 @@ def test_element_cli_prints_readiness_scores(capsys):
     output = json.loads(capsys.readouterr().out)
 
     assert output["validation"]["score_count"] == 1
-    assert output["validation"]["blocked_by_isotope_evidence_count"] == 1
+    assert output["validation"]["blocked_by_isotope_evidence_count"] == 0
     assert output["scores"][0]["symbol"] == "Tc"
-    assert output["scores"][0]["gap_priority_score"] == 1.0
+    assert output["scores"][0]["gap_priority_score"] == 0.0
     assert output["scores"][0]["seed_mutation_allowed"] is False

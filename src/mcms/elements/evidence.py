@@ -41,6 +41,13 @@ ISOTOPE_EVIDENCE_SOURCE_REFERENCES = (
         url="https://pubchem.ncbi.nlm.nih.gov/compound/Carbon-14",
         version="source page observed 2026-06-29",
     ),
+    SourceReference(
+        key="epa_radionuclide_basics_tc99",
+        authority="US EPA",
+        title="Radionuclide Basics: Technetium-99",
+        url="https://www.epa.gov/radiation/radionuclide-basics-technetium-99",
+        version="source page observed 2026-06-30",
+    ),
 )
 
 COMMON_ION_EVIDENCE_SOURCE_REFERENCES = (
@@ -1199,6 +1206,27 @@ _RB_XE_ISOTOPE_EVIDENCE_ROWS = tuple(
     )
 )
 
+_TC_RADIOISOTOPE_EVIDENCE_ROWS = (
+    {
+        "symbol": "Tc",
+        "mass_number": 99,
+        "relative_atomic_mass": "98.9062508(10)",
+        "isotopic_composition": None,
+        "half_life_value": 210000.0,
+        "half_life_unit": "years",
+        "decay_mode": "beta_decay",
+        "source_keys": (
+            "nist_atomic_weights_isotopic_compositions",
+            "epa_radionuclide_basics_tc99",
+        ),
+        "evidence_status": "radioisotope_evidence",
+        "notes": (
+            "NIST provides Tc-99 relative atomic mass without natural abundance.",
+            "EPA radionuclide basics provides Tc-99 half-life and beta radiation boundary.",
+        ),
+    },
+)
+
 _COMMON_ION_EVIDENCE_ROWS = (
     ("Na", 1),
     ("Mg", 2),
@@ -1438,6 +1466,7 @@ def list_isotope_evidence_records() -> tuple[IsotopeEvidenceRecord, ...]:
             + _SC_ZN_ISOTOPE_EVIDENCE_ROWS
             + _GA_KR_ISOTOPE_EVIDENCE_ROWS
             + _RB_XE_ISOTOPE_EVIDENCE_ROWS
+            + _TC_RADIOISOTOPE_EVIDENCE_ROWS
         )
     )
 

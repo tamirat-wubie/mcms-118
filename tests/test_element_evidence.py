@@ -128,12 +128,13 @@ def test_isotope_evidence_records_validate_stable_and_radioactive_boundaries():
     tellurium_records = find_isotope_evidence_records("Te")
     iodine_records = find_isotope_evidence_records("I")
     xenon_records = find_isotope_evidence_records("Xe")
+    technetium_records = find_isotope_evidence_records("Tc")
     nitrogen_records = find_isotope_evidence_records("N")
     oxygen_records = find_isotope_evidence_records("O")
 
     assert validation["validation_status"] == "isotope_evidence_records_validated"
-    assert validation["record_count"] == 177
-    assert validation["radioisotope_count"] == 5
+    assert validation["record_count"] == 178
+    assert validation["radioisotope_count"] == 6
     assert carbon_14.isotope_id == "MSPEE-Z006-C-isotope-14"
     assert carbon_14.neutron_count == 8
     assert carbon_14.half_life_value == 5730.0
@@ -181,6 +182,11 @@ def test_isotope_evidence_records_validate_stable_and_radioactive_boundaries():
     assert len(tellurium_records) == 8
     assert len(iodine_records) == 1
     assert len(xenon_records) == 9
+    assert len(technetium_records) == 1
+    assert technetium_records[0].mass_number == 99
+    assert technetium_records[0].relative_atomic_mass == "98.9062508(10)"
+    assert technetium_records[0].half_life_value == 210000.0
+    assert technetium_records[0].decay_mode == "beta_decay"
     assert len(nitrogen_records) == 2
     assert len(oxygen_records) == 3
 
@@ -210,19 +216,19 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
         common_ion_records,
         expected_domain="common_ion_evidence",
     )
-    technetium_isotope = find_unresolved_isotope_evidence_record("Tc")
+    radon_isotope = find_unresolved_isotope_evidence_record("Rn")
     oxygen_common_ion = find_unresolved_common_ion_evidence_record("O")
 
     assert isotope_validation["validation_status"] == (
         "isotope_evidence_unresolved_records_validated"
     )
-    assert isotope_validation["record_count"] == 65
+    assert isotope_validation["record_count"] == 64
     assert common_ion_validation["validation_status"] == (
         "common_ion_evidence_unresolved_records_validated"
     )
     assert common_ion_validation["record_count"] == 47
-    assert technetium_isotope.evidence_domain == "isotope_evidence"
-    assert "natural_abundance" in technetium_isotope.missing_evidence
+    assert radon_isotope.evidence_domain == "isotope_evidence"
+    assert "stable_isotope_list" in radon_isotope.missing_evidence
     assert oxygen_common_ion.evidence_domain == "common_ion_evidence"
     assert "common_ion_charge_set" in oxygen_common_ion.missing_evidence
     assert oxygen_common_ion.validate() == []
@@ -230,7 +236,7 @@ def test_unresolved_isotope_and_common_ion_evidence_receipts_are_explicit():
 
 def test_evidence_lookup_rejects_unknown_records():
     with pytest.raises(KeyError, match="unknown isotope evidence record"):
-        find_isotope_evidence_records("Tc", mass_number=99)
+        find_isotope_evidence_records("Tc", mass_number=98)
 
     with pytest.raises(KeyError, match="unknown common-ion evidence record"):
         find_common_ion_evidence_records("O")
@@ -918,7 +924,7 @@ def test_local_api_exposes_evidence_routes():
     isotope_list = handle_api_request("GET", "/evidence/isotopes")
     carbon_14 = handle_api_request("GET", "/evidence/isotopes/C?mass_number=14")
     unresolved_isotopes = handle_api_request("GET", "/evidence/isotopes/unresolved")
-    technetium_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Tc")
+    radon_isotope = handle_api_request("GET", "/evidence/isotopes/unresolved/Rn")
     common_ion_list = handle_api_request("GET", "/evidence/common-ions")
     iron = handle_api_request("GET", "/evidence/common-ions/Fe")
     unresolved_common_ions = handle_api_request("GET", "/evidence/common-ions/unresolved")
@@ -1006,13 +1012,13 @@ def test_local_api_exposes_evidence_routes():
     bromine = handle_api_request("GET", "/evidence/physical-properties/Br")
 
     assert isotope_list.status_code == 200
-    assert isotope_list.payload["validation"]["record_count"] == 177
+    assert isotope_list.payload["validation"]["record_count"] == 178
     assert carbon_14.status_code == 200
     assert carbon_14.payload["records"][0]["isotope_id"] == "MSPEE-Z006-C-isotope-14"
     assert unresolved_isotopes.status_code == 200
-    assert unresolved_isotopes.payload["validation"]["record_count"] == 65
-    assert technetium_isotope.status_code == 200
-    assert technetium_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
+    assert unresolved_isotopes.payload["validation"]["record_count"] == 64
+    assert radon_isotope.status_code == 200
+    assert radon_isotope.payload["record"]["evidence_domain"] == "isotope_evidence"
     assert common_ion_list.status_code == 200
     assert common_ion_list.payload["validation"]["record_count"] == 9
     assert iron.status_code == 200
@@ -1143,7 +1149,7 @@ def test_element_cli_prints_evidence_records(capsys):
     common_ion_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="Tc",
+        symbol="Rn",
         list_only=False,
         full_snapshot=False,
         schema_name=None,

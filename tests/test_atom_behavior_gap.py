@@ -15,49 +15,36 @@ from mcms.elements import (
 def test_atom_behavior_gap_receipts_make_missing_profile_coverage_explicit():
     receipts = list_atom_behavior_gap_receipts()
     validation = validate_atom_behavior_gap_receipts(receipts)
-    technetium = get_atom_behavior_gap_receipt("Tc")
     radon = get_atom_behavior_gap_receipt("Rn")
 
     assert validation["validation_status"] == "atom_behavior_gap_receipts_validated"
-    assert validation["receipt_count"] == 65
-    assert validation["isotope_only_gap_count"] == 1
+    assert validation["receipt_count"] == 64
+    assert validation["isotope_only_gap_count"] == 0
     assert validation["seed_and_matter_gap_count"] == 64
-    assert validation["no_guess_policy_count"] == 65
-    assert technetium.receipt_id == "MSPEE-ATOM-BEHAVIOR-GAP-Z043-Tc"
-    assert technetium.target_unresolved_isotope_receipt_id == (
-        "MSPEE-Z043-Tc-isotope_evidence-unresolved"
-    )
-    assert technetium.profile_blockers == ("isotope_evidence",)
-    assert "stable_isotope_list" in technetium.missing_evidence
-    assert technetium.no_guess_policy is True
+    assert validation["no_guess_policy_count"] == 64
     assert radon.profile_blockers == (
         "isotope_evidence",
         "level_1_seed_record",
         "matter_behavior_profile",
     )
-    assert technetium.validate() == []
     assert radon.validate() == []
 
 
 def test_atom_behavior_gap_work_items_prioritize_buildable_seed_span_first():
     items = list_atom_behavior_gap_work_items()
     validation = validate_atom_behavior_gap_work_items(items)
-    technetium = get_atom_behavior_gap_work_item("Tc")
     radon = get_atom_behavior_gap_work_item("Rn")
 
     assert validation["validation_status"] == "atom_behavior_gap_work_items_validated"
-    assert validation["work_item_count"] == 65
-    assert validation["isotope_evidence_required_count"] == 1
+    assert validation["work_item_count"] == 64
+    assert validation["isotope_evidence_required_count"] == 0
     assert validation["seed_and_matter_profile_required_count"] == 64
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert items[0].symbol == "Tc"
-    assert technetium.priority_rank == 0
-    assert technetium.work_status == "isotope_evidence_required"
-    assert radon.priority_rank == 1
+    assert items[0].work_status == "seed_and_matter_profile_required"
+    assert radon.priority_rank >= 0
     assert radon.work_status == "seed_and_matter_profile_required"
     assert radon.seed_mutation_allowed is False
-    assert technetium.validate() == []
     assert radon.validate() == []
 
 
@@ -68,11 +55,10 @@ def test_local_api_exposes_atom_behavior_gap_routes():
     radon_work = handle_api_request("GET", "/atom/behavior/workplan/Rn")
 
     assert gaps.status_code == 200
-    assert gaps.payload["validation"]["receipt_count"] == 65
-    assert technetium_gap.status_code == 200
-    assert technetium_gap.payload["receipt"]["profile_blockers"] == ["isotope_evidence"]
+    assert gaps.payload["validation"]["receipt_count"] == 64
+    assert technetium_gap.status_code == 404
     assert workplan.status_code == 200
-    assert workplan.payload["validation"]["work_item_count"] == 65
+    assert workplan.payload["validation"]["work_item_count"] == 64
     assert radon_work.status_code == 200
     assert radon_work.payload["item"]["work_status"] == "seed_and_matter_profile_required"
     assert radon_work.payload["item"]["seed_mutation_allowed"] is False
@@ -80,7 +66,7 @@ def test_local_api_exposes_atom_behavior_gap_routes():
 
 def test_element_cli_prints_atom_behavior_gap_and_workplan(capsys):
     cmd_elements(
-        symbol="Tc",
+        symbol="Rn",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -104,8 +90,12 @@ def test_element_cli_prints_atom_behavior_gap_and_workplan(capsys):
     workplan_output = json.loads(capsys.readouterr().out)
 
     assert gap_output["validation"]["receipt_count"] == 1
-    assert gap_output["receipts"][0]["symbol"] == "Tc"
-    assert gap_output["receipts"][0]["profile_blockers"] == ["isotope_evidence"]
+    assert gap_output["receipts"][0]["symbol"] == "Rn"
+    assert gap_output["receipts"][0]["profile_blockers"] == [
+        "isotope_evidence",
+        "level_1_seed_record",
+        "matter_behavior_profile",
+    ]
     assert workplan_output["validation"]["work_item_count"] == 1
     assert workplan_output["items"][0]["symbol"] == "Rn"
     assert workplan_output["items"][0]["work_status"] == "seed_and_matter_profile_required"

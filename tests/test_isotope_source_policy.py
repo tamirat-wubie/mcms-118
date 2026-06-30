@@ -24,47 +24,22 @@ from mcms.elements import (
 def test_isotope_source_policies_cover_isotope_only_atom_behavior_gaps():
     policies = list_isotope_source_policies()
     validation = validate_isotope_source_policies(policies)
-    technetium = get_isotope_source_policy("Tc")
 
     assert validation["validation_status"] == "isotope_source_policies_validated"
-    assert validation["policy_count"] == 1
+    assert validation["policy_count"] == 0
     assert validation["candidate_source_count"] == 3
     assert validation["primary_source_candidate_count"] == 2
     assert validation["bounded_secondary_candidate_count"] == 1
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert technetium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z043-Tc"
-    assert technetium.target_atom_behavior_gap_receipt_id == "MSPEE-ATOM-BEHAVIOR-GAP-Z043-Tc"
-    assert technetium.target_unresolved_isotope_receipt_id == (
-        "MSPEE-Z043-Tc-isotope_evidence-unresolved"
-    )
-    assert technetium.gap_closure_status == "gap_not_closed_by_policy"
-    assert technetium.atom_behavior_generation_allowed is False
-    assert technetium.seed_mutation_allowed is False
-    assert technetium.validate() == []
+    assert policies == ()
 
 
-def test_isotope_source_policy_candidates_have_bounded_precedence():
-    technetium = get_isotope_source_policy("Tc")
-    candidate_keys = {candidate.source_key for candidate in technetium.candidate_sources}
-    candidate_statuses = {candidate.candidate_status for candidate in technetium.candidate_sources}
+def test_isotope_source_policy_rejects_closed_and_seed_matter_blocked_gaps():
+    with pytest.raises(KeyError):
+        get_isotope_source_policy("Tc")
 
-    assert candidate_keys == {
-        "ciaaw_isotopic_compositions_2024",
-        "nist_atomic_weights_isotopic_compositions",
-        "pubchem_isotope_record_candidate",
-    }
-    assert candidate_statuses == {
-        "primary_source_required",
-        "bounded_secondary_source",
-    }
-    assert technetium.source_precedence_order[0] == "primary_source_precedence"
-    assert "conflict_receipt_if_sources_disagree" in technetium.admission_requirements
-    assert "operator_approval_before_profile_generation" in technetium.admission_requirements
-
-
-def test_isotope_source_policy_rejects_seed_and_matter_blocked_gaps():
     with pytest.raises(KeyError):
         get_isotope_source_policy("Rn")
 
@@ -81,27 +56,18 @@ def test_isotope_source_policy_rejects_seed_and_matter_blocked_gaps():
 def test_isotope_source_search_receipts_track_policy_work_without_values():
     receipts = list_isotope_source_search_receipts()
     validation = validate_isotope_source_search_receipts(receipts)
-    technetium = get_isotope_source_search_receipt("Tc")
 
     assert validation["validation_status"] == "isotope_source_search_receipts_validated"
-    assert validation["search_receipt_count"] == 1
-    assert validation["open_search_count"] == 1
+    assert validation["search_receipt_count"] == 0
+    assert validation["open_search_count"] == 0
     assert validation["candidate_receipt_created_count"] == 0
-    assert validation["candidate_source_count"] == 3
+    assert validation["candidate_source_count"] == 0
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert technetium.search_id == "MSPEE-ISOTOPE-SOURCE-SEARCH-Z043-Tc"
-    assert technetium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z043-Tc"
-    assert technetium.search_status == "isotope_source_search_open"
-    assert technetium.candidate_receipt_id is None
-    assert "mass_number" in technetium.required_evidence
-    assert "relative_atomic_mass" in technetium.required_evidence
-    assert "stable_or_radioactive_classification" in technetium.required_evidence
-    assert technetium.closes_gap is False
-    assert technetium.atom_behavior_generation_allowed is False
-    assert technetium.seed_mutation_allowed is False
-    assert technetium.validate() == []
+    assert receipts == ()
+    with pytest.raises(KeyError):
+        get_isotope_source_search_receipt("Tc")
 
 
 def test_isotope_candidate_evidence_is_empty_after_oxygen_admission():
@@ -117,9 +83,8 @@ def test_isotope_candidate_evidence_is_empty_after_oxygen_admission():
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    template = build_isotope_candidate_evidence_template("Tc")
-    assert template["symbol"] == "Tc"
-    assert template["default_admission_status"] == "isotope_evidence_candidate"
+    with pytest.raises(KeyError):
+        build_isotope_candidate_evidence_template("Tc")
     with pytest.raises(KeyError):
         get_isotope_candidate_evidence_receipt("O")
 
@@ -128,20 +93,26 @@ def test_isotope_candidate_admission_records_oxygen_canonical_closure():
     receipts = list_isotope_candidate_admission_receipts()
     validation = validate_isotope_candidate_admission_receipts(receipts)
     oxygen = get_isotope_candidate_admission_receipt("O")
+    technetium = get_isotope_candidate_admission_receipt("Tc")
 
     assert validation["validation_status"] == "isotope_candidate_admission_receipts_validated"
-    assert validation["receipt_count"] == 1
-    assert validation["admitted_to_canonical_count"] == 1
-    assert validation["admitted_isotope_count"] == 3
+    assert validation["receipt_count"] == 2
+    assert validation["admitted_to_canonical_count"] == 2
+    assert validation["admitted_isotope_count"] == 4
     assert validation["active_candidate_retained_count"] == 0
-    assert validation["canonical_evidence_update_count"] == 1
-    assert validation["atom_behavior_profiles_available_count"] == 1
+    assert validation["canonical_evidence_update_count"] == 2
+    assert validation["atom_behavior_profiles_available_count"] == 2
     assert validation["seed_mutation_allowed_count"] == 0
     assert oxygen.receipt_id == "MSPEE-ISOTOPE-CANDIDATE-ADMISSION-Z008-O"
     assert oxygen.admitted_mass_numbers == (16, 17, 18)
     assert oxygen.active_candidate_receipt_retained is False
     assert oxygen.seed_mutation_allowed is False
     assert oxygen.validate() == []
+    assert technetium.receipt_id == "MSPEE-ISOTOPE-CANDIDATE-ADMISSION-Z043-Tc"
+    assert technetium.admitted_mass_numbers == (99,)
+    assert technetium.active_candidate_receipt_retained is False
+    assert technetium.seed_mutation_allowed is False
+    assert technetium.validate() == []
 
 
 def test_local_api_exposes_isotope_source_policy_routes():
@@ -151,11 +122,8 @@ def test_local_api_exposes_isotope_source_policy_routes():
     radon = handle_api_request("GET", "/atom/behavior/isotope-source-policy/Rn")
 
     assert policies.status_code == 200
-    assert policies.payload["validation"]["policy_count"] == 1
-    assert technetium.status_code == 200
-    assert technetium.payload["validation"]["policy_count"] == 1
-    assert technetium.payload["policy"]["symbol"] == "Tc"
-    assert technetium.payload["policy"]["atom_behavior_generation_allowed"] is False
+    assert policies.payload["validation"]["policy_count"] == 0
+    assert technetium.status_code == 404
     assert oxygen.status_code == 404
     assert radon.status_code == 404
 
@@ -167,15 +135,10 @@ def test_local_api_exposes_isotope_source_search_routes():
     radon = handle_api_request("GET", "/atom/behavior/isotope-source-search/Rn")
 
     assert receipts.status_code == 200
-    assert receipts.payload["validation"]["search_receipt_count"] == 1
-    assert receipts.payload["validation"]["open_search_count"] == 1
+    assert receipts.payload["validation"]["search_receipt_count"] == 0
+    assert receipts.payload["validation"]["open_search_count"] == 0
     assert receipts.payload["validation"]["candidate_receipt_created_count"] == 0
-    assert technetium.status_code == 200
-    assert technetium.payload["validation"]["search_receipt_count"] == 1
-    assert technetium.payload["receipt"]["symbol"] == "Tc"
-    assert technetium.payload["receipt"]["search_status"] == "isotope_source_search_open"
-    assert technetium.payload["receipt"]["candidate_receipt_id"] is None
-    assert technetium.payload["receipt"]["atom_behavior_generation_allowed"] is False
+    assert technetium.status_code == 404
     assert oxygen.status_code == 404
     assert radon.status_code == 404
 
@@ -193,9 +156,7 @@ def test_local_api_exposes_isotope_candidate_evidence_routes():
     assert receipts.payload["validation"]["receipt_count"] == 0
     assert receipts.payload["validation"]["candidate_isotope_count"] == 0
     assert oxygen.status_code == 404
-    assert template.status_code == 200
-    assert template.payload["template"]["symbol"] == "Tc"
-    assert template.payload["template"]["seed_mutation_allowed"] is False
+    assert template.status_code == 404
     assert radon.status_code == 404
 
 
@@ -205,20 +166,22 @@ def test_local_api_exposes_isotope_candidate_admission_routes():
     technetium = handle_api_request("GET", "/atom/behavior/isotope-candidate-admission/Tc")
 
     assert receipts.status_code == 200
-    assert receipts.payload["validation"]["receipt_count"] == 1
-    assert receipts.payload["validation"]["admitted_isotope_count"] == 3
+    assert receipts.payload["validation"]["receipt_count"] == 2
+    assert receipts.payload["validation"]["admitted_isotope_count"] == 4
     assert oxygen.status_code == 200
     assert oxygen.payload["receipt"]["symbol"] == "O"
     assert oxygen.payload["receipt"]["admission_status"] == (
         "isotope_candidate_admitted_to_canonical_evidence"
     )
     assert oxygen.payload["receipt"]["active_candidate_receipt_retained"] is False
-    assert technetium.status_code == 404
+    assert technetium.status_code == 200
+    assert technetium.payload["receipt"]["symbol"] == "Tc"
+    assert technetium.payload["receipt"]["admitted_mass_numbers"] == [99]
 
 
 def test_element_cli_prints_isotope_source_policy(capsys):
     cmd_elements(
-        symbol="Tc",
+        symbol=None,
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -229,15 +192,13 @@ def test_element_cli_prints_isotope_source_policy(capsys):
     )
     output = json.loads(capsys.readouterr().out)
 
-    assert output["validation"]["policy_count"] == 1
-    assert output["policies"][0]["symbol"] == "Tc"
-    assert output["policies"][0]["gap_closure_status"] == "gap_not_closed_by_policy"
-    assert output["policies"][0]["seed_mutation_allowed"] is False
+    assert output["validation"]["policy_count"] == 0
+    assert output["policies"] == []
 
 
 def test_element_cli_prints_isotope_source_search(capsys):
     cmd_elements(
-        symbol="Tc",
+        symbol=None,
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -248,14 +209,11 @@ def test_element_cli_prints_isotope_source_search(capsys):
     )
     output = json.loads(capsys.readouterr().out)
 
-    assert output["validation"]["search_receipt_count"] == 1
-    assert output["receipts"][0]["symbol"] == "Tc"
-    assert output["receipts"][0]["search_status"] == "isotope_source_search_open"
-    assert output["receipts"][0]["candidate_receipt_id"] is None
-    assert output["receipts"][0]["seed_mutation_allowed"] is False
+    assert output["validation"]["search_receipt_count"] == 0
+    assert output["receipts"] == []
 
 
-def test_element_cli_prints_isotope_candidate_evidence_and_template(capsys):
+def test_element_cli_prints_empty_isotope_candidate_evidence(capsys):
     cmd_elements(
         symbol=None,
         list_only=False,
@@ -268,27 +226,13 @@ def test_element_cli_prints_isotope_candidate_evidence_and_template(capsys):
     )
     evidence_output = json.loads(capsys.readouterr().out)
 
-    cmd_elements(
-        symbol="Tc",
-        list_only=False,
-        full_snapshot=False,
-        schema_name=None,
-        graph_export=False,
-        dashboard_export=False,
-        relation_type=None,
-        isotope_candidate_evidence_template=True,
-    )
-    template_output = json.loads(capsys.readouterr().out)
-
     assert evidence_output["validation"]["receipt_count"] == 0
     assert evidence_output["receipts"] == []
-    assert template_output["template"]["symbol"] == "Tc"
-    assert template_output["template"]["atom_behavior_generation_allowed"] is False
 
 
 def test_element_cli_prints_isotope_candidate_admission(capsys):
     cmd_elements(
-        symbol="O",
+        symbol="Tc",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -300,6 +244,6 @@ def test_element_cli_prints_isotope_candidate_admission(capsys):
     output = json.loads(capsys.readouterr().out)
 
     assert output["validation"]["receipt_count"] == 1
-    assert output["validation"]["admitted_isotope_count"] == 3
-    assert output["receipts"][0]["symbol"] == "O"
+    assert output["validation"]["admitted_isotope_count"] == 1
+    assert output["receipts"][0]["symbol"] == "Tc"
     assert output["receipts"][0]["seed_mutation_allowed"] is False
