@@ -172,7 +172,7 @@ Unresolved receipts are also generated for evidence domains that are not yet
 fully sourced:
 
 ```text
-unresolved isotope evidence: 98 snapshot elements outside the H-Zn isotope seed
+unresolved isotope evidence: 88 snapshot elements outside the H-Zn isotope seed
 unresolved common-ion evidence: 47 Level 1 seed elements outside the common-ion seed
 ```
 
