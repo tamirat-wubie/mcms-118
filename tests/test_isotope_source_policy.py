@@ -24,31 +24,31 @@ from mcms.elements import (
 def test_isotope_source_policies_cover_isotope_only_atom_behavior_gaps():
     policies = list_isotope_source_policies()
     validation = validate_isotope_source_policies(policies)
-    scandium = get_isotope_source_policy("Sc")
+    gallium = get_isotope_source_policy("Ga")
 
     assert validation["validation_status"] == "isotope_source_policies_validated"
-    assert validation["policy_count"] == 34
+    assert validation["policy_count"] == 24
     assert validation["candidate_source_count"] == 3
     assert validation["primary_source_candidate_count"] == 2
     assert validation["bounded_secondary_candidate_count"] == 1
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert scandium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z021-Sc"
-    assert scandium.target_atom_behavior_gap_receipt_id == "MSPEE-ATOM-BEHAVIOR-GAP-Z021-Sc"
-    assert scandium.target_unresolved_isotope_receipt_id == (
-        "MSPEE-Z021-Sc-isotope_evidence-unresolved"
+    assert gallium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z031-Ga"
+    assert gallium.target_atom_behavior_gap_receipt_id == "MSPEE-ATOM-BEHAVIOR-GAP-Z031-Ga"
+    assert gallium.target_unresolved_isotope_receipt_id == (
+        "MSPEE-Z031-Ga-isotope_evidence-unresolved"
     )
-    assert scandium.gap_closure_status == "gap_not_closed_by_policy"
-    assert scandium.atom_behavior_generation_allowed is False
-    assert scandium.seed_mutation_allowed is False
-    assert scandium.validate() == []
+    assert gallium.gap_closure_status == "gap_not_closed_by_policy"
+    assert gallium.atom_behavior_generation_allowed is False
+    assert gallium.seed_mutation_allowed is False
+    assert gallium.validate() == []
 
 
 def test_isotope_source_policy_candidates_have_bounded_precedence():
-    scandium = get_isotope_source_policy("Sc")
-    candidate_keys = {candidate.source_key for candidate in scandium.candidate_sources}
-    candidate_statuses = {candidate.candidate_status for candidate in scandium.candidate_sources}
+    gallium = get_isotope_source_policy("Ga")
+    candidate_keys = {candidate.source_key for candidate in gallium.candidate_sources}
+    candidate_statuses = {candidate.candidate_status for candidate in gallium.candidate_sources}
 
     assert candidate_keys == {
         "ciaaw_isotopic_compositions_2024",
@@ -59,9 +59,9 @@ def test_isotope_source_policy_candidates_have_bounded_precedence():
         "primary_source_required",
         "bounded_secondary_source",
     }
-    assert scandium.source_precedence_order[0] == "primary_source_precedence"
-    assert "conflict_receipt_if_sources_disagree" in scandium.admission_requirements
-    assert "operator_approval_before_profile_generation" in scandium.admission_requirements
+    assert gallium.source_precedence_order[0] == "primary_source_precedence"
+    assert "conflict_receipt_if_sources_disagree" in gallium.admission_requirements
+    assert "operator_approval_before_profile_generation" in gallium.admission_requirements
 
 
 def test_isotope_source_policy_rejects_seed_and_matter_blocked_gaps():
@@ -81,27 +81,27 @@ def test_isotope_source_policy_rejects_seed_and_matter_blocked_gaps():
 def test_isotope_source_search_receipts_track_policy_work_without_values():
     receipts = list_isotope_source_search_receipts()
     validation = validate_isotope_source_search_receipts(receipts)
-    scandium = get_isotope_source_search_receipt("Sc")
+    gallium = get_isotope_source_search_receipt("Ga")
 
     assert validation["validation_status"] == "isotope_source_search_receipts_validated"
-    assert validation["search_receipt_count"] == 34
-    assert validation["open_search_count"] == 34
+    assert validation["search_receipt_count"] == 24
+    assert validation["open_search_count"] == 24
     assert validation["candidate_receipt_created_count"] == 0
     assert validation["candidate_source_count"] == 3
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert scandium.search_id == "MSPEE-ISOTOPE-SOURCE-SEARCH-Z021-Sc"
-    assert scandium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z021-Sc"
-    assert scandium.search_status == "isotope_source_search_open"
-    assert scandium.candidate_receipt_id is None
-    assert "mass_number" in scandium.required_evidence
-    assert "relative_atomic_mass" in scandium.required_evidence
-    assert "stable_or_radioactive_classification" in scandium.required_evidence
-    assert scandium.closes_gap is False
-    assert scandium.atom_behavior_generation_allowed is False
-    assert scandium.seed_mutation_allowed is False
-    assert scandium.validate() == []
+    assert gallium.search_id == "MSPEE-ISOTOPE-SOURCE-SEARCH-Z031-Ga"
+    assert gallium.policy_id == "MSPEE-ISOTOPE-SOURCE-POLICY-Z031-Ga"
+    assert gallium.search_status == "isotope_source_search_open"
+    assert gallium.candidate_receipt_id is None
+    assert "mass_number" in gallium.required_evidence
+    assert "relative_atomic_mass" in gallium.required_evidence
+    assert "stable_or_radioactive_classification" in gallium.required_evidence
+    assert gallium.closes_gap is False
+    assert gallium.atom_behavior_generation_allowed is False
+    assert gallium.seed_mutation_allowed is False
+    assert gallium.validate() == []
 
 
 def test_isotope_candidate_evidence_is_empty_after_oxygen_admission():
@@ -117,8 +117,8 @@ def test_isotope_candidate_evidence_is_empty_after_oxygen_admission():
     assert validation["gap_closure_count"] == 0
     assert validation["atom_behavior_generation_allowed_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    template = build_isotope_candidate_evidence_template("Sc")
-    assert template["symbol"] == "Sc"
+    template = build_isotope_candidate_evidence_template("Ga")
+    assert template["symbol"] == "Ga"
     assert template["default_admission_status"] == "isotope_evidence_candidate"
     with pytest.raises(KeyError):
         get_isotope_candidate_evidence_receipt("O")
@@ -146,36 +146,36 @@ def test_isotope_candidate_admission_records_oxygen_canonical_closure():
 
 def test_local_api_exposes_isotope_source_policy_routes():
     policies = handle_api_request("GET", "/atom/behavior/isotope-source-policy")
-    scandium = handle_api_request("GET", "/atom/behavior/isotope-source-policy/Sc")
+    gallium = handle_api_request("GET", "/atom/behavior/isotope-source-policy/Ga")
     oxygen = handle_api_request("GET", "/atom/behavior/isotope-source-policy/O")
     radon = handle_api_request("GET", "/atom/behavior/isotope-source-policy/Rn")
 
     assert policies.status_code == 200
-    assert policies.payload["validation"]["policy_count"] == 34
-    assert scandium.status_code == 200
-    assert scandium.payload["validation"]["policy_count"] == 1
-    assert scandium.payload["policy"]["symbol"] == "Sc"
-    assert scandium.payload["policy"]["atom_behavior_generation_allowed"] is False
+    assert policies.payload["validation"]["policy_count"] == 24
+    assert gallium.status_code == 200
+    assert gallium.payload["validation"]["policy_count"] == 1
+    assert gallium.payload["policy"]["symbol"] == "Ga"
+    assert gallium.payload["policy"]["atom_behavior_generation_allowed"] is False
     assert oxygen.status_code == 404
     assert radon.status_code == 404
 
 
 def test_local_api_exposes_isotope_source_search_routes():
     receipts = handle_api_request("GET", "/atom/behavior/isotope-source-search")
-    scandium = handle_api_request("GET", "/atom/behavior/isotope-source-search/Sc")
+    gallium = handle_api_request("GET", "/atom/behavior/isotope-source-search/Ga")
     oxygen = handle_api_request("GET", "/atom/behavior/isotope-source-search/O")
     radon = handle_api_request("GET", "/atom/behavior/isotope-source-search/Rn")
 
     assert receipts.status_code == 200
-    assert receipts.payload["validation"]["search_receipt_count"] == 34
-    assert receipts.payload["validation"]["open_search_count"] == 34
+    assert receipts.payload["validation"]["search_receipt_count"] == 24
+    assert receipts.payload["validation"]["open_search_count"] == 24
     assert receipts.payload["validation"]["candidate_receipt_created_count"] == 0
-    assert scandium.status_code == 200
-    assert scandium.payload["validation"]["search_receipt_count"] == 1
-    assert scandium.payload["receipt"]["symbol"] == "Sc"
-    assert scandium.payload["receipt"]["search_status"] == "isotope_source_search_open"
-    assert scandium.payload["receipt"]["candidate_receipt_id"] is None
-    assert scandium.payload["receipt"]["atom_behavior_generation_allowed"] is False
+    assert gallium.status_code == 200
+    assert gallium.payload["validation"]["search_receipt_count"] == 1
+    assert gallium.payload["receipt"]["symbol"] == "Ga"
+    assert gallium.payload["receipt"]["search_status"] == "isotope_source_search_open"
+    assert gallium.payload["receipt"]["candidate_receipt_id"] is None
+    assert gallium.payload["receipt"]["atom_behavior_generation_allowed"] is False
     assert oxygen.status_code == 404
     assert radon.status_code == 404
 
@@ -185,7 +185,7 @@ def test_local_api_exposes_isotope_candidate_evidence_routes():
     oxygen = handle_api_request("GET", "/atom/behavior/isotope-candidate-evidence/O")
     template = handle_api_request(
         "GET",
-        "/atom/behavior/isotope-candidate-evidence/template/Sc",
+        "/atom/behavior/isotope-candidate-evidence/template/Ga",
     )
     radon = handle_api_request("GET", "/atom/behavior/isotope-candidate-evidence/Rn")
 
@@ -194,7 +194,7 @@ def test_local_api_exposes_isotope_candidate_evidence_routes():
     assert receipts.payload["validation"]["candidate_isotope_count"] == 0
     assert oxygen.status_code == 404
     assert template.status_code == 200
-    assert template.payload["template"]["symbol"] == "Sc"
+    assert template.payload["template"]["symbol"] == "Ga"
     assert template.payload["template"]["seed_mutation_allowed"] is False
     assert radon.status_code == 404
 
@@ -202,7 +202,7 @@ def test_local_api_exposes_isotope_candidate_evidence_routes():
 def test_local_api_exposes_isotope_candidate_admission_routes():
     receipts = handle_api_request("GET", "/atom/behavior/isotope-candidate-admission")
     oxygen = handle_api_request("GET", "/atom/behavior/isotope-candidate-admission/O")
-    scandium = handle_api_request("GET", "/atom/behavior/isotope-candidate-admission/Sc")
+    gallium = handle_api_request("GET", "/atom/behavior/isotope-candidate-admission/Ga")
 
     assert receipts.status_code == 200
     assert receipts.payload["validation"]["receipt_count"] == 1
@@ -213,12 +213,12 @@ def test_local_api_exposes_isotope_candidate_admission_routes():
         "isotope_candidate_admitted_to_canonical_evidence"
     )
     assert oxygen.payload["receipt"]["active_candidate_receipt_retained"] is False
-    assert scandium.status_code == 404
+    assert gallium.status_code == 404
 
 
 def test_element_cli_prints_isotope_source_policy(capsys):
     cmd_elements(
-        symbol="Sc",
+        symbol="Ga",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -230,14 +230,14 @@ def test_element_cli_prints_isotope_source_policy(capsys):
     output = json.loads(capsys.readouterr().out)
 
     assert output["validation"]["policy_count"] == 1
-    assert output["policies"][0]["symbol"] == "Sc"
+    assert output["policies"][0]["symbol"] == "Ga"
     assert output["policies"][0]["gap_closure_status"] == "gap_not_closed_by_policy"
     assert output["policies"][0]["seed_mutation_allowed"] is False
 
 
 def test_element_cli_prints_isotope_source_search(capsys):
     cmd_elements(
-        symbol="Sc",
+        symbol="Ga",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -249,7 +249,7 @@ def test_element_cli_prints_isotope_source_search(capsys):
     output = json.loads(capsys.readouterr().out)
 
     assert output["validation"]["search_receipt_count"] == 1
-    assert output["receipts"][0]["symbol"] == "Sc"
+    assert output["receipts"][0]["symbol"] == "Ga"
     assert output["receipts"][0]["search_status"] == "isotope_source_search_open"
     assert output["receipts"][0]["candidate_receipt_id"] is None
     assert output["receipts"][0]["seed_mutation_allowed"] is False
@@ -269,7 +269,7 @@ def test_element_cli_prints_isotope_candidate_evidence_and_template(capsys):
     evidence_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="Sc",
+        symbol="Ga",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -282,7 +282,7 @@ def test_element_cli_prints_isotope_candidate_evidence_and_template(capsys):
 
     assert evidence_output["validation"]["receipt_count"] == 0
     assert evidence_output["receipts"] == []
-    assert template_output["template"]["symbol"] == "Sc"
+    assert template_output["template"]["symbol"] == "Ga"
     assert template_output["template"]["atom_behavior_generation_allowed"] is False
 
 
