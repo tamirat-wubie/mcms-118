@@ -46,13 +46,13 @@ physical-property evidence, preserving the contiguous Level 1 seed invariant.
 | Level 1 | Identity, neutral electron configuration, valence signature, period/group/block, atomic weight model, source record | Implemented for Z=1..54 |
 | Level 2 | Oxidation states, electronegativity, ionization energy, transition frontier, configuration audit, bond tendency, reaction-family behavior | Seed-level values implemented for Z=1..54; period-5 PubChem profile projection implemented for Z=37..54 |
 | Level 3 | Isotope distribution, half-life, decay, relativistic effects, magnetism, spectra, solid-state behavior | Phase 3 f-block relevance flags implemented; exact isotope, half-life, spectra, and solid-state values remain planned |
-| Atom behavior v2 | Source-backed atom profiles binding proton identity, neutron isotope state, electron charge state, force context, and matter-profile tags | Implemented for H-Xe isotope evidence records except Tc, 177 profiles |
-| Atom behavior gaps | No-guess source-gap receipts and work items for missing atom behavior coverage | Implemented for 65 unresolved isotope-evidence elements |
+| Atom behavior v2 | Source-backed atom profiles binding proton identity, neutron isotope state, electron charge state, force context, and matter-profile tags | Implemented for H-Xe isotope evidence records including Tc-99, 178 profiles |
+| Atom behavior gaps | No-guess source-gap receipts and work items for missing atom behavior coverage | Implemented for 64 unresolved isotope-evidence elements |
 | Readiness scoring | Deterministic score records for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension | Implemented for all 118 snapshot elements; scores do not close gaps |
-| Isotope source policy | Admission rules for isotope evidence needed by atom behavior v2 isotope-only gaps | Implemented for the remaining Tc Level 1 blocker; policy alone closes zero gaps |
-| Isotope source search | Evidence-collection receipts for isotope-only atom behavior blockers | Implemented for the remaining Tc Level 1 blocker; zero active candidate receipts |
-| Isotope candidate evidence | Source-specific isotope rows collected before admission | No active candidate receipts after Oxygen admission; templates remain available for unresolved blockers |
-| Isotope candidate admission | Historical audit receipt for canonical isotope admission | Oxygen admission receipt links the closed candidate to O-16/O-17/O-18 canonical evidence |
+| Isotope source policy | Admission rules for isotope evidence needed by atom behavior v2 isotope-only gaps | Queue is empty after Tc-99 admission; policy alone closes zero gaps |
+| Isotope source search | Evidence-collection receipts for isotope-only atom behavior blockers | Queue is empty after Tc-99 admission; zero active candidate receipts |
+| Isotope candidate evidence | Source-specific isotope rows collected before admission | No active candidate receipts after Oxygen and Technetium admission |
+| Isotope candidate admission | Historical audit receipt for canonical isotope admission | Oxygen and Technetium admission receipts link closed candidates to canonical evidence |
 | Promotion readiness | Evidence-gap audit before promoting snapshot-only records | Implemented for Cs-Rn, Z=55..86 |
 | Configuration evidence | Neutral and first-cation electronic configurations | Implemented for Cs-Rn, Z=55..86 |
 | Frontier/valence overlay | Outer shell, inner d/f participation, p-shell context, and shell-stability flags | Implemented for Cs-Rn, Z=55..86 |
@@ -172,7 +172,7 @@ Unresolved receipts are also generated for evidence domains that are not yet
 fully sourced:
 
 ```text
-unresolved isotope evidence: 65 snapshot elements outside the H-Xe isotope seed plus Tc
+unresolved isotope evidence: 64 snapshot elements outside the H-Xe isotope seed
 unresolved common-ion evidence: 47 Level 1 seed elements outside the common-ion seed
 ```
 
@@ -298,7 +298,7 @@ gap split is:
 
 | Gap class | Count | Meaning |
 | --- | ---: | --- |
-| `isotope_evidence` | 1 | Tc has Level 1 seed/matter profile coverage, but no admitted isotope evidence row |
+| `isotope_evidence` | 0 | No Level 1 seed/matter profile is blocked only by isotope evidence |
 | `isotope_evidence + level_1_seed_record + matter_behavior_profile` | 64 | Snapshot-only element needs isotope evidence plus seed/matter promotion |
 
 Gap work items never close evidence gaps and never permit seed mutation.
@@ -307,8 +307,8 @@ Atom behavior readiness scoring:
 
 ```text
 readiness scores: 118 snapshot elements
-ready from admitted isotope evidence: 53 element symbols
-blocked by isotope evidence only: 1 Level 1 element
+ready from admitted isotope evidence: 54 element symbols
+blocked by isotope evidence only: 0 Level 1 elements
 blocked by seed and matter promotion: 64 snapshot-only elements
 ```
 
@@ -1581,11 +1581,12 @@ Drift statuses:
 | Gap-closure decision -> closure-approval receipt | Cf density approval is deferred, preserving the unresolved seed boundary |
 | Partial source search -> no-candidate receipt | Fm, Md, No, and Lr checked-source absence is recorded without guessing values |
 | Evidence records -> matter profiles | H through Xe now expose bounded matter-behavior read models |
-| Atom behavior gaps -> isotope source policy | Tc is the only Level 1 isotope-only blocker; its policy defines CIAAW/IUPAC and NIST primary candidates plus PubChem bounded secondary context, with zero gap closure |
-| Isotope source policy -> source-search receipts | Tc now has an open source-search receipt; active candidate receipts are zero after Oxygen admission |
+| Atom behavior gaps -> isotope source policy | Level 1 isotope-only blockers are now empty after Tc-99 admission; source policy closes zero gaps |
+| Isotope source policy -> source-search receipts | Source-search receipts are empty after Tc-99 admission; active candidate receipts are zero after Oxygen and Technetium admission |
 | Gap receipts -> readiness scoring | 118 snapshot elements now expose readiness, source confidence, gap priority, and constraint tension without closing gaps |
 | Oxygen candidate evidence -> canonical isotope evidence | O-16/O-17/O-18 are admitted as source-backed isotope evidence, removing Oxygen from isotope-only blocker queues |
-| Oxygen admission -> historical receipt | Oxygen canonical closure is recorded with zero active candidate retention and zero seed mutation authority |
+| Tc candidate evidence -> canonical isotope evidence | Tc-99 is admitted as source-backed radioisotope evidence using NIST mass and EPA half-life/decay context |
+| Oxygen and Technetium admission -> historical receipt | Canonical closures are recorded with zero active candidate retention and zero seed mutation authority |
 | Snapshot-only Cs-Rn -> promotion-readiness audit | Cs through Rn now expose evidence gaps before Level 1 promotion |
 | Configuration blocker -> source evidence overlay | Cs through Rn now carry NIST neutral and first-cation configuration evidence |
 | Frontier blocker -> derived signature overlay | Cs through Rn now carry frontier and valence-signature records |

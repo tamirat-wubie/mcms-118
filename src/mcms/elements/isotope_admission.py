@@ -113,6 +113,7 @@ def list_isotope_candidate_admission_receipts() -> tuple[
     IsotopeCandidateAdmissionReceipt, ...
 ]:
     oxygen_records = find_isotope_evidence_records("O")
+    technetium_records = find_isotope_evidence_records("Tc")
     return (
         IsotopeCandidateAdmissionReceipt(
             receipt_id="MSPEE-ISOTOPE-CANDIDATE-ADMISSION-Z008-O",
@@ -135,6 +136,39 @@ def list_isotope_candidate_admission_receipts() -> tuple[
             admission_reason=(
                 "O-16/O-17/O-18 have source-backed canonical isotope evidence "
                 "from CIAAW and NIST; the candidate receipt is closed after admission."
+            ),
+            candidate_retention_status="candidate_receipt_closed_after_canonical_admission",
+            active_candidate_receipt_retained=False,
+            canonical_evidence_update_applied=True,
+            atom_behavior_profiles_available=True,
+            seed_mutation_allowed=False,
+        ),
+        IsotopeCandidateAdmissionReceipt(
+            receipt_id="MSPEE-ISOTOPE-CANDIDATE-ADMISSION-Z043-Tc",
+            source_candidate_receipt_id=(
+                "MSPEE-ISOTOPE-CANDIDATE-EVIDENCE-Z043-Tc-NIST-EPA"
+            ),
+            symbol="Tc",
+            atomic_number=43,
+            admitted_isotope_ids=tuple(
+                record.isotope_id for record in technetium_records
+            ),
+            admitted_mass_numbers=tuple(
+                record.mass_number for record in technetium_records
+            ),
+            required_source_keys=(
+                "nist_atomic_weights_isotopic_compositions",
+                "epa_radionuclide_basics_tc99",
+            ),
+            source_citations=(
+                "NIST Atomic Weights and Isotopic Compositions for Technetium",
+                "US EPA Radionuclide Basics: Technetium-99",
+            ),
+            admission_status="isotope_candidate_admitted_to_canonical_evidence",
+            admission_reason=(
+                "Tc-99 has source-backed canonical isotope mass evidence from NIST "
+                "and radioisotope half-life/decay context from EPA; the candidate "
+                "receipt is closed after admission."
             ),
             candidate_retention_status="candidate_receipt_closed_after_canonical_admission",
             active_candidate_receipt_retained=False,
