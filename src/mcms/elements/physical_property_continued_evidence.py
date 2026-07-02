@@ -10,6 +10,7 @@ mutate seed records.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 from typing import Any
 
 from mcms.elements.physical_property_operator_decision import (
@@ -94,10 +95,9 @@ def _plan_class_for_field(symbol: str, field_name: str) -> str:
     return "independent_corroboration_discovery"
 
 
-def _build_continued_evidence_plan(
-    operator_decision_receipt_id: str,
+def _build_continued_evidence_plan_from_decision(
+    decision: Any,
 ) -> PhysicalPropertyContinuedEvidencePlan:
-    decision = get_physical_property_operator_decision_receipt(operator_decision_receipt_id)
     plan_class = _plan_class_for_field(decision.symbol, decision.field_name)
     if plan_class == "higher_precedence_source_discovery":
         search_objective = (
@@ -141,11 +141,19 @@ def _build_continued_evidence_plan(
     )
 
 
+def _build_continued_evidence_plan(
+    operator_decision_receipt_id: str,
+) -> PhysicalPropertyContinuedEvidencePlan:
+    decision = get_physical_property_operator_decision_receipt(operator_decision_receipt_id)
+    return _build_continued_evidence_plan_from_decision(decision)
+
+
+@lru_cache(maxsize=1)
 def list_physical_property_continued_evidence_plans() -> tuple[
     PhysicalPropertyContinuedEvidencePlan, ...
 ]:
     return tuple(
-        _build_continued_evidence_plan(receipt.receipt_id)
+        _build_continued_evidence_plan_from_decision(receipt)
         for receipt in list_physical_property_operator_decision_receipts()
     )
 
@@ -165,13 +173,48 @@ def get_physical_property_continued_evidence_plan(
     raise KeyError(f"unknown physical-property continued-evidence plan: {identifier_text}")
 
 
+def _validate_continued_evidence_plan_intrinsic(
+    plan: PhysicalPropertyContinuedEvidencePlan,
+) -> tuple[str, ...]:
+    errors: list[str] = []
+    if not plan.target_operator_decision_receipt_id:
+        errors.append("continued-evidence plan requires target operator decision.")
+    if not plan.symbol:
+        errors.append("continued-evidence plan symbol is required.")
+    if plan.atomic_number <= 0:
+        errors.append("continued-evidence plan atomic number must be positive.")
+    if not plan.field_name:
+        errors.append("continued-evidence plan field is required.")
+    if plan.plan_status not in VALID_CONTINUED_EVIDENCE_PLAN_STATUSES:
+        errors.append("continued-evidence plan status is unknown.")
+    if plan.plan_class not in VALID_CONTINUED_EVIDENCE_PLAN_CLASSES:
+        errors.append("continued-evidence plan class is unknown.")
+    if not plan.search_objective:
+        errors.append("continued-evidence plan requires search objective.")
+    if not plan.required_source_qualities:
+        errors.append("continued-evidence plan requires source qualities.")
+    if not plan.blocked_until:
+        errors.append("continued-evidence plan requires blocked-until condition.")
+    if plan.final_resolution_applied:
+        errors.append("continued-evidence plan must not apply final resolution.")
+    if plan.closes_gap:
+        errors.append("continued-evidence plan must not close gap.")
+    if plan.seed_mutation_allowed:
+        errors.append("continued-evidence plan must not allow seed mutation.")
+    return tuple(errors)
+
+
 def validate_physical_property_continued_evidence_plans(
     plans: tuple[PhysicalPropertyContinuedEvidencePlan, ...] | None = None,
 ) -> dict[str, Any]:
     checked_plans = (
         plans if plans is not None else list_physical_property_continued_evidence_plans()
     )
-    invalid_plans = tuple(plan.plan_id for plan in checked_plans if plan.validate())
+    invalid_plans = tuple(
+        plan.plan_id
+        for plan in checked_plans
+        if _validate_continued_evidence_plan_intrinsic(plan)
+    )
     validation_status = "physical_property_continued_evidence_plans_validated"
     if invalid_plans:
         validation_status = "physical_property_continued_evidence_plans_rejected"

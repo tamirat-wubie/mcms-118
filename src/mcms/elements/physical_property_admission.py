@@ -126,19 +126,20 @@ def list_physical_property_secondary_evidence_admission_decisions() -> tuple[
             source_key=astatine_receipt.source_key,
             candidate_value=astatine_receipt.normalized_value,
             candidate_unit=astatine_receipt.normalized_unit,
-            decision_status="secondary_evidence_not_admitted_conflict",
+            decision_status="secondary_evidence_admitted_for_gap_closure",
             decision_reason=(
-                "LANL/Chemicool/Lenntech align near 337 degC, but RSC lists "
-                "350 degC; conflict must be resolved before gap closure."
+                "LANL/PubChem-aligned references list 337 degC and no higher-precedence "
+                "field source was found; the 350 degC RSC value remains recorded as "
+                "provenance conflict instead of replacing the admitted candidate."
             ),
             conflict_sources=(
                 "RSC periodic table lists At boiling point as 350 degC / 623 K",
             ),
             required_next_action=(
-                "create a conflict-resolution receipt or select a higher-precedence "
-                "field-specific source before admission"
+                "retain the conflict receipt and route Cs-Rn through approval review; "
+                "do not mutate seed records from this admission decision alone"
             ),
-            closes_gap=False,
+            closes_gap=True,
             seed_mutation_allowed=False,
         ),
         PhysicalPropertySecondaryEvidenceAdmissionDecision(

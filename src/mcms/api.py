@@ -50,6 +50,7 @@ from mcms.elements import (
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
     get_f_block_expansion_profile,
+    get_full_span_promotion_approval_review_receipt,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
@@ -135,6 +136,7 @@ from mcms.elements import (
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_full_span_promotion_approval_review_receipt,
     validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
@@ -293,11 +295,11 @@ def _index_payload() -> dict[str, Any]:
             "GET /evidence/physical-properties/gap-closure/Cf",
             "GET /evidence/physical-properties/closure-approval/Cf",
             "GET /evidence/physical-properties/seed-update/Cf",
-            "GET /evidence/physical-properties/escalations/At",
-            "GET /evidence/physical-properties/escalation-search/At",
-            "GET /evidence/physical-properties/escalation-resolution/At",
-            "GET /evidence/physical-properties/operator-decisions/At",
-            "GET /evidence/physical-properties/continued-evidence/At",
+            "GET /evidence/physical-properties/escalations/Fr",
+            "GET /evidence/physical-properties/escalation-search/Fr",
+            "GET /evidence/physical-properties/escalation-resolution/Fr",
+            "GET /evidence/physical-properties/operator-decisions/Fr",
+            "GET /evidence/physical-properties/continued-evidence/Fr",
             "GET /evidence/physical-properties/no-candidate/Fm",
             "GET /evidence/physical-properties/secondary-evidence/template/At",
             "GET /evidence/physical-properties/secondary-source-policy",
@@ -314,6 +316,7 @@ def _index_payload() -> dict[str, Any]:
             "GET /promotion/cs-rn/At",
             "GET /promotion/batch-policy",
             "GET /promotion/partial-eligibility",
+            "GET /promotion/full-span-approval-review",
             "GET /promotion/decisions",
             "GET /promotion/decisions/At",
             "GET /phase3/f-block",
@@ -1201,6 +1204,15 @@ def _partial_promotion_eligibility_payload() -> dict[str, Any]:
     }
 
 
+def _full_span_promotion_approval_review_payload() -> dict[str, Any]:
+    receipt = get_full_span_promotion_approval_review_receipt()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_full_span_promotion_approval_review_receipt(receipt),
+        "receipt": receipt.to_dict(),
+    }
+
+
 def _f_block_list_payload() -> dict[str, Any]:
     profiles = list_f_block_expansion_profiles()
     return {
@@ -1790,6 +1802,11 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             return ApiResponse(HTTPStatus.OK, _promotion_batch_policy_payload())
         if path_parts == ["promotion", "partial-eligibility"]:
             return ApiResponse(HTTPStatus.OK, _partial_promotion_eligibility_payload())
+        if path_parts == ["promotion", "full-span-approval-review"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _full_span_promotion_approval_review_payload(),
+            )
         if path_parts == ["promotion", "decisions"]:
             return ApiResponse(HTTPStatus.OK, _promotion_decision_list_payload())
         if len(path_parts) == 3 and path_parts[:2] == ["promotion", "decisions"]:

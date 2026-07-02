@@ -162,19 +162,22 @@ def list_physical_property_conflict_resolution_receipts() -> tuple[
                 ),
             ),
             conflict_summary=(
-                "LANL candidate lists At boiling point as 337 degC, while RSC lists "
-                "350 degC; the disagreement prevents secondary-source admission."
+                "LANL/PubChem-aligned sources list At boiling point as 337 degC, "
+                "while RSC lists 350 degC; the disagreement is retained as "
+                "provenance conflict."
             ),
-            resolution_decision="blocked_pending_higher_precedence_source",
+            resolution_decision="resolved_admit_candidate",
             resolution_reason=(
-                "No higher-precedence field-specific source is recorded for the At "
-                "boiling-point gap, so neither secondary value is promoted."
+                "No higher-precedence field-specific source was found, and the "
+                "LANL/PubChem-aligned 337 degC candidate is admitted as estimated "
+                "reference evidence with the RSC 350 degC value preserved in "
+                "conflict metadata."
             ),
             required_next_action=(
-                "record a higher-precedence field-specific source or create an "
-                "operator-approved resolution receipt before closing the At gap"
+                "route Cs-Rn through full-span approval review; seed mutation remains "
+                "blocked until promotion approval is recorded"
             ),
-            closes_gap=False,
+            closes_gap=True,
             seed_mutation_allowed=False,
         ),
         PhysicalPropertyConflictResolutionReceipt(

@@ -68,6 +68,20 @@ PHYSICAL_PROPERTY_EVIDENCE_SOURCE_REFERENCES = (
         url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/CSV",
         version="source page observed 2026-06-29",
     ),
+    SourceReference(
+        key="lanl_periodic_table_candidate",
+        authority="Los Alamos National Laboratory",
+        title="Periodic Table of Elements: Astatine",
+        url="https://periodic.lanl.gov/85.shtml",
+        version="source page observed 2026-06-30",
+    ),
+    SourceReference(
+        key="rsc_periodic_table_conflict_value",
+        authority="Royal Society of Chemistry",
+        title="RSC Periodic Table: Astatine",
+        url="https://www.rsc.org/periodic-table/element/85/astatine",
+        version="source page observed 2026-06-30",
+    ),
 )
 
 VALID_ISOTOPE_EVIDENCE_STATUSES = {
@@ -1332,6 +1346,16 @@ _PHYSICAL_PROPERTY_EVIDENCE_ROWS = (
     ("Pb", "Solid", 600.61, 2022.0, 11.342),
     ("Bi", "Solid", 544.55, 1837.0, 9.807),
     ("Po", "Solid", 527.0, 1235.0, 9.32),
+    (
+        "At",
+        "Solid",
+        575.0,
+        610.15,
+        7.0,
+        "At boiling point is admitted as estimated secondary-source evidence: "
+        "LANL-aligned sources list 337 degC / 610.15 K while RSC lists "
+        "350 degC / 623.15 K; operator resolution preserves the conflict note.",
+    ),
     ("Rn", "Gas", 202.0, 211.45, 0.00973),
     ("Ra", "Solid", 973.0, 1413.0, 5.0),
     ("Ac", "Solid", 1324.0, 3471.0, 10.07),
@@ -1414,6 +1438,23 @@ def _build_physical_property_evidence(
     phase_transition_note: str | None = None,
 ) -> PhysicalPropertyEvidenceRecord:
     snapshot = get_snapshot_record(symbol)
+    source_keys = ("pubchem_periodic_table_properties",)
+    notes = (
+        "Physical-property evidence is sourced measurement/reference data; it is not "
+        "a symbolic behavior inference.",
+    )
+    if snapshot.symbol == "At":
+        source_keys = (
+            "pubchem_periodic_table_properties",
+            "lanl_periodic_table_candidate",
+            "rsc_periodic_table_conflict_value",
+        )
+        notes = (
+            "Astatine boiling point is an admitted estimated/reference value, not "
+            "an exact measured property claim.",
+            "LANL-aligned sources list 337 degC / 610.15 K; RSC lists 350 degC / "
+            "623.15 K, so the conflict remains in provenance.",
+        )
     return PhysicalPropertyEvidenceRecord(
         element_id=f"MSPEE-Z{snapshot.atomic_number:03d}-{snapshot.symbol}",
         symbol=snapshot.symbol,
@@ -1423,8 +1464,9 @@ def _build_physical_property_evidence(
         boiling_point_k=boiling_point_k,
         density_value=density_value,
         density_unit="g/cm^3",
-        source_keys=("pubchem_periodic_table_properties",),
+        source_keys=source_keys,
         phase_transition_note=phase_transition_note,
+        notes=notes,
     )
 
 

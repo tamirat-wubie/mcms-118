@@ -9,6 +9,7 @@ Invariants: escalation-search receipts do not close gaps or mutate seed records.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 from typing import Any
 
 from mcms.elements.physical_property_escalation import (
@@ -115,10 +116,10 @@ class PhysicalPropertyEscalationSearchReceipt:
         return payload
 
 
+@lru_cache(maxsize=1)
 def list_physical_property_escalation_search_receipts() -> tuple[
     PhysicalPropertyEscalationSearchReceipt, ...
 ]:
-    astatine_escalation = get_physical_property_escalation_receipt("At")
     francium_escalation = get_physical_property_escalation_receipt("Fr")
     francium_density_escalation = get_physical_property_escalation_receipt(
         "MSPEE-PHYSICAL-PROPERTY-ESCALATION-Z087-Fr-density_value"
@@ -128,51 +129,6 @@ def list_physical_property_escalation_search_receipts() -> tuple[
     einsteinium_escalation = get_physical_property_escalation_receipt("Es")
     protactinium_escalation = get_physical_property_escalation_receipt("Pa")
     return (
-        PhysicalPropertyEscalationSearchReceipt(
-            search_id="MSPEE-PHYSICAL-PROPERTY-ESCALATION-SEARCH-Z085-At-boiling_point_k",
-            target_escalation_receipt_id=astatine_escalation.receipt_id,
-            symbol=astatine_escalation.symbol,
-            atomic_number=astatine_escalation.atomic_number,
-            field_name=astatine_escalation.field_name,
-            search_status="higher_precedence_source_not_found",
-            source_checks=(
-                PhysicalPropertyEscalationSourceCheck(
-                    source_key="nist_chemistry_webbook_atomic_astatine",
-                    source_authority="NIST Chemistry WebBook SRD 69",
-                    source_url="https://webbook.nist.gov/cgi/inchi/InChI%3D1S/At",
-                    checked_field="boiling_point_k",
-                    observed_value=None,
-                    observed_unit=None,
-                    source_result="atomic At page lacks a normal boiling-point field",
-                ),
-                PhysicalPropertyEscalationSourceCheck(
-                    source_key="pubchem_element_astatine",
-                    source_authority="PubChem",
-                    source_url="https://pubchem.ncbi.nlm.nih.gov/element/Astatine",
-                    checked_field="boiling_point_k",
-                    observed_value="337",
-                    observed_unit="degC",
-                    source_result="secondary value matches LANL candidate cluster",
-                ),
-                PhysicalPropertyEscalationSourceCheck(
-                    source_key="rsc_periodic_table_astatine",
-                    source_authority="Royal Society of Chemistry",
-                    source_url="https://periodic-table.rsc.org/element/85/astatine",
-                    checked_field="boiling_point_k",
-                    observed_value="350",
-                    observed_unit="degC",
-                    source_result="secondary value conflicts with PubChem/LANL cluster",
-                ),
-            ),
-            conclusion=(
-                "No higher-precedence field-specific boiling-point source was found; "
-                "At remains blocked by conflicting secondary values."
-            ),
-            required_next_action=(
-                "locate a higher-precedence field-specific source, or create an "
-                "operator-approved conflict-resolution receipt before any gap closure"
-            ),
-        ),
         PhysicalPropertyEscalationSearchReceipt(
             search_id="MSPEE-PHYSICAL-PROPERTY-ESCALATION-SEARCH-Z087-Fr-boiling_point_k",
             target_escalation_receipt_id=francium_escalation.receipt_id,

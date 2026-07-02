@@ -117,6 +117,7 @@ def _conflict_escalation_receipts() -> tuple[PhysicalPropertyEscalationReceipt, 
             priority_rank=0 if receipt.symbol == "At" else 1,
         )
         for receipt in list_physical_property_conflict_resolution_receipts()
+        if receipt.resolution_decision == "blocked_pending_higher_precedence_source"
     )
 
 

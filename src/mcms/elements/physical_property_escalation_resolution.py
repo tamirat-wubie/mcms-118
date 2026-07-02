@@ -10,6 +10,7 @@ final state, or mutate seed records.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 from typing import Any
 
 from mcms.elements.physical_property_escalation_search import (
@@ -119,6 +120,48 @@ def _build_resolution_receipt(
     )
 
 
+def _validate_resolution_receipt_with_search(
+    receipt: PhysicalPropertyEscalationResolutionReceipt,
+    search: Any | None,
+) -> tuple[str, ...]:
+    errors: list[str] = []
+    if search is None:
+        errors.append("resolution target search is unknown.")
+        return tuple((*errors, *receipt.validate()))
+    if receipt.symbol != search.symbol:
+        errors.append("resolution symbol must match escalation search.")
+    if receipt.atomic_number != search.atomic_number:
+        errors.append("resolution atomic number must match escalation search.")
+    if receipt.field_name != search.field_name:
+        errors.append("resolution field must match escalation search.")
+    if receipt.resolution_status not in VALID_ESCALATION_RESOLUTION_STATUSES:
+        errors.append("resolution status is unknown.")
+    if not receipt.recommendation_reason:
+        errors.append("resolution recommendation reason is required.")
+    if not receipt.required_next_action:
+        errors.append("resolution next action is required.")
+    if receipt.final_resolution_applied:
+        errors.append("recommendation receipt must not apply final resolution.")
+    if receipt.closes_gap:
+        errors.append("recommendation receipt must not close a gap.")
+    if receipt.seed_mutation_allowed:
+        errors.append("recommendation receipt must not allow seed mutation.")
+    if (
+        search.search_status == "higher_precedence_source_not_found"
+        and receipt.resolution_status
+        != "conflict_resolution_blocked_pending_operator_decision"
+    ):
+        errors.append("higher-precedence search requires blocked conflict resolution.")
+    if (
+        search.search_status == "corroborating_source_not_found"
+        and receipt.resolution_status
+        != "candidate_rejection_recommended_pending_operator_decision"
+    ):
+        errors.append("failed corroboration search requires rejection recommendation.")
+    return tuple(errors)
+
+
+@lru_cache(maxsize=1)
 def list_physical_property_escalation_resolution_receipts() -> tuple[
     PhysicalPropertyEscalationResolutionReceipt, ...
 ]:
@@ -153,8 +196,16 @@ def validate_physical_property_escalation_resolution_receipts(
         if receipts is not None
         else list_physical_property_escalation_resolution_receipts()
     )
+    search_index = {
+        search.search_id: search for search in list_physical_property_escalation_search_receipts()
+    }
     invalid_receipts = tuple(
-        receipt.receipt_id for receipt in checked_receipts if receipt.validate()
+        receipt.receipt_id
+        for receipt in checked_receipts
+        if _validate_resolution_receipt_with_search(
+            receipt,
+            search_index.get(receipt.target_search_id),
+        )
     )
     validation_status = "physical_property_escalation_resolution_receipts_validated"
     if invalid_receipts:

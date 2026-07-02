@@ -31,6 +31,10 @@ VALID_PARTIAL_PROMOTION_ELIGIBILITY_STATUSES = {
     "partial_review_available_seed_mutation_blocked",
     "partial_review_unavailable",
 }
+VALID_FULL_SPAN_APPROVAL_REVIEW_STATUSES = {
+    "full_span_approval_review_open",
+    "full_span_approval_review_blocked",
+}
 
 
 @dataclass(frozen=True)
@@ -112,15 +116,18 @@ class PromotionBatchPolicyReceipt:
             errors.append("batch policy decision is required.")
         if not self.policy_reason:
             errors.append("batch policy reason is required.")
-        if self.seed_mutation_allowed and self.blocked_symbols:
-            errors.append("seed mutation cannot be allowed while batch blockers remain.")
-        if not self.seed_mutation_allowed and not self.blocked_symbols:
-            errors.append("seed mutation hold requires at least one blocked symbol.")
+        if self.seed_mutation_allowed:
+            errors.append("batch policy readiness must not directly allow seed mutation.")
         if self.policy_status == "span_hold_pending_blocker_resolution":
             if self.seed_mutation_allowed:
                 errors.append("span hold policy must not allow seed mutation.")
             if "At" not in self.blocked_symbols:
                 errors.append("current span hold must identify At as the blocker.")
+        if self.policy_status == "span_ready_for_approval":
+            if self.blocked_symbols:
+                errors.append("ready-for-approval span must not contain blockers.")
+            if self.policy_decision != "allow_full_span_approval_review":
+                errors.append("ready span must route to full-span approval review.")
         if len(self.ready_symbols) + len(self.blocked_symbols) != len(self.span_symbols):
             errors.append("ready and blocked symbol counts must cover the span.")
         return errors
@@ -190,6 +197,71 @@ class PartialPromotionEligibilityReceipt:
         payload["eligible_symbols"] = list(self.eligible_symbols)
         payload["blocked_symbols"] = list(self.blocked_symbols)
         payload["eligible_decision_receipt_ids"] = list(self.eligible_decision_receipt_ids)
+        payload["blocking_receipt_ids"] = list(self.blocking_receipt_ids)
+        payload["invariants_preserved"] = list(self.invariants_preserved)
+        payload["notes"] = list(self.notes)
+        return payload
+
+
+@dataclass(frozen=True)
+class FullSpanPromotionApprovalReviewReceipt:
+    receipt_id: str
+    span_id: str
+    target_level: str
+    review_status: str
+    batch_policy_receipt_id: str
+    batch_policy_decision: str
+    ready_symbols: tuple[str, ...]
+    blocked_symbols: tuple[str, ...]
+    ready_decision_receipt_ids: tuple[str, ...]
+    blocking_receipt_ids: tuple[str, ...]
+    approval_review_allowed: bool
+    seed_mutation_allowed: bool
+    required_next_action: str
+    invariants_preserved: tuple[str, ...]
+    evidence_status: str = "full_span_promotion_approval_review_receipt"
+    notes: tuple[str, ...] = (
+        "Full-span approval review is not seed mutation.",
+        "Seed mutation remains blocked until a later explicit approval receipt exists.",
+    )
+
+    def validate(self) -> list[str]:
+        errors: list[str] = []
+        if self.review_status not in VALID_FULL_SPAN_APPROVAL_REVIEW_STATUSES:
+            errors.append("full-span approval review status is unknown.")
+        if self.batch_policy_decision == "allow_full_span_approval_review":
+            if self.review_status != "full_span_approval_review_open":
+                errors.append("allowed full-span policy requires open approval review.")
+            if not self.approval_review_allowed:
+                errors.append("allowed full-span policy must allow approval review.")
+            if self.blocked_symbols:
+                errors.append("open full-span approval review must not contain blockers.")
+        else:
+            if self.review_status != "full_span_approval_review_blocked":
+                errors.append("blocked batch policy requires blocked approval review.")
+            if self.approval_review_allowed:
+                errors.append("blocked full-span policy must not allow approval review.")
+        if self.ready_symbols != CS_RN_PROMOTION_SYMBOLS and not self.blocked_symbols:
+            errors.append("unblocked full-span review must cover Cs through Rn.")
+        if len(self.ready_symbols) != len(self.ready_decision_receipt_ids):
+            errors.append("ready symbols must map to ready decision receipt ids.")
+        if len(self.blocked_symbols) != len(self.blocking_receipt_ids):
+            errors.append("blocked symbols must map to blocking receipt ids.")
+        if self.seed_mutation_allowed:
+            errors.append("approval review receipt must not allow seed mutation.")
+        if "readiness_is_not_approval" not in self.invariants_preserved:
+            errors.append("approval review must preserve readiness-is-not-approval.")
+        if "approval_review_is_not_seed_mutation" not in self.invariants_preserved:
+            errors.append("approval review must preserve review-is-not-mutation.")
+        if not self.required_next_action:
+            errors.append("full-span approval review requires a next action.")
+        return errors
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["ready_symbols"] = list(self.ready_symbols)
+        payload["blocked_symbols"] = list(self.blocked_symbols)
+        payload["ready_decision_receipt_ids"] = list(self.ready_decision_receipt_ids)
         payload["blocking_receipt_ids"] = list(self.blocking_receipt_ids)
         payload["invariants_preserved"] = list(self.invariants_preserved)
         payload["notes"] = list(self.notes)
@@ -294,7 +366,7 @@ def get_promotion_batch_policy_receipt() -> PromotionBatchPolicyReceipt:
         policy_status = "span_ready_for_approval"
         policy_decision = "allow_full_span_approval_review"
         policy_reason = "all Cs-Rn promotion decision receipts are ready pending approval"
-        seed_mutation_allowed = True
+        seed_mutation_allowed = False
     return PromotionBatchPolicyReceipt(
         receipt_id="MSPEE-PROMOTION-BATCH-POLICY-CS-RN",
         span_id="MSPEE-Z055-Z086-Cs-Rn",
@@ -368,8 +440,8 @@ def get_partial_promotion_eligibility_receipt() -> PartialPromotionEligibilityRe
         partial_review_allowed=bool(eligible_decisions),
         seed_mutation_allowed=False,
         required_next_action=(
-            "review ready Cs-Rn receipts as a partial queue while preserving the "
-            "full-span seed mutation hold until At evidence is closed"
+            "review ready Cs-Rn receipts; when no blockers remain, use the full-span "
+            "approval path rather than partial seed mutation"
         ),
         invariants_preserved=(
             "contiguous_level_1_seed_span",
@@ -396,6 +468,76 @@ def validate_partial_promotion_eligibility_receipt(
         "eligible_count": len(checked_receipt.eligible_symbols),
         "blocked_count": len(checked_receipt.blocked_symbols),
         "partial_review_allowed": checked_receipt.partial_review_allowed,
+        "seed_mutation_allowed": checked_receipt.seed_mutation_allowed,
+        "errors": errors,
+    }
+
+
+def get_full_span_promotion_approval_review_receipt() -> (
+    FullSpanPromotionApprovalReviewReceipt
+):
+    batch_policy = get_promotion_batch_policy_receipt()
+    decisions = list_promotion_decision_receipts()
+    ready_decisions = tuple(
+        decision
+        for decision in decisions
+        if decision.decision_status == "promotion_ready_pending_approval"
+    )
+    blocked_decisions = tuple(
+        decision
+        for decision in decisions
+        if decision.decision_status != "promotion_ready_pending_approval"
+    )
+    review_open = batch_policy.policy_decision == "allow_full_span_approval_review"
+    return FullSpanPromotionApprovalReviewReceipt(
+        receipt_id="MSPEE-FULL-SPAN-PROMOTION-APPROVAL-REVIEW-CS-RN",
+        span_id=batch_policy.span_id,
+        target_level=batch_policy.target_level,
+        review_status=(
+            "full_span_approval_review_open"
+            if review_open
+            else "full_span_approval_review_blocked"
+        ),
+        batch_policy_receipt_id=batch_policy.receipt_id,
+        batch_policy_decision=batch_policy.policy_decision,
+        ready_symbols=tuple(decision.symbol for decision in ready_decisions),
+        blocked_symbols=tuple(decision.symbol for decision in blocked_decisions),
+        ready_decision_receipt_ids=tuple(
+            decision.receipt_id for decision in ready_decisions
+        ),
+        blocking_receipt_ids=tuple(decision.receipt_id for decision in blocked_decisions),
+        approval_review_allowed=review_open,
+        seed_mutation_allowed=False,
+        required_next_action=(
+            "issue an explicit full-span approval or rejection receipt before any "
+            "Cs-Rn Level 1 seed mutation"
+        ),
+        invariants_preserved=(
+            "contiguous_level_1_seed_span",
+            "readiness_is_not_approval",
+            "approval_review_is_not_seed_mutation",
+            "seed_mutation_requires_explicit_approval_receipt",
+        ),
+    )
+
+
+def validate_full_span_promotion_approval_review_receipt(
+    receipt: FullSpanPromotionApprovalReviewReceipt | None = None,
+) -> dict[str, Any]:
+    checked_receipt = (
+        receipt if receipt is not None else get_full_span_promotion_approval_review_receipt()
+    )
+    errors = tuple(checked_receipt.validate())
+    return {
+        "validation_status": (
+            "full_span_promotion_approval_review_receipt_validated"
+            if not errors
+            else "full_span_promotion_approval_review_receipt_rejected"
+        ),
+        "review_status": checked_receipt.review_status,
+        "ready_count": len(checked_receipt.ready_symbols),
+        "blocked_count": len(checked_receipt.blocked_symbols),
+        "approval_review_allowed": checked_receipt.approval_review_allowed,
         "seed_mutation_allowed": checked_receipt.seed_mutation_allowed,
         "errors": errors,
     }

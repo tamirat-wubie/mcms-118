@@ -36,6 +36,7 @@ from mcms.elements import (  # noqa: E402
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
     get_f_block_expansion_profile,
+    get_full_span_promotion_approval_review_receipt,
     get_isotope_candidate_admission_receipt,
     get_partial_physical_property_source_search_receipt,
     get_partial_promotion_eligibility_receipt,
@@ -118,6 +119,7 @@ from mcms.elements import (  # noqa: E402
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_full_span_promotion_approval_review_receipt,
     validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
@@ -433,6 +435,12 @@ def main() -> None:
     partial_promotion_eligibility_result = validate_partial_promotion_eligibility_receipt(
         partial_promotion_eligibility
     )
+    full_span_approval_review = get_full_span_promotion_approval_review_receipt()
+    full_span_approval_review_result = (
+        validate_full_span_promotion_approval_review_receipt(
+            full_span_approval_review
+        )
+    )
     element_schema_validator = Draft202012Validator(element_schema)
     snapshot_schema_validator = Draft202012Validator(snapshot_schema)
     assert len(phases) == 135, len(phases)
@@ -476,7 +484,7 @@ def main() -> None:
     assert physical_property_evidence_result["validation_status"] == (
         "physical_property_evidence_records_validated"
     ), physical_property_evidence_result
-    assert physical_property_evidence_result["record_count"] == 93, (
+    assert physical_property_evidence_result["record_count"] == 94, (
         physical_property_evidence_result
     )
     assert physical_property_evidence_result["standard_states"] == (
@@ -496,7 +504,7 @@ def main() -> None:
     assert physical_property_gap_audit_result["receipt_count"] == 25, (
         physical_property_gap_audit_result
     )
-    assert physical_property_gap_audit_result["cs_rn_blocking_gap_count"] == 1, (
+    assert physical_property_gap_audit_result["cs_rn_blocking_gap_count"] == 0, (
         physical_property_gap_audit_result
     )
     assert physical_property_gap_audit_result["boiling_point_gap_count"] == 25, (
@@ -508,7 +516,10 @@ def main() -> None:
     assert physical_property_gap_work_result["work_item_count"] == 25, (
         physical_property_gap_work_result
     )
-    assert physical_property_gap_work_result["conflict_blocked_count"] == 1, (
+    assert physical_property_gap_work_result["conflict_blocked_count"] == 0, (
+        physical_property_gap_work_result
+    )
+    assert physical_property_gap_work_result["conflict_resolved_for_promotion_count"] == 1, (
         physical_property_gap_work_result
     )
     assert physical_property_gap_work_result["single_field_source_search_count"] == 2, (
@@ -597,8 +608,8 @@ def main() -> None:
     )
     assert physical_property_secondary_evidence_admission_result[
         "admitted_gap_closure_count"
-    ] == 0, physical_property_secondary_evidence_admission_result
-    assert physical_property_secondary_evidence_admission_result["conflict_blocked_count"] == 3, (
+    ] == 1, physical_property_secondary_evidence_admission_result
+    assert physical_property_secondary_evidence_admission_result["conflict_blocked_count"] == 2, (
         physical_property_secondary_evidence_admission_result
     )
     assert physical_property_secondary_evidence_admission_result[
@@ -615,8 +626,8 @@ def main() -> None:
     )
     assert physical_property_conflict_resolution_result[
         "blocked_pending_higher_precedence_source_count"
-    ] == 3, physical_property_conflict_resolution_result
-    assert physical_property_conflict_resolution_result["gap_closure_count"] == 0, (
+    ] == 2, physical_property_conflict_resolution_result
+    assert physical_property_conflict_resolution_result["gap_closure_count"] == 1, (
         physical_property_conflict_resolution_result
     )
     assert physical_property_conflict_resolution_result["seed_mutation_allowed_count"] == 0, (
@@ -713,12 +724,12 @@ def main() -> None:
     assert physical_property_escalation_result["validation_status"] == (
         "physical_property_escalation_receipts_validated"
     ), physical_property_escalation_result
-    assert physical_property_escalation_result["receipt_count"] == 8, (
+    assert physical_property_escalation_result["receipt_count"] == 7, (
         physical_property_escalation_result
     )
     assert physical_property_escalation_result[
         "higher_precedence_source_required_count"
-    ] == 3, physical_property_escalation_result
+    ] == 2, physical_property_escalation_result
     assert physical_property_escalation_result["corroborating_source_required_count"] == 4, (
         physical_property_escalation_result
     )
@@ -734,12 +745,12 @@ def main() -> None:
     assert physical_property_escalation_search_result["validation_status"] == (
         "physical_property_escalation_search_receipts_validated"
     ), physical_property_escalation_search_result
-    assert physical_property_escalation_search_result["search_receipt_count"] == 7, (
+    assert physical_property_escalation_search_result["search_receipt_count"] == 6, (
         physical_property_escalation_search_result
     )
     assert physical_property_escalation_search_result[
         "higher_precedence_source_not_found_count"
-    ] == 3, physical_property_escalation_search_result
+    ] == 2, physical_property_escalation_search_result
     assert physical_property_escalation_search_result[
         "corroborating_source_not_found_count"
     ] == 4, physical_property_escalation_search_result
@@ -752,12 +763,12 @@ def main() -> None:
     assert physical_property_escalation_resolution_result["validation_status"] == (
         "physical_property_escalation_resolution_receipts_validated"
     ), physical_property_escalation_resolution_result
-    assert physical_property_escalation_resolution_result["receipt_count"] == 7, (
+    assert physical_property_escalation_resolution_result["receipt_count"] == 6, (
         physical_property_escalation_resolution_result
     )
     assert physical_property_escalation_resolution_result[
         "conflict_resolution_blocked_count"
-    ] == 3, physical_property_escalation_resolution_result
+    ] == 2, physical_property_escalation_resolution_result
     assert physical_property_escalation_resolution_result[
         "candidate_rejection_recommended_count"
     ] == 4, physical_property_escalation_resolution_result
@@ -773,10 +784,10 @@ def main() -> None:
     assert physical_property_operator_decision_result["validation_status"] == (
         "physical_property_operator_decision_receipts_validated"
     ), physical_property_operator_decision_result
-    assert physical_property_operator_decision_result["receipt_count"] == 7, (
+    assert physical_property_operator_decision_result["receipt_count"] == 6, (
         physical_property_operator_decision_result
     )
-    assert physical_property_operator_decision_result["deferred_decision_count"] == 7, (
+    assert physical_property_operator_decision_result["deferred_decision_count"] == 6, (
         physical_property_operator_decision_result
     )
     assert physical_property_operator_decision_result["approved_resolution_count"] == 0, (
@@ -797,15 +808,15 @@ def main() -> None:
     assert physical_property_continued_evidence_result["validation_status"] == (
         "physical_property_continued_evidence_plans_validated"
     ), physical_property_continued_evidence_result
-    assert physical_property_continued_evidence_result["plan_count"] == 7, (
+    assert physical_property_continued_evidence_result["plan_count"] == 6, (
         physical_property_continued_evidence_result
     )
     assert physical_property_continued_evidence_result[
         "continued_evidence_required_count"
-    ] == 7, physical_property_continued_evidence_result
+    ] == 6, physical_property_continued_evidence_result
     assert physical_property_continued_evidence_result[
         "higher_precedence_source_discovery_count"
-    ] == 3, physical_property_continued_evidence_result
+    ] == 2, physical_property_continued_evidence_result
     assert physical_property_continued_evidence_result[
         "independent_corroboration_discovery_count"
     ] == 4, physical_property_continued_evidence_result
@@ -1020,9 +1031,9 @@ def main() -> None:
     ), cs_rn_promotion_result
     assert cs_rn_promotion_result.profile_count == 32, cs_rn_promotion_result
     assert cs_rn_promotion_result.atomic_number_span == (55, 86), cs_rn_promotion_result
-    assert cs_rn_promotion_result.blocked_count == 1, cs_rn_promotion_result
-    assert cs_rn_promotion_result.ready_count == 31, cs_rn_promotion_result
-    assert cs_rn_promotion_result.physical_property_evidence_count == 31, (
+    assert cs_rn_promotion_result.blocked_count == 0, cs_rn_promotion_result
+    assert cs_rn_promotion_result.ready_count == 32, cs_rn_promotion_result
+    assert cs_rn_promotion_result.physical_property_evidence_count == 32, (
         cs_rn_promotion_result
     )
     assert cs_rn_promotion_result.unresolved_physical_property_evidence_count == 1, (
@@ -1078,10 +1089,10 @@ def main() -> None:
         "promotion_decision_receipts_validated"
     ), promotion_decision_result
     assert promotion_decision_result["receipt_count"] == 32, promotion_decision_result
-    assert promotion_decision_result["ready_pending_approval_count"] == 31, (
+    assert promotion_decision_result["ready_pending_approval_count"] == 32, (
         promotion_decision_result
     )
-    assert promotion_decision_result["blocked_unresolved_physical_property_count"] == 1, (
+    assert promotion_decision_result["blocked_unresolved_physical_property_count"] == 0, (
         promotion_decision_result
     )
     assert promotion_decision_result["approved_for_seed_count"] == 0, (
@@ -1090,21 +1101,23 @@ def main() -> None:
     assert promotion_batch_policy_result["validation_status"] == (
         "promotion_batch_policy_receipt_validated"
     ), promotion_batch_policy_result
-    assert promotion_batch_policy_result["policy_decision"] == "hold_full_cs_rn_span", (
+    assert promotion_batch_policy_result["policy_decision"] == (
+        "allow_full_span_approval_review"
+    ), (
         promotion_batch_policy_result
     )
-    assert promotion_batch_policy_result["ready_count"] == 31, promotion_batch_policy_result
-    assert promotion_batch_policy_result["blocked_count"] == 1, promotion_batch_policy_result
+    assert promotion_batch_policy_result["ready_count"] == 32, promotion_batch_policy_result
+    assert promotion_batch_policy_result["blocked_count"] == 0, promotion_batch_policy_result
     assert promotion_batch_policy_result["seed_mutation_allowed"] is False, (
         promotion_batch_policy_result
     )
     assert partial_promotion_eligibility_result["validation_status"] == (
         "partial_promotion_eligibility_receipt_validated"
     ), partial_promotion_eligibility_result
-    assert partial_promotion_eligibility_result["eligible_count"] == 31, (
+    assert partial_promotion_eligibility_result["eligible_count"] == 32, (
         partial_promotion_eligibility_result
     )
-    assert partial_promotion_eligibility_result["blocked_count"] == 1, (
+    assert partial_promotion_eligibility_result["blocked_count"] == 0, (
         partial_promotion_eligibility_result
     )
     assert partial_promotion_eligibility_result["partial_review_allowed"] is True, (
@@ -1113,11 +1126,37 @@ def main() -> None:
     assert partial_promotion_eligibility_result["seed_mutation_allowed"] is False, (
         partial_promotion_eligibility_result
     )
-    assert partial_promotion_eligibility.blocked_symbols == ("At",), (
+    assert partial_promotion_eligibility.blocked_symbols == (), (
         partial_promotion_eligibility
     )
-    assert partial_promotion_eligibility.batch_policy_decision == "hold_full_cs_rn_span", (
+    assert partial_promotion_eligibility.batch_policy_decision == (
+        "allow_full_span_approval_review"
+    ), (
         partial_promotion_eligibility
+    )
+    assert full_span_approval_review_result["validation_status"] == (
+        "full_span_promotion_approval_review_receipt_validated"
+    ), full_span_approval_review_result
+    assert full_span_approval_review_result["review_status"] == (
+        "full_span_approval_review_open"
+    ), full_span_approval_review_result
+    assert full_span_approval_review_result["ready_count"] == 32, (
+        full_span_approval_review_result
+    )
+    assert full_span_approval_review_result["blocked_count"] == 0, (
+        full_span_approval_review_result
+    )
+    assert full_span_approval_review_result["approval_review_allowed"] is True, (
+        full_span_approval_review_result
+    )
+    assert full_span_approval_review_result["seed_mutation_allowed"] is False, (
+        full_span_approval_review_result
+    )
+    assert full_span_approval_review.batch_policy_decision == (
+        "allow_full_span_approval_review"
+    ), full_span_approval_review
+    assert full_span_approval_review.seed_mutation_allowed is False, (
+        full_span_approval_review
     )
     Draft202012Validator.check_schema(element_schema)
     Draft202012Validator.check_schema(snapshot_schema)
@@ -1216,11 +1255,11 @@ def main() -> None:
     assert astatine_unresolved_properties.missing_fields == ("boiling_point_k",), (
         astatine_unresolved_properties
     )
-    assert astatine_property_gap.blocks_promotion_spans == ("Cs-Rn",), (
+    assert astatine_property_gap.blocks_promotion_spans == (), (
         astatine_property_gap
     )
     assert astatine_property_gap.no_guess_policy is True, astatine_property_gap
-    assert astatine_gap_work_item.work_status == "conflict_blocked_promotion", (
+    assert astatine_gap_work_item.work_status == "conflict_resolved_for_promotion", (
         astatine_gap_work_item
     )
     assert astatine_gap_work_item.closes_gap is False, astatine_gap_work_item
@@ -1298,12 +1337,11 @@ def main() -> None:
     californium_density_gap_closure = get_physical_property_gap_closure_decision("Cf")
     californium_density_closure_approval = get_physical_property_closure_approval_receipt("Cf")
     californium_density_seed_update = get_physical_property_seed_update_receipt("Cf")
-    astatine_escalation = get_physical_property_escalation_receipt("At")
+    francium_escalation = get_physical_property_escalation_receipt("Fr")
     berkelium_escalation = get_physical_property_escalation_receipt("Bk")
     californium_seed_update_escalation = get_physical_property_escalation_receipt(
         "MSPEE-PHYSICAL-PROPERTY-SEED-UPDATE-Z098-Cf-density_value"
     )
-    astatine_escalation_search = get_physical_property_escalation_search_receipt("At")
     francium_escalation_search = get_physical_property_escalation_search_receipt("Fr")
     francium_density_escalation_search = get_physical_property_escalation_search_receipt(
         "MSPEE-PHYSICAL-PROPERTY-ESCALATION-SEARCH-Z087-Fr-density_value"
@@ -1312,13 +1350,13 @@ def main() -> None:
     californium_escalation_search = get_physical_property_escalation_search_receipt("Cf")
     einsteinium_escalation_search = get_physical_property_escalation_search_receipt("Es")
     protactinium_escalation_search = get_physical_property_escalation_search_receipt("Pa")
-    astatine_escalation_resolution = get_physical_property_escalation_resolution_receipt("At")
+    francium_escalation_resolution = get_physical_property_escalation_resolution_receipt("Fr")
     californium_escalation_resolution = (
         get_physical_property_escalation_resolution_receipt("Cf")
     )
-    astatine_operator_decision = get_physical_property_operator_decision_receipt("At")
+    francium_operator_decision = get_physical_property_operator_decision_receipt("Fr")
     californium_operator_decision = get_physical_property_operator_decision_receipt("Cf")
-    astatine_continued_evidence = get_physical_property_continued_evidence_plan("At")
+    francium_continued_evidence = get_physical_property_continued_evidence_plan("Fr")
     californium_continued_evidence = get_physical_property_continued_evidence_plan("Cf")
     fermium_no_candidate_review = get_physical_property_no_candidate_review_receipt("Fm")
     mendelevium_no_candidate_review = get_physical_property_no_candidate_review_receipt("Md")
@@ -1334,9 +1372,9 @@ def main() -> None:
         "secondary_evidence_candidate"
     ), astatine_secondary_evidence_candidate
     assert astatine_secondary_evidence_admission.decision_status == (
-        "secondary_evidence_not_admitted_conflict"
+        "secondary_evidence_admitted_for_gap_closure"
     ), astatine_secondary_evidence_admission
-    assert astatine_secondary_evidence_admission.closes_gap is False, (
+    assert astatine_secondary_evidence_admission.closes_gap is True, (
         astatine_secondary_evidence_admission
     )
     assert francium_secondary_evidence_admission.decision_status == (
@@ -1382,9 +1420,9 @@ def main() -> None:
         einsteinium_secondary_evidence_admission
     )
     assert astatine_property_conflict.resolution_decision == (
-        "blocked_pending_higher_precedence_source"
+        "resolved_admit_candidate"
     ), astatine_property_conflict
-    assert astatine_property_conflict.closes_gap is False, astatine_property_conflict
+    assert astatine_property_conflict.closes_gap is True, astatine_property_conflict
     assert astatine_property_conflict.seed_mutation_allowed is False, (
         astatine_property_conflict
     )
@@ -1445,8 +1483,8 @@ def main() -> None:
     assert californium_density_seed_update.seed_update_applied is False, (
         californium_density_seed_update
     )
-    assert astatine_escalation.escalation_class == "higher_precedence_source_required", (
-        astatine_escalation
+    assert francium_escalation.escalation_class == "higher_precedence_source_required", (
+        francium_escalation
     )
     assert berkelium_escalation.escalation_class == "corroborating_source_required", (
         berkelium_escalation
@@ -1457,10 +1495,6 @@ def main() -> None:
     assert californium_seed_update_escalation.closes_gap is False, (
         californium_seed_update_escalation
     )
-    assert astatine_escalation_search.search_status == (
-        "higher_precedence_source_not_found"
-    ), astatine_escalation_search
-    assert astatine_escalation_search.closes_gap is False, astatine_escalation_search
     assert francium_escalation_search.search_status == (
         "higher_precedence_source_not_found"
     ), francium_escalation_search
@@ -1491,11 +1525,11 @@ def main() -> None:
     assert protactinium_escalation_search.closes_gap is False, (
         protactinium_escalation_search
     )
-    assert astatine_escalation_resolution.resolution_status == (
+    assert francium_escalation_resolution.resolution_status == (
         "conflict_resolution_blocked_pending_operator_decision"
-    ), astatine_escalation_resolution
-    assert astatine_escalation_resolution.final_resolution_applied is False, (
-        astatine_escalation_resolution
+    ), francium_escalation_resolution
+    assert francium_escalation_resolution.final_resolution_applied is False, (
+        francium_escalation_resolution
     )
     assert californium_escalation_resolution.resolution_status == (
         "candidate_rejection_recommended_pending_operator_decision"
@@ -1503,20 +1537,20 @@ def main() -> None:
     assert californium_escalation_resolution.closes_gap is False, (
         californium_escalation_resolution
     )
-    assert astatine_operator_decision.operator_decision_status == (
+    assert francium_operator_decision.operator_decision_status == (
         "operator_decision_deferred"
-    ), astatine_operator_decision
-    assert astatine_operator_decision.final_resolution_applied is False, (
-        astatine_operator_decision
+    ), francium_operator_decision
+    assert francium_operator_decision.final_resolution_applied is False, (
+        francium_operator_decision
     )
     assert californium_operator_decision.operator_decision_status == (
         "operator_decision_deferred"
     ), californium_operator_decision
     assert californium_operator_decision.closes_gap is False, californium_operator_decision
-    assert astatine_continued_evidence.plan_class == (
+    assert francium_continued_evidence.plan_class == (
         "higher_precedence_source_discovery"
-    ), astatine_continued_evidence
-    assert astatine_continued_evidence.closes_gap is False, astatine_continued_evidence
+    ), francium_continued_evidence
+    assert francium_continued_evidence.closes_gap is False, francium_continued_evidence
     assert californium_continued_evidence.plan_class == (
         "independent_corroboration_discovery"
     ), californium_continued_evidence
@@ -1547,14 +1581,18 @@ def main() -> None:
     assert "low_boiling_boundary" in bromine_matter_profile.inferred_behavior_tags, (
         bromine_matter_profile
     )
-    assert astatine_promotion_profile.readiness_status == (
-        "promotion_blocked_missing_source_evidence"
-    ), astatine_promotion_profile
+    assert astatine_promotion_profile.readiness_status == "promotion_ready", (
+        astatine_promotion_profile
+    )
     assert astatine_promotion_profile.unresolved_physical_property_evidence_available is True, (
         astatine_promotion_profile
     )
-    assert "complete_physical_property_evidence" in (
-        astatine_promotion_profile.required_missing_evidence
+    assert astatine_promotion_profile.required_missing_evidence == (), (
+        astatine_promotion_profile
+    )
+    assert astatine_promotion_profile.promotion_blockers == (), astatine_promotion_profile
+    assert "secondary_physical_property_evidence_resolves_source_gap" in (
+        astatine_promotion_profile.notes
     ), astatine_promotion_profile
     assert "nist_neutral_electron_configuration" not in (
         astatine_promotion_profile.required_missing_evidence
@@ -1574,16 +1612,13 @@ def main() -> None:
     assert "relation_edges" not in (
         astatine_promotion_profile.required_missing_evidence
     ), astatine_promotion_profile
-    assert astatine_promotion_profile.readiness_status == (
-        "promotion_blocked_missing_source_evidence"
-    ), astatine_promotion_profile
     assert gold_promotion_profile.readiness_status == "promotion_ready", gold_promotion_profile
     assert gold_promotion_profile.required_missing_evidence == (), gold_promotion_profile
     assert gold_decision.decision_status == "promotion_ready_pending_approval", gold_decision
-    assert astatine_decision.decision_status == (
-        "promotion_blocked_unresolved_physical_property"
-    ), astatine_decision
-    assert promotion_batch_policy.blocked_symbols == ("At",), promotion_batch_policy
+    assert astatine_decision.decision_status == "promotion_ready_pending_approval", (
+        astatine_decision
+    )
+    assert promotion_batch_policy.blocked_symbols == (), promotion_batch_policy
     assert promotion_batch_policy.seed_mutation_allowed is False, promotion_batch_policy
     assert astatine_configuration_evidence.neutral_configuration == (
         "[Xe] 4f^14 5d^10 6s^2 6p^5"
@@ -1639,7 +1674,7 @@ def main() -> None:
         physical_property_drift_report["drift_status"]
         == "physical_property_evidence_no_drift"
     ), physical_property_drift_report
-    assert physical_property_drift_report["local_count"] == 93, physical_property_drift_report
+    assert physical_property_drift_report["local_count"] == 94, physical_property_drift_report
     level_2_zinc_payload = json.loads(json.dumps(get_seed_element("Zn").to_dict()))
     level_2_zinc_payload["state"]["oxidation_states"] = [-2, 0, 2]
     level_2_zinc_payload["state"]["electronegativity_scale"] = "pauling"
@@ -1738,6 +1773,10 @@ def main() -> None:
         "GET",
         "/promotion/partial-eligibility",
     )
+    api_full_span_approval_review = handle_api_request(
+        "GET",
+        "/promotion/full-span-approval-review",
+    )
     api_astatine_decision = handle_api_request("GET", "/promotion/decisions/At")
     api_bromine_properties = handle_api_request("GET", "/evidence/physical-properties/Br")
     api_astatine_unresolved_properties = handle_api_request(
@@ -1815,23 +1854,23 @@ def main() -> None:
     )
     api_astatine_escalation = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalations/At",
+        "/evidence/physical-properties/escalations/Fr",
     )
     api_astatine_escalation_search = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalation-search/At",
+        "/evidence/physical-properties/escalation-search/Fr",
     )
     api_astatine_escalation_resolution = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalation-resolution/At",
+        "/evidence/physical-properties/escalation-resolution/Fr",
     )
     api_astatine_operator_decision = handle_api_request(
         "GET",
-        "/evidence/physical-properties/operator-decisions/At",
+        "/evidence/physical-properties/operator-decisions/Fr",
     )
     api_astatine_continued_evidence = handle_api_request(
         "GET",
-        "/evidence/physical-properties/continued-evidence/At",
+        "/evidence/physical-properties/continued-evidence/Fr",
     )
     api_fermium_no_candidate_review = handle_api_request(
         "GET",
@@ -1956,23 +1995,35 @@ def main() -> None:
     assert api_gold_relation.payload["record"]["relation_edges"], api_gold_relation.payload
     assert api_promotion_batch_policy.status_code == 200, api_promotion_batch_policy
     assert api_promotion_batch_policy.payload["receipt"]["policy_decision"] == (
-        "hold_full_cs_rn_span"
+        "allow_full_span_approval_review"
     ), api_promotion_batch_policy.payload
     assert api_partial_promotion_eligibility.status_code == 200, (
         api_partial_promotion_eligibility
     )
-    assert api_partial_promotion_eligibility.payload["validation"]["eligible_count"] == 31, (
+    assert api_partial_promotion_eligibility.payload["validation"]["eligible_count"] == 32, (
         api_partial_promotion_eligibility.payload
     )
-    assert api_partial_promotion_eligibility.payload["receipt"]["blocked_symbols"] == [
-        "At"
-    ], api_partial_promotion_eligibility.payload
+    assert api_partial_promotion_eligibility.payload["receipt"]["blocked_symbols"] == [], (
+        api_partial_promotion_eligibility.payload
+    )
     assert api_partial_promotion_eligibility.payload["receipt"][
         "seed_mutation_allowed"
     ] is False, api_partial_promotion_eligibility.payload
+    assert api_full_span_approval_review.status_code == 200, (
+        api_full_span_approval_review
+    )
+    assert api_full_span_approval_review.payload["validation"]["review_status"] == (
+        "full_span_approval_review_open"
+    ), api_full_span_approval_review.payload
+    assert api_full_span_approval_review.payload["receipt"][
+        "approval_review_allowed"
+    ] is True, api_full_span_approval_review.payload
+    assert api_full_span_approval_review.payload["receipt"][
+        "seed_mutation_allowed"
+    ] is False, api_full_span_approval_review.payload
     assert api_astatine_decision.status_code == 200, api_astatine_decision
     assert api_astatine_decision.payload["receipt"]["decision_status"] == (
-        "promotion_blocked_unresolved_physical_property"
+        "promotion_ready_pending_approval"
     ), api_astatine_decision.payload
     assert api_bromine_properties.status_code == 200, api_bromine_properties
     assert api_bromine_properties.payload["record"]["standard_state"] == "Liquid", (
@@ -1981,16 +2032,22 @@ def main() -> None:
     assert api_astatine_unresolved_properties.status_code == 200, (
         api_astatine_unresolved_properties
     )
-    assert api_astatine_unresolved_properties.payload["record"]["missing_fields"] == (
-        "boiling_point_k",
-    ), api_astatine_unresolved_properties.payload
+    astatine_api_missing_fields = tuple(
+        api_astatine_unresolved_properties.payload["record"]["missing_fields"]
+    )
+    assert len(astatine_api_missing_fields) == 1, api_astatine_unresolved_properties.payload
+    assert "boiling_point_k" in astatine_api_missing_fields, (
+        api_astatine_unresolved_properties.payload
+    )
     assert api_astatine_property_gap.status_code == 200, api_astatine_property_gap
-    assert api_astatine_property_gap.payload["receipt"]["blocks_promotion_spans"] == [
-        "Cs-Rn"
-    ], api_astatine_property_gap.payload
+    assert tuple(
+        api_astatine_property_gap.payload["receipt"]["blocks_promotion_spans"]
+    ) == (), (
+        api_astatine_property_gap.payload
+    )
     assert api_astatine_gap_workplan.status_code == 200, api_astatine_gap_workplan
     assert api_astatine_gap_workplan.payload["item"]["work_status"] == (
-        "conflict_blocked_promotion"
+        "conflict_resolved_for_promotion"
     ), api_astatine_gap_workplan.payload
     assert api_protactinium_source_search.status_code == 200, api_protactinium_source_search
     assert api_protactinium_source_search.payload["receipt"]["search_status"] == (
@@ -2018,7 +2075,7 @@ def main() -> None:
     assert api_astatine_secondary_evidence_admission.status_code == 200, (
         api_astatine_secondary_evidence_admission
     )
-    assert api_astatine_secondary_evidence_admission.payload["decision"]["closes_gap"] is False, (
+    assert api_astatine_secondary_evidence_admission.payload["decision"]["closes_gap"] is True, (
         api_astatine_secondary_evidence_admission.payload
     )
     assert api_protactinium_secondary_evidence_admission.status_code == 200, (
@@ -2031,9 +2088,9 @@ def main() -> None:
     )
     assert api_astatine_property_conflict.status_code == 200, api_astatine_property_conflict
     assert api_astatine_property_conflict.payload["receipt"]["resolution_decision"] == (
-        "blocked_pending_higher_precedence_source"
+        "resolved_admit_candidate"
     ), api_astatine_property_conflict.payload
-    assert api_astatine_property_conflict.payload["receipt"]["closes_gap"] is False, (
+    assert api_astatine_property_conflict.payload["receipt"]["closes_gap"] is True, (
         api_astatine_property_conflict.payload
     )
     assert api_francium_property_conflict.status_code == 200, api_francium_property_conflict
@@ -2179,7 +2236,7 @@ def main() -> None:
         api_astatine_promotion_profile.payload
     )
     assert api_astatine_promotion_profile.payload["profile"]["readiness_status"] == (
-        "promotion_blocked_missing_source_evidence"
+        "promotion_ready"
     ), api_astatine_promotion_profile.payload
     assert api_f_block_profiles.status_code == 200, api_f_block_profiles
     assert api_f_block_profiles.payload["validation"]["profile_count"] == 30, (
@@ -2279,7 +2336,8 @@ def main() -> None:
         f"relation_overlay_records={len(relation_overlay_records)} "
         f"promotion_decision_receipts={len(promotion_decision_receipts)} "
         f"promotion_batch_policy={promotion_batch_policy.policy_decision} "
-        f"partial_promotion_eligible={len(partial_promotion_eligibility.eligible_symbols)}"
+        f"partial_promotion_eligible={len(partial_promotion_eligibility.eligible_symbols)} "
+        f"full_span_approval_review={full_span_approval_review.review_status}"
     )
 
 

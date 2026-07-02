@@ -49,31 +49,32 @@ Oxidation-state evidence overlay: Cs-Rn
 Behavior-tag overlay: Cs-Rn
 Relation-edge overlay: Cs-Rn
 Promotion decision receipts: Cs-Rn
-Promotion batch policy: hold full Cs-Rn span pending At evidence
-Partial promotion eligibility: 31 ready Cs-Rn records exposed for review, zero seed mutation authority
+Promotion batch policy: full Cs-Rn span ready for approval review, zero seed mutation authority
+Partial promotion eligibility: 32 ready Cs-Rn records exposed for review, zero seed mutation authority
+Full-span promotion approval review: open for Cs-Rn, zero seed mutation authority
 Ion/isotope state instances: derived electron and neutron count validators
 Isotope/common-ion evidence seeds: H-Ca isotope evidence and selected common-ion candidates
 Unresolved isotope/common-ion evidence: snapshot and Level 1 evidence gaps
-Physical-property evidence: 93 complete PubChem rows
+Physical-property evidence: 94 complete rows, including admitted At secondary-source evidence
 Unresolved physical-property evidence: 25 incomplete PubChem rows
-Physical-property gap audits: 25 receipts, At blocks Cs-Rn
+Physical-property gap audits: 25 PubChem source-gap receipts, zero Cs-Rn promotion blockers
 Physical-property gap workplan: 25 items, zero gap closures
 Physical-property source-search receipts: 2 Pa/Bk searches with candidate receipts created
 Partial physical-property source-search receipts: 7 open searches, 14 field searches
 Secondary-source policy: 25 physical-property gap policies, zero gaps closed by policy alone
-Secondary-source evidence: 8 At/Fr/Pa/Bk/Cf/Es candidate receipts, zero admitted receipts
-Secondary-source admission: 8 blocked decisions, zero gap closures
-Physical-property conflict resolution: 3 At/Fr/Pa receipts, zero gap closures
+Secondary-source evidence: 8 At/Fr/Pa/Bk/Cf/Es candidate receipts, one At value admitted for readiness
+Secondary-source admission: 8 decisions, one At gap closure, zero seed mutations
+Physical-property conflict resolution: 3 At/Fr/Pa receipts, one At gap closure, zero seed mutations
 Physical-property corroboration review: 4 Fr density and Bk/Cf/Es boiling-point receipts, zero gap closures
 Physical-property source review: 1 Cf density receipt, zero gap closures
 Physical-property gap closure: 1 Cf density decision, ready pending approval, zero seed mutations
 Physical-property closure approval: 1 Cf density receipt, approval deferred, zero seed mutations
 Physical-property seed update: 1 Cf density receipt, blocked by deferred approval, zero seed mutations
-Physical-property escalations: 8 receipts for conflict, corroboration, and approval blocks, zero seed mutations
-Physical-property escalation search: 7 receipts, including At/Fr/Pa boiling-point investigations and Fr/Bk/Cf/Es corroboration searches
-Physical-property escalation resolution: 7 recommendation receipts, zero final resolutions applied
-Physical-property operator decisions: 7 deferred receipts, zero approvals or rejections applied
-Physical-property continued evidence: 7 plans, zero final resolutions or seed mutations applied
+Physical-property escalations: 7 receipts for remaining conflict, corroboration, and approval blocks, zero seed mutations
+Physical-property escalation search: 6 receipts, including Fr/Pa boiling-point investigations and Fr/Bk/Cf/Es corroboration searches
+Physical-property escalation resolution: 6 recommendation receipts, zero final resolutions applied
+Physical-property operator decisions: 6 deferred receipts, zero approvals or rejections applied
+Physical-property continued evidence: 6 plans, zero final resolutions or seed mutations applied
 Physical-property no-candidate review: 4 Fm/Md/No/Lr receipts, zero gap closures
 Matter-behavior profiles: H-Xe
 Atom behavior v2 profiles: 178 source-backed H-Xe isotope profiles including Tc-99 radioisotope evidence

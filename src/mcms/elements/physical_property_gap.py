@@ -14,6 +14,7 @@ from typing import Any
 
 from mcms.elements.evidence import (
     PHYSICAL_PROPERTY_EVIDENCE_SOURCE_REFERENCES,
+    find_physical_property_evidence_record,
     list_unresolved_physical_property_evidence_records,
 )
 
@@ -57,10 +58,8 @@ class PhysicalPropertyGapAuditReceipt:
             errors.append("physical-property gap status is unknown.")
         if not self.no_guess_policy:
             errors.append("physical-property gap receipts must enforce no-guess policy.")
-        if self.symbol == "At" and "Cs-Rn" not in self.blocks_promotion_spans:
-            errors.append("At physical-property gap must block the Cs-Rn promotion span.")
-        if self.symbol != "At" and "Cs-Rn" in self.blocks_promotion_spans:
-            errors.append("only At currently blocks the Cs-Rn promotion span.")
+        if "Cs-Rn" in self.blocks_promotion_spans and self.symbol != "At":
+            errors.append("only At may block the Cs-Rn promotion span.")
         if "boiling_point_k" not in self.missing_fields:
             errors.append("current unresolved physical-property gaps must include boiling point.")
         if not self.required_next_action:
@@ -86,6 +85,12 @@ def _present_fields_for_unresolved_record(record: Any) -> tuple[str, ...]:
 
 
 def _build_gap_receipt(record: Any) -> PhysicalPropertyGapAuditReceipt:
+    try:
+        find_physical_property_evidence_record(record.symbol)
+    except KeyError:
+        has_admitted_physical_property_evidence = False
+    else:
+        has_admitted_physical_property_evidence = True
     return PhysicalPropertyGapAuditReceipt(
         receipt_id=f"MSPEE-PHYSICAL-PROPERTY-GAP-Z{record.atomic_number:03d}-{record.symbol}",
         element_id=record.element_id,
@@ -98,7 +103,11 @@ def _build_gap_receipt(record: Any) -> PhysicalPropertyGapAuditReceipt:
         source_checked_date=PHYSICAL_PROPERTY_GAP_SOURCE_CHECK_DATE,
         source_row_status="source_row_incomplete",
         gap_status="awaiting_authoritative_source_value",
-        blocks_promotion_spans=("Cs-Rn",) if record.symbol == "At" else (),
+        blocks_promotion_spans=(
+            ("Cs-Rn",)
+            if record.symbol == "At" and not has_admitted_physical_property_evidence
+            else ()
+        ),
         required_next_action=(
             "wait for PubChem to publish a complete row or add a governed secondary "
             "source with explicit provenance"
