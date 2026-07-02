@@ -38,7 +38,9 @@ from mcms.elements import (
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
+    get_full_span_promotion_approval_decision_receipt,
     get_full_span_promotion_approval_review_receipt,
+    get_full_span_promotion_execution_packet,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
@@ -118,6 +120,11 @@ from mcms.elements import (
     validate_isotope_source_policies,
     validate_isotope_source_search_receipts,
     validate_seed_pack,
+)
+from mcms.elements.evidence import (
+    get_element_evidence_console_record,
+    list_element_evidence_console_records,
+    validate_element_evidence_console_records,
 )
 from mcms.release.robust_evidence_network import analyze_robust_evidence_network
 
@@ -205,6 +212,8 @@ def cmd_elements(
     promotion_batch_policy: bool = False,
     partial_promotion_eligibility: bool = False,
     full_span_promotion_approval_review: bool = False,
+    full_span_promotion_approval_decision: bool = False,
+    full_span_promotion_execution_packet: bool = False,
     atom_behavior: bool = False,
     atom_charge: int = 0,
     atom_behavior_gap: bool = False,
@@ -215,6 +224,7 @@ def cmd_elements(
     isotope_candidate_evidence_template: bool = False,
     isotope_candidate_admission: bool = False,
     readiness_score: bool = False,
+    evidence_console: bool = False,
 ) -> None:
     if readiness_score:
         scores = (
@@ -227,6 +237,23 @@ def cmd_elements(
                 {
                     "validation": validate_element_readiness_scores(scores),
                     "scores": [score.to_dict() for score in scores],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if evidence_console:
+        records = (
+            (get_element_evidence_console_record(symbol),)
+            if symbol
+            else list_element_evidence_console_records()
+        )
+        print(
+            json.dumps(
+                {
+                    "validation": validate_element_evidence_console_records(records),
+                    "records": [record.to_dict() for record in records],
                 },
                 indent=2,
                 sort_keys=True,
@@ -690,6 +717,26 @@ def cmd_elements(
             )
         )
         return
+    if full_span_promotion_approval_decision:
+        receipt = get_full_span_promotion_approval_decision_receipt()
+        print(
+            json.dumps(
+                {"receipt": receipt.to_dict()},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if full_span_promotion_execution_packet:
+        packet = get_full_span_promotion_execution_packet()
+        print(
+            json.dumps(
+                {"packet": packet.to_dict()},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
     if promotion_decision:
         receipts = (
             (get_promotion_decision_receipt(symbol),)
@@ -1072,6 +1119,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print element readiness scores, optionally filtered by --symbol",
     )
     elements_parser.add_argument(
+        "--evidence-console",
+        action="store_true",
+        help="Print element evidence console records, optionally filtered by --symbol",
+    )
+    elements_parser.add_argument(
         "--isotope-evidence",
         action="store_true",
         help="Print isotope evidence records, optionally filtered by --symbol and --isotope-mass",
@@ -1232,6 +1284,16 @@ def main(argv: list[str] | None = None) -> None:
         help="Print the read-only Cs-Rn full-span promotion approval-review receipt",
     )
     elements_parser.add_argument(
+        "--full-span-promotion-approval-decision",
+        action="store_true",
+        help="Print the Cs-Rn full-span promotion approval-decision receipt",
+    )
+    elements_parser.add_argument(
+        "--full-span-promotion-execution-packet",
+        action="store_true",
+        help="Print the unapplied Cs-Rn seed-promotion execution packet",
+    )
+    elements_parser.add_argument(
         "--configuration-evidence",
         action="store_true",
         help="Print Cs-Rn NIST configuration evidence, optionally filtered by --symbol",
@@ -1311,6 +1373,8 @@ def main(argv: list[str] | None = None) -> None:
             args.promotion_batch_policy,
             args.partial_promotion_eligibility,
             args.full_span_promotion_approval_review,
+            args.full_span_promotion_approval_decision,
+            args.full_span_promotion_execution_packet,
             args.atom_behavior,
             args.atom_charge,
             args.atom_behavior_gap,
@@ -1321,6 +1385,7 @@ def main(argv: list[str] | None = None) -> None:
             args.isotope_candidate_evidence_template,
             args.isotope_candidate_admission,
             args.readiness_score,
+            args.evidence_console,
         )
 
 

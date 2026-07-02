@@ -10,6 +10,7 @@ fields separate from derived state-instance counts.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from typing import Any
 
 from mcms.elements.instances import (
     build_ion_instance,
@@ -1691,6 +1692,282 @@ def find_unresolved_common_ion_evidence_record(identifier: str | int) -> Unresol
         ):
             return record
     raise KeyError(f"unknown unresolved common-ion evidence record: {identifier_text}")
+
+
+VALID_EVIDENCE_CONSOLE_STATUSES = {"element_evidence_console_read_model"}
+
+
+@dataclass(frozen=True)
+class ElementEvidenceConsoleRecord:
+    console_id: str
+    symbol: str
+    atomic_number: int
+    readiness_status: str
+    promotion_decision_status: str
+    canonical_evidence_refs: tuple[dict[str, str], ...]
+    candidate_evidence_refs: tuple[dict[str, str], ...]
+    unresolved_gap_refs: tuple[dict[str, str], ...]
+    admission_receipt_refs: tuple[dict[str, str], ...]
+    conflict_refs: tuple[dict[str, str], ...]
+    canonical_evidence_count: int
+    candidate_evidence_count: int
+    unresolved_gap_count: int
+    admission_receipt_count: int
+    conflict_ref_count: int
+    mutation_allowed: bool
+    next_action: str
+    evidence_status: str = "element_evidence_console_read_model"
+    notes: tuple[str, ...] = (
+        "Evidence console records summarize existing evidence receipts only.",
+        "The console does not create evidence, close gaps, or apply seed mutation.",
+    )
+
+    def validate(self) -> list[str]:
+        errors: list[str] = []
+        snapshot = get_snapshot_record(self.symbol)
+        expected_id = f"MSPEE-EVIDENCE-CONSOLE-Z{self.atomic_number:03d}-{self.symbol}"
+        if self.console_id != expected_id:
+            errors.append("evidence console id is not canonical.")
+        if self.atomic_number != snapshot.atomic_number:
+            errors.append("evidence console atomic number must match snapshot.")
+        if self.symbol != snapshot.symbol:
+            errors.append("evidence console symbol must match snapshot.")
+        if self.evidence_status not in VALID_EVIDENCE_CONSOLE_STATUSES:
+            errors.append("evidence console status is unknown.")
+        expected_counts = (
+            (self.canonical_evidence_count, self.canonical_evidence_refs),
+            (self.candidate_evidence_count, self.candidate_evidence_refs),
+            (self.unresolved_gap_count, self.unresolved_gap_refs),
+            (self.admission_receipt_count, self.admission_receipt_refs),
+            (self.conflict_ref_count, self.conflict_refs),
+        )
+        if any(count != len(refs) for count, refs in expected_counts):
+            errors.append("evidence console counts must match refs.")
+        if self.mutation_allowed:
+            errors.append("evidence console must not allow mutation.")
+        if not self.next_action:
+            errors.append("evidence console requires next action.")
+        return errors
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["canonical_evidence_refs"] = list(self.canonical_evidence_refs)
+        payload["candidate_evidence_refs"] = list(self.candidate_evidence_refs)
+        payload["unresolved_gap_refs"] = list(self.unresolved_gap_refs)
+        payload["admission_receipt_refs"] = list(self.admission_receipt_refs)
+        payload["conflict_refs"] = list(self.conflict_refs)
+        payload["notes"] = list(self.notes)
+        return payload
+
+
+def _console_record_status(record: Any) -> str:
+    for field_name in (
+        "evidence_status",
+        "unresolved_status",
+        "admission_status",
+        "decision_status",
+        "resolution_decision",
+        "review_decision",
+    ):
+        value = getattr(record, field_name, None)
+        if value:
+            return str(value)
+    return "recorded"
+
+
+def _console_record_ref(record: Any, ref_type: str) -> dict[str, str]:
+    for field_name in ("isotope_id", "ion_id", "receipt_id", "decision_id", "element_id"):
+        value = getattr(record, field_name, None)
+        if value:
+            return {
+                "ref_id": str(value),
+                "ref_type": ref_type,
+                "status": _console_record_status(record),
+            }
+    raise ValueError(f"{ref_type} record lacks a stable reference id.")
+
+
+def _append_console_ref(
+    refs_by_symbol: dict[str, list[dict[str, str]]],
+    record: Any,
+    ref_type: str,
+) -> None:
+    refs_by_symbol.setdefault(str(record.symbol), []).append(
+        _console_record_ref(record, ref_type)
+    )
+
+
+def _freeze_console_refs(
+    refs_by_symbol: dict[str, list[dict[str, str]]],
+) -> dict[str, tuple[dict[str, str], ...]]:
+    return {
+        symbol: tuple(sorted(refs, key=lambda ref: (ref["ref_type"], ref["ref_id"])))
+        for symbol, refs in refs_by_symbol.items()
+    }
+
+
+def _build_evidence_console_indexes() -> dict[str, dict[str, tuple[dict[str, str], ...]]]:
+    from mcms.elements.atom_behavior_gap import list_atom_behavior_gap_receipts
+    from mcms.elements.isotope_admission import list_isotope_candidate_admission_receipts
+    from mcms.elements.isotope_candidate_evidence import list_isotope_candidate_evidence_receipts
+    from mcms.elements.physical_property_admission import (
+        list_physical_property_secondary_evidence_admission_decisions,
+    )
+    from mcms.elements.physical_property_conflict import (
+        list_physical_property_conflict_resolution_receipts,
+    )
+    from mcms.elements.physical_property_corroboration import (
+        list_physical_property_corroboration_review_receipts,
+    )
+    from mcms.elements.physical_property_review import list_physical_property_review_receipts
+    from mcms.elements.physical_property_secondary_evidence import (
+        list_physical_property_secondary_evidence_receipts,
+    )
+
+    indexes: dict[str, dict[str, list[dict[str, str]]]] = {
+        "canonical": {},
+        "candidate": {},
+        "unresolved": {},
+        "admission": {},
+        "conflict": {},
+    }
+    for record in list_isotope_evidence_records():
+        _append_console_ref(indexes["canonical"], record, "isotope_evidence")
+    for record in list_common_ion_evidence_records():
+        _append_console_ref(indexes["canonical"], record, "common_ion_evidence")
+    for record in list_physical_property_evidence_records():
+        _append_console_ref(indexes["canonical"], record, "physical_property_evidence")
+    for record in list_isotope_candidate_evidence_receipts():
+        _append_console_ref(indexes["candidate"], record, "isotope_candidate_evidence")
+    for record in list_physical_property_secondary_evidence_receipts():
+        _append_console_ref(indexes["candidate"], record, "physical_property_secondary_evidence")
+    for record in list_atom_behavior_gap_receipts():
+        _append_console_ref(indexes["unresolved"], record, "atom_behavior_gap")
+    for record in list_unresolved_isotope_evidence_records():
+        _append_console_ref(indexes["unresolved"], record, "unresolved_isotope_evidence")
+    for record in list_unresolved_common_ion_evidence_records():
+        _append_console_ref(indexes["unresolved"], record, "unresolved_common_ion_evidence")
+    for record in list_unresolved_physical_property_evidence_records():
+        _append_console_ref(indexes["unresolved"], record, "unresolved_physical_property_evidence")
+    for record in list_isotope_candidate_admission_receipts():
+        _append_console_ref(indexes["admission"], record, "isotope_candidate_admission")
+    for record in list_physical_property_secondary_evidence_admission_decisions():
+        _append_console_ref(indexes["admission"], record, "physical_property_secondary_admission")
+    for record in list_physical_property_conflict_resolution_receipts():
+        _append_console_ref(indexes["conflict"], record, "physical_property_conflict")
+    for record in list_physical_property_corroboration_review_receipts():
+        _append_console_ref(indexes["conflict"], record, "physical_property_corroboration")
+    for record in list_physical_property_review_receipts():
+        _append_console_ref(indexes["conflict"], record, "physical_property_review")
+    return {name: _freeze_console_refs(records) for name, records in indexes.items()}
+
+
+def _console_promotion_decision_status(symbol: str) -> str:
+    from mcms.elements.promotion_decision import get_promotion_decision_receipt
+
+    try:
+        return get_promotion_decision_receipt(symbol).decision_status
+    except KeyError:
+        return "not_in_promotion_span"
+
+
+def _console_next_action(unresolved_gap_count: int, promotion_decision_status: str) -> str:
+    if unresolved_gap_count:
+        return "collect source evidence for unresolved receipts"
+    if promotion_decision_status == "promotion_ready_pending_approval":
+        return "await governed promotion approval"
+    return "retain read-only evidence witness"
+
+
+def _build_evidence_console_record(
+    identifier: str | int,
+    indexes: dict[str, dict[str, tuple[dict[str, str], ...]]],
+) -> ElementEvidenceConsoleRecord:
+    from mcms.elements.readiness_scoring import get_element_readiness_score
+
+    snapshot = get_snapshot_record(identifier)
+    score = get_element_readiness_score(snapshot.symbol)
+    canonical_refs = indexes["canonical"].get(snapshot.symbol, ())
+    candidate_refs = indexes["candidate"].get(snapshot.symbol, ())
+    unresolved_refs = indexes["unresolved"].get(snapshot.symbol, ())
+    admission_refs = indexes["admission"].get(snapshot.symbol, ())
+    conflict_refs = indexes["conflict"].get(snapshot.symbol, ())
+    promotion_status = _console_promotion_decision_status(snapshot.symbol)
+    record = ElementEvidenceConsoleRecord(
+        console_id=f"MSPEE-EVIDENCE-CONSOLE-Z{snapshot.atomic_number:03d}-{snapshot.symbol}",
+        symbol=snapshot.symbol,
+        atomic_number=snapshot.atomic_number,
+        readiness_status=score.readiness_status,
+        promotion_decision_status=promotion_status,
+        canonical_evidence_refs=canonical_refs,
+        candidate_evidence_refs=candidate_refs,
+        unresolved_gap_refs=unresolved_refs,
+        admission_receipt_refs=admission_refs,
+        conflict_refs=conflict_refs,
+        canonical_evidence_count=len(canonical_refs),
+        candidate_evidence_count=len(candidate_refs),
+        unresolved_gap_count=len(unresolved_refs),
+        admission_receipt_count=len(admission_refs),
+        conflict_ref_count=len(conflict_refs),
+        mutation_allowed=False,
+        next_action=_console_next_action(len(unresolved_refs), promotion_status),
+    )
+    validation_errors = record.validate()
+    if validation_errors:
+        raise ValueError("; ".join(validation_errors))
+    return record
+
+
+def list_element_evidence_console_records() -> tuple[ElementEvidenceConsoleRecord, ...]:
+    from mcms.elements.snapshot import list_full_snapshot_records
+
+    indexes = _build_evidence_console_indexes()
+    return tuple(
+        _build_evidence_console_record(record.symbol, indexes)
+        for record in list_full_snapshot_records()
+    )
+
+
+def get_element_evidence_console_record(identifier: str | int) -> ElementEvidenceConsoleRecord:
+    return _build_evidence_console_record(identifier, _build_evidence_console_indexes())
+
+
+def validate_element_evidence_console_records(
+    records: tuple[ElementEvidenceConsoleRecord, ...] | None = None,
+) -> dict[str, Any]:
+    checked_records = records if records is not None else list_element_evidence_console_records()
+    invalid_records = tuple(record.console_id for record in checked_records if record.validate())
+    return {
+        "validation_status": (
+            "element_evidence_console_records_validated"
+            if not invalid_records
+            else "element_evidence_console_records_rejected"
+        ),
+        "record_count": len(checked_records),
+        "canonical_evidence_ref_count": sum(
+            record.canonical_evidence_count for record in checked_records
+        ),
+        "candidate_evidence_ref_count": sum(
+            record.candidate_evidence_count for record in checked_records
+        ),
+        "unresolved_gap_ref_count": sum(record.unresolved_gap_count for record in checked_records),
+        "admission_receipt_ref_count": sum(
+            record.admission_receipt_count for record in checked_records
+        ),
+        "conflict_ref_count": sum(record.conflict_ref_count for record in checked_records),
+        "ready_record_count": sum(
+            1
+            for record in checked_records
+            if record.readiness_status == "atom_behavior_ready_from_evidence"
+        ),
+        "promotion_pending_approval_count": sum(
+            1
+            for record in checked_records
+            if record.promotion_decision_status == "promotion_ready_pending_approval"
+        ),
+        "mutation_allowed_count": sum(1 for record in checked_records if record.mutation_allowed),
+        "invalid_records": invalid_records,
+    }
 
 
 def validate_isotope_evidence_records(

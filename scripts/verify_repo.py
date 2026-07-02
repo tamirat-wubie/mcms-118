@@ -36,7 +36,9 @@ from mcms.elements import (  # noqa: E402
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
     get_f_block_expansion_profile,
+    get_full_span_promotion_approval_decision_receipt,
     get_full_span_promotion_approval_review_receipt,
+    get_full_span_promotion_execution_packet,
     get_isotope_candidate_admission_receipt,
     get_partial_physical_property_source_search_receipt,
     get_partial_promotion_eligibility_receipt,
@@ -119,7 +121,9 @@ from mcms.elements import (  # noqa: E402
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_full_span_promotion_approval_decision_receipt,
     validate_full_span_promotion_approval_review_receipt,
+    validate_full_span_promotion_execution_packet,
     validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
@@ -440,6 +444,16 @@ def main() -> None:
         validate_full_span_promotion_approval_review_receipt(
             full_span_approval_review
         )
+    )
+    full_span_approval_decision = get_full_span_promotion_approval_decision_receipt()
+    full_span_approval_decision_result = (
+        validate_full_span_promotion_approval_decision_receipt(
+            full_span_approval_decision
+        )
+    )
+    full_span_execution_packet = get_full_span_promotion_execution_packet()
+    full_span_execution_packet_result = (
+        validate_full_span_promotion_execution_packet(full_span_execution_packet)
     )
     element_schema_validator = Draft202012Validator(element_schema)
     snapshot_schema_validator = Draft202012Validator(snapshot_schema)
@@ -1158,6 +1172,36 @@ def main() -> None:
     assert full_span_approval_review.seed_mutation_allowed is False, (
         full_span_approval_review
     )
+    assert full_span_approval_decision_result["validation_status"] == (
+        "full_span_promotion_approval_decision_receipt_validated"
+    ), full_span_approval_decision_result
+    assert full_span_approval_decision_result["approval_decision"] == (
+        "full_span_promotion_approved"
+    ), full_span_approval_decision_result
+    assert full_span_approval_decision_result["approved_count"] == 32, (
+        full_span_approval_decision_result
+    )
+    assert full_span_approval_decision_result["seed_mutation_authorized"] is True, (
+        full_span_approval_decision_result
+    )
+    assert full_span_approval_decision_result["seed_mutation_applied"] is False, (
+        full_span_approval_decision_result
+    )
+    assert full_span_execution_packet_result["validation_status"] == (
+        "full_span_promotion_execution_packet_validated"
+    ), full_span_execution_packet_result
+    assert full_span_execution_packet_result["execution_status"] == (
+        "execution_packet_ready_not_applied"
+    ), full_span_execution_packet_result
+    assert full_span_execution_packet_result["promotion_count"] == 32, (
+        full_span_execution_packet_result
+    )
+    assert full_span_execution_packet_result["seed_mutation_authorized"] is True, (
+        full_span_execution_packet_result
+    )
+    assert full_span_execution_packet_result["seed_mutation_applied"] is False, (
+        full_span_execution_packet_result
+    )
     Draft202012Validator.check_schema(element_schema)
     Draft202012Validator.check_schema(snapshot_schema)
     element_schema_validator.validate(json.loads(json.dumps(get_seed_element("Zn").to_dict())))
@@ -1777,6 +1821,14 @@ def main() -> None:
         "GET",
         "/promotion/full-span-approval-review",
     )
+    api_full_span_approval_decision = handle_api_request(
+        "GET",
+        "/promotion/full-span-approval-decision",
+    )
+    api_full_span_execution_packet = handle_api_request(
+        "GET",
+        "/promotion/full-span-execution-packet",
+    )
     api_astatine_decision = handle_api_request("GET", "/promotion/decisions/At")
     api_bromine_properties = handle_api_request("GET", "/evidence/physical-properties/Br")
     api_astatine_unresolved_properties = handle_api_request(
@@ -2021,6 +2073,18 @@ def main() -> None:
     assert api_full_span_approval_review.payload["receipt"][
         "seed_mutation_allowed"
     ] is False, api_full_span_approval_review.payload
+    assert api_full_span_approval_decision.status_code == 200, (
+        api_full_span_approval_decision
+    )
+    assert api_full_span_approval_decision.payload["validation"][
+        "approval_decision"
+    ] == "full_span_promotion_approved", api_full_span_approval_decision.payload
+    assert api_full_span_execution_packet.status_code == 200, (
+        api_full_span_execution_packet
+    )
+    assert api_full_span_execution_packet.payload["validation"]["execution_status"] == (
+        "execution_packet_ready_not_applied"
+    ), api_full_span_execution_packet.payload
     assert api_astatine_decision.status_code == 200, api_astatine_decision
     assert api_astatine_decision.payload["receipt"]["decision_status"] == (
         "promotion_ready_pending_approval"
@@ -2337,7 +2401,9 @@ def main() -> None:
         f"promotion_decision_receipts={len(promotion_decision_receipts)} "
         f"promotion_batch_policy={promotion_batch_policy.policy_decision} "
         f"partial_promotion_eligible={len(partial_promotion_eligibility.eligible_symbols)} "
-        f"full_span_approval_review={full_span_approval_review.review_status}"
+        f"full_span_approval_review={full_span_approval_review.review_status} "
+        f"full_span_approval_decision={full_span_approval_decision.approval_decision} "
+        f"full_span_execution_packet={full_span_execution_packet.execution_status}"
     )
 
 

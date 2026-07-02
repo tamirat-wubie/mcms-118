@@ -52,6 +52,8 @@ Promotion decision receipts: Cs-Rn
 Promotion batch policy: full Cs-Rn span ready for approval review, zero seed mutation authority
 Partial promotion eligibility: 32 ready Cs-Rn records exposed for review, zero seed mutation authority
 Full-span promotion approval review: open for Cs-Rn, zero seed mutation authority
+Full-span promotion approval decision: approved for Cs-Rn execution packet, seed mutation not applied
+Full-span promotion execution packet: ready for Cs-Rn seed append, seed mutation not applied
 Ion/isotope state instances: derived electron and neutron count validators
 Isotope/common-ion evidence seeds: H-Ca isotope evidence and selected common-ion candidates
 Unresolved isotope/common-ion evidence: snapshot and Level 1 evidence gaps
@@ -84,6 +86,7 @@ Isotope source-search receipts: zero open searches and zero active candidate rec
 Isotope candidate evidence: 0 active receipts after Oxygen and Technetium admission
 Isotope candidate admission: 2 O/Tc admission receipts, zero active candidate retention
 Element readiness scores: 118 read-only score records for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension
+Evidence console: 118 read-only operator records aggregating canonical, candidate, unresolved, admission, conflict, readiness, and promotion state
 ```
 
 ## Boundary
