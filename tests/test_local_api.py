@@ -26,6 +26,7 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /atom/behavior/isotope-candidate-admission/O" in index["routes"]
     assert "GET /atom/behavior/isotope-candidate-admission/Tc" in index["routes"]
     assert "GET /scoring/readiness/Tc" in index["routes"]
+    assert "GET /evidence/console/O" in index["routes"]
     assert "GET /evidence/isotopes/C?mass_number=14" in index["routes"]
     assert "GET /evidence/isotopes/unresolved/Rn" in index["routes"]
     assert "GET /evidence/common-ions/Fe" in index["routes"]
@@ -61,6 +62,8 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /promotion/batch-policy" in index["routes"]
     assert "GET /promotion/partial-eligibility" in index["routes"]
     assert "GET /promotion/full-span-approval-review" in index["routes"]
+    assert "GET /promotion/full-span-approval-decision" in index["routes"]
+    assert "GET /promotion/full-span-execution-packet" in index["routes"]
     assert "GET /promotion/decisions/At" in index["routes"]
     assert "GET /phase3/f-block/U" in index["routes"]
     assert "GET /level2/period-5/Xe" in index["routes"]
@@ -74,6 +77,7 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert health["isotope_candidate_evidence_receipt_count"] == 0
     assert health["isotope_candidate_admission_receipt_count"] == 2
     assert health["element_readiness_score_count"] == 118
+    assert health["element_evidence_console_record_count"] == 118
     assert method_error.status_code == 405
 
 

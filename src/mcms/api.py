@@ -50,7 +50,9 @@ from mcms.elements import (
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
     get_f_block_expansion_profile,
+    get_full_span_promotion_approval_decision_receipt,
     get_full_span_promotion_approval_review_receipt,
+    get_full_span_promotion_execution_packet,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
@@ -136,7 +138,9 @@ from mcms.elements import (
     validate_f_block_expansion_profiles,
     validate_frontier_valence_signature_records,
     validate_full_snapshot,
+    validate_full_span_promotion_approval_decision_receipt,
     validate_full_span_promotion_approval_review_receipt,
+    validate_full_span_promotion_execution_packet,
     validate_isotope_candidate_admission_receipts,
     validate_isotope_candidate_evidence_receipts,
     validate_isotope_evidence_records,
@@ -172,6 +176,11 @@ from mcms.elements import (
     validate_seed_pack,
     validate_unresolved_evidence_records,
     validate_unresolved_physical_property_evidence_records,
+)
+from mcms.elements.evidence import (
+    get_element_evidence_console_record,
+    list_element_evidence_console_records,
+    validate_element_evidence_console_records,
 )
 
 API_STATUS = "mcms_local_api_ready"
@@ -264,6 +273,8 @@ def _index_payload() -> dict[str, Any]:
             "GET /atom/behavior/isotope-candidate-admission/Tc",
             "GET /scoring/readiness",
             "GET /scoring/readiness/Tc",
+            "GET /evidence/console",
+            "GET /evidence/console/O",
             "GET /evidence/isotopes",
             "GET /evidence/isotopes/C?mass_number=14",
             "GET /evidence/isotopes/unresolved",
@@ -317,6 +328,8 @@ def _index_payload() -> dict[str, Any]:
             "GET /promotion/batch-policy",
             "GET /promotion/partial-eligibility",
             "GET /promotion/full-span-approval-review",
+            "GET /promotion/full-span-approval-decision",
+            "GET /promotion/full-span-execution-packet",
             "GET /promotion/decisions",
             "GET /promotion/decisions/At",
             "GET /phase3/f-block",
@@ -1150,6 +1163,24 @@ def _readiness_score_payload(identifier: str) -> dict[str, Any]:
     }
 
 
+def _evidence_console_list_payload() -> dict[str, Any]:
+    records = list_element_evidence_console_records()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_element_evidence_console_records(records),
+        "records": [record.to_dict() for record in records],
+    }
+
+
+def _evidence_console_payload(identifier: str) -> dict[str, Any]:
+    record = get_element_evidence_console_record(identifier)
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_element_evidence_console_records((record,)),
+        "record": record.to_dict(),
+    }
+
+
 def _cs_rn_promotion_readiness_list_payload() -> dict[str, Any]:
     profiles = list_cs_rn_promotion_readiness_profiles()
     return {
@@ -1210,6 +1241,24 @@ def _full_span_promotion_approval_review_payload() -> dict[str, Any]:
         "api_status": API_STATUS,
         "validation": validate_full_span_promotion_approval_review_receipt(receipt),
         "receipt": receipt.to_dict(),
+    }
+
+
+def _full_span_promotion_approval_decision_payload() -> dict[str, Any]:
+    receipt = get_full_span_promotion_approval_decision_receipt()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_full_span_promotion_approval_decision_receipt(receipt),
+        "receipt": receipt.to_dict(),
+    }
+
+
+def _full_span_promotion_execution_packet_payload() -> dict[str, Any]:
+    packet = get_full_span_promotion_execution_packet()
+    return {
+        "api_status": API_STATUS,
+        "validation": validate_full_span_promotion_execution_packet(packet),
+        "packet": packet.to_dict(),
     }
 
 
@@ -1284,6 +1333,9 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
                     ),
                     "element_readiness_score_count": len(
                         list_element_readiness_scores()
+                    ),
+                    "element_evidence_console_record_count": len(
+                        list_element_evidence_console_records()
                     ),
                 },
             )
@@ -1782,6 +1834,10 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             return ApiResponse(HTTPStatus.OK, _readiness_score_list_payload())
         if len(path_parts) == 3 and path_parts[:2] == ["scoring", "readiness"]:
             return ApiResponse(HTTPStatus.OK, _readiness_score_payload(path_parts[2]))
+        if path_parts == ["evidence", "console"]:
+            return ApiResponse(HTTPStatus.OK, _evidence_console_list_payload())
+        if len(path_parts) == 3 and path_parts[:2] == ["evidence", "console"]:
+            return ApiResponse(HTTPStatus.OK, _evidence_console_payload(path_parts[2]))
         if len(path_parts) == 3 and path_parts[:2] == ["atom", "behavior"]:
             return ApiResponse(
                 HTTPStatus.OK,
@@ -1806,6 +1862,16 @@ def handle_api_request(method: str, raw_target: str) -> ApiResponse:
             return ApiResponse(
                 HTTPStatus.OK,
                 _full_span_promotion_approval_review_payload(),
+            )
+        if path_parts == ["promotion", "full-span-approval-decision"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _full_span_promotion_approval_decision_payload(),
+            )
+        if path_parts == ["promotion", "full-span-execution-packet"]:
+            return ApiResponse(
+                HTTPStatus.OK,
+                _full_span_promotion_execution_packet_payload(),
             )
         if path_parts == ["promotion", "decisions"]:
             return ApiResponse(HTTPStatus.OK, _promotion_decision_list_payload())

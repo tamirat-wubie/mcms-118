@@ -7,6 +7,11 @@ from mcms.elements import (
     list_element_readiness_scores,
     validate_element_readiness_scores,
 )
+from mcms.elements.evidence import (
+    get_element_evidence_console_record,
+    list_element_evidence_console_records,
+    validate_element_evidence_console_records,
+)
 
 
 def test_element_readiness_scores_partition_ready_and_blocked_elements():
@@ -80,3 +85,53 @@ def test_element_cli_prints_readiness_scores(capsys):
     assert output["scores"][0]["symbol"] == "Tc"
     assert output["scores"][0]["gap_priority_score"] == 0.0
     assert output["scores"][0]["seed_mutation_allowed"] is False
+
+
+def test_evidence_console_records_partition_element_lifecycle_state():
+    records = list_element_evidence_console_records()
+    validation = validate_element_evidence_console_records(records)
+    oxygen = get_element_evidence_console_record("O")
+    technetium = get_element_evidence_console_record("Tc")
+    radon = get_element_evidence_console_record("Rn")
+
+    assert validation["validation_status"] == "element_evidence_console_records_validated"
+    assert validation["record_count"] == 118
+    assert validation["canonical_evidence_ref_count"] == 281
+    assert validation["candidate_evidence_ref_count"] == 8
+    assert validation["unresolved_gap_ref_count"] == 200
+    assert validation["admission_receipt_ref_count"] == 10
+    assert validation["conflict_ref_count"] == 8
+    assert validation["mutation_allowed_count"] == 0
+    assert oxygen.canonical_evidence_count == 4
+    assert oxygen.unresolved_gap_count == 1
+    assert oxygen.admission_receipt_count == 1
+    assert technetium.canonical_evidence_count == 2
+    assert technetium.admission_receipt_count == 1
+    assert radon.readiness_status == "atom_behavior_blocked_by_seed_and_matter"
+    assert radon.promotion_decision_status == "promotion_ready_pending_approval"
+    assert radon.unresolved_gap_count == 2
+    assert radon.mutation_allowed is False
+
+
+def test_local_api_and_cli_expose_evidence_console(capsys):
+    api_record = handle_api_request("GET", "/evidence/console/O")
+    missing = handle_api_request("GET", "/evidence/console/Xx")
+    cmd_elements(
+        symbol="O",
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        evidence_console=True,
+    )
+    output = json.loads(capsys.readouterr().out)
+
+    assert api_record.status_code == 200
+    assert api_record.payload["record"]["canonical_evidence_count"] == 4
+    assert api_record.payload["record"]["mutation_allowed"] is False
+    assert missing.status_code == 404
+    assert output["validation"]["record_count"] == 1
+    assert output["records"][0]["symbol"] == "O"
+    assert output["records"][0]["admission_receipt_count"] == 1

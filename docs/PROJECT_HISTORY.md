@@ -107,13 +107,17 @@ The active element-engine product boundary is MSPEE-118.
 | Behavior tags | Cs through Rn carry bounded symbolic behavior-tag overlays |
 | Relation overlay | Cs through Rn carry evidence-derived relation edges |
 | Promotion decisions | Cs through Rn carry decision receipts separating readiness from approval |
-| Batch policy | Cs through Rn are held as a full span until At evidence is complete |
+| Batch policy | Cs through Rn route to full-span approval review after At evidence readiness is complete |
 | State instances | Formal ion and isotope IDs derive electron and neutron counts without changing identity |
 | Evidence seeds | H-Ca isotope evidence and selected common-ion candidate evidence are validated |
 | Unresolved isotope/common-ion evidence | Snapshot isotope gaps and Level 1 common-ion gaps emit unresolved receipts |
-| Isotope candidate evidence | Oxygen candidate rows are admitted into canonical isotope evidence; active candidate receipts return to zero |
-| Isotope candidate admission | Oxygen admission receipt preserves the canonical closure decision without retaining an active candidate |
-| Physical-property evidence | 93 complete PubChem rows carry sourced standard-state, melting, boiling, and density values |
+| Isotope candidate evidence | Oxygen and Technetium candidate rows are admitted into canonical isotope evidence; active candidate receipts return to zero |
+| Isotope candidate admission | Oxygen and Technetium admission receipts preserve canonical closure decisions without retaining active candidates |
+| Readiness scoring | 118 records expose evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension |
+| Evidence console | 118 records aggregate canonical, candidate, unresolved, admission, conflict, readiness, and promotion state |
+| Full-span approval decision | Cs through Rn are approved for a governed seed-promotion execution packet; seed mutation is not applied |
+| Full-span execution packet | Cs through Rn have a governed seed-promotion execution packet ready; seed mutation is not applied |
+| Physical-property evidence | 94 complete PubChem rows carry sourced standard-state, melting, boiling, and density values |
 | Unresolved property evidence | 25 incomplete PubChem rows are recorded as unresolved receipts |
 | Matter profiles | H through Xe combine identity, state, evidence, and bounded inference |
 | Physical-property drift | PubChem physical-property source changes produce explicit drift reports |
@@ -604,10 +608,11 @@ physical_property_operator_decision_receipts=6
 physical_property_continued_evidence_plans=6
 physical_property_no_candidate_review_receipts=4
 isotope_candidate_evidence_receipts=0
-isotope_candidate_admission_receipts=1
+isotope_candidate_admission_receipts=2
 element_readiness_scores=118
 promotion_decision_receipts=32
-promotion_batch_policy=hold_full_cs_rn_span
+promotion_batch_policy=allow_full_span_approval_review
+full_span_approval_decision=full_span_promotion_approved
 standard_files=ok
 ```
 

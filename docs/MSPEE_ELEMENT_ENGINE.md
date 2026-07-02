@@ -50,6 +50,7 @@ to preserve the contiguous Level 1 seed invariant.
 | Atom behavior v2 | Source-backed atom profiles binding proton identity, neutron isotope state, electron charge state, force context, and matter-profile tags | Implemented for H-Xe isotope evidence records including Tc-99, 178 profiles |
 | Atom behavior gaps | No-guess source-gap receipts and work items for missing atom behavior coverage | Implemented for 64 unresolved isotope-evidence elements |
 | Readiness scoring | Deterministic score records for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension | Implemented for all 118 snapshot elements; scores do not close gaps |
+| Evidence console | Read-only operator view over canonical, candidate, unresolved, admission, conflict, readiness, and promotion state | Implemented for all 118 snapshot elements; console records never mutate seeds |
 | Isotope source policy | Admission rules for isotope evidence needed by atom behavior v2 isotope-only gaps | Queue is empty after Tc-99 admission; policy alone closes zero gaps |
 | Isotope source search | Evidence-collection receipts for isotope-only atom behavior blockers | Queue is empty after Tc-99 admission; zero active candidate receipts |
 | Isotope candidate evidence | Source-specific isotope rows collected before admission | No active candidate receipts after Oxygen and Technetium admission |
@@ -330,6 +331,23 @@ Each readiness score exposes:
 Readiness scores are read-only planning records. They do not import isotope
 values, close unresolved receipts, generate atom behavior profiles, or mutate
 seed records.
+
+Evidence console:
+
+```text
+console records: 118 snapshot elements
+canonical evidence refs: 281
+candidate evidence refs: 8
+unresolved refs: 200
+admission refs: 10
+conflict/review refs: 8
+seed mutation authority: 0
+```
+
+Each console record exposes one operator-facing lifecycle view for the element:
+canonical evidence refs, candidate refs, unresolved refs, admission refs,
+conflict/review refs, readiness score fields, promotion decision status, and the
+next governed action.
 
 ## Phase 2 Transition Exception Kernel
 
@@ -681,6 +699,40 @@ seed_mutation_allowed: false
 This receipt authorizes review of the full Cs-Rn promotion packet. It does not
 approve seed mutation.
 
+## Cs-Rn Full-Span Approval Decision
+
+The final approval-decision gate is now explicit and approved for the next
+governed execution packet:
+
+```text
+approval_decision: full_span_promotion_approved
+approved records: 32
+blocking receipt ids: 0
+rejected records: 0
+seed_mutation_authorized: true
+seed_mutation_applied: false
+```
+
+This receipt approves the full Cs-Rn promotion packet for a later governed
+execution packet. It does not apply seed mutation.
+
+## Cs-Rn Seed-Promotion Execution Packet
+
+The governed execution packet is now built and ready, but still unapplied:
+
+```text
+execution_status: execution_packet_ready_not_applied
+planned operation: append_level_1_seed_records_cs_through_rn
+planned records: 32
+current seed terminal: Xe
+target seed terminal: Rn
+seed_mutation_authorized: true
+seed_mutation_applied: false
+```
+
+This packet binds the approval decision to the exact Cs-Rn append plan. It does
+not write seed records; seed writing still requires a separate update receipt.
+
 The At physical-property gap is explicitly audited:
 
 ```text
@@ -960,6 +1012,8 @@ Routes:
 | `GET /promotion/batch-policy` | Cs-Rn span-level promotion batch policy receipt |
 | `GET /promotion/partial-eligibility` | Read-only partial promotion eligibility receipt |
 | `GET /promotion/full-span-approval-review` | Read-only full-span approval-review receipt |
+| `GET /promotion/full-span-approval-decision` | Approved full-span approval-decision receipt for the execution packet |
+| `GET /promotion/full-span-execution-packet` | Governed Cs-Rn seed-promotion execution packet, not applied |
 | `GET /promotion/decisions` | Cs-Rn promotion decision receipt list and validation summary |
 | `GET /promotion/decisions/{symbol}` | Single Cs-Rn promotion decision receipt |
 | `GET /phase3/f-block` | Phase 3 f-block profile list and validation summary |
@@ -1070,6 +1124,25 @@ python -m mcms.cli elements --full-span-promotion-approval-review
 
 It currently reports `full_span_approval_review_open`,
 `approval_review_allowed = true`, and `seed_mutation_allowed = false`.
+
+The approval-decision gate is inspectable independently:
+
+```powershell
+python -m mcms.cli elements --full-span-promotion-approval-decision
+```
+
+It currently reports `full_span_promotion_approved`,
+`seed_mutation_authorized = true`, and `seed_mutation_applied = false`.
+
+The execution packet is inspectable independently:
+
+```powershell
+python -m mcms.cli elements --full-span-promotion-execution-packet
+```
+
+It currently reports `execution_packet_ready_not_applied`,
+`planned_operation = append_level_1_seed_records_cs_through_rn`, and
+`seed_mutation_applied = false`.
 
 ## Physical-Property Gap Audits
 
@@ -1611,6 +1684,7 @@ Drift statuses:
 | Atom behavior gaps -> isotope source policy | Level 1 isotope-only blockers are now empty after Tc-99 admission; source policy closes zero gaps |
 | Isotope source policy -> source-search receipts | Source-search receipts are empty after Tc-99 admission; active candidate receipts are zero after Oxygen and Technetium admission |
 | Gap receipts -> readiness scoring | 118 snapshot elements now expose readiness, source confidence, gap priority, and constraint tension without closing gaps |
+| Readiness scoring -> evidence console | 118 operator records now aggregate canonical, candidate, unresolved, admission, conflict, readiness, and promotion state |
 | Oxygen candidate evidence -> canonical isotope evidence | O-16/O-17/O-18 are admitted as source-backed isotope evidence, removing Oxygen from isotope-only blocker queues |
 | Tc candidate evidence -> canonical isotope evidence | Tc-99 is admitted as source-backed radioisotope evidence using NIST mass and EPA half-life/decay context |
 | Oxygen and Technetium admission -> historical receipt | Canonical closures are recorded with zero active candidate retention and zero seed mutation authority |
@@ -1675,7 +1749,7 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Issue an explicit full-span Cs-Rn approval or rejection receipt.
+1. Apply the Cs-Rn seed append through a separate governed seed-update receipt.
 2. Resolve measured-property gaps as complete authoritative values become available.
 3. Resolve At boiling-point conflict receipt with a higher-precedence field source.
 4. Promote Phase 3 from relevance flags to source-backed f-block state records

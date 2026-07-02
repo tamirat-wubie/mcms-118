@@ -3,12 +3,16 @@ import pytest
 from mcms.api import handle_api_request
 from mcms.cli import cmd_elements
 from mcms.elements import (
+    get_full_span_promotion_approval_decision_receipt,
     get_full_span_promotion_approval_review_receipt,
+    get_full_span_promotion_execution_packet,
     get_partial_promotion_eligibility_receipt,
     get_promotion_batch_policy_receipt,
     get_promotion_decision_receipt,
     list_promotion_decision_receipts,
+    validate_full_span_promotion_approval_decision_receipt,
     validate_full_span_promotion_approval_review_receipt,
+    validate_full_span_promotion_execution_packet,
     validate_partial_promotion_eligibility_receipt,
     validate_promotion_batch_policy_receipt,
     validate_promotion_decision_receipts,
@@ -92,9 +96,60 @@ def test_full_span_promotion_approval_review_is_open_without_seed_mutation():
     assert receipt.validate() == []
 
 
+def test_full_span_promotion_approval_decision_authorizes_without_applying_seed_mutation():
+    receipt = get_full_span_promotion_approval_decision_receipt()
+    result = validate_full_span_promotion_approval_decision_receipt(receipt)
+
+    assert result["validation_status"] == (
+        "full_span_promotion_approval_decision_receipt_validated"
+    )
+    assert result["approval_decision"] == "full_span_promotion_approved"
+    assert result["approved_count"] == 32
+    assert result["blocking_receipt_count"] == 0
+    assert result["rejected_count"] == 0
+    assert result["seed_mutation_authorized"] is True
+    assert result["seed_mutation_applied"] is False
+    assert receipt.approval_review_status == "full_span_approval_review_open"
+    assert receipt.approved_symbols[0] == "Cs"
+    assert receipt.approved_symbols[-1] == "Rn"
+    assert receipt.rejected_symbols == ()
+    assert receipt.blocking_receipt_ids == ()
+    assert receipt.seed_mutation_authorized is True
+    assert receipt.seed_mutation_applied is False
+    assert "approval_decision_is_final_seed_gate" in receipt.invariants_preserved
+    assert "approval_is_not_seed_mutation_application" in receipt.invariants_preserved
+    assert receipt.validate() == []
+
+
+def test_full_span_promotion_execution_packet_is_ready_without_seed_mutation():
+    packet = get_full_span_promotion_execution_packet()
+    result = validate_full_span_promotion_execution_packet(packet)
+
+    assert result["validation_status"] == (
+        "full_span_promotion_execution_packet_validated"
+    )
+    assert result["execution_status"] == "execution_packet_ready_not_applied"
+    assert result["promotion_count"] == 32
+    assert result["planned_mutation_count"] == 32
+    assert result["seed_mutation_authorized"] is True
+    assert result["seed_mutation_applied"] is False
+    assert result["current_seed_terminal_symbol"] == "Xe"
+    assert result["target_seed_terminal_symbol"] == "Rn"
+    assert packet.promotion_symbols[0] == "Cs"
+    assert packet.promotion_symbols[-1] == "Rn"
+    assert packet.planned_seed_append_symbols == packet.promotion_symbols
+    assert packet.planned_operation == "append_level_1_seed_records_cs_through_rn"
+    assert "execution_packet_is_not_seed_mutation_application" in (
+        packet.invariants_preserved
+    )
+    assert packet.validate() == []
+
+
 def test_partial_promotion_eligibility_api_and_cli_are_read_only(capsys):
     response = handle_api_request("GET", "/promotion/partial-eligibility")
     review_response = handle_api_request("GET", "/promotion/full-span-approval-review")
+    decision_response = handle_api_request("GET", "/promotion/full-span-approval-decision")
+    packet_response = handle_api_request("GET", "/promotion/full-span-execution-packet")
 
     cmd_elements(
         symbol=None,
@@ -120,6 +175,30 @@ def test_partial_promotion_eligibility_api_and_cli_are_read_only(capsys):
     )
     review_output = capsys.readouterr().out
 
+    cmd_elements(
+        symbol=None,
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        full_span_promotion_approval_decision=True,
+    )
+    decision_output = capsys.readouterr().out
+
+    cmd_elements(
+        symbol=None,
+        list_only=False,
+        full_snapshot=False,
+        schema_name=None,
+        graph_export=False,
+        dashboard_export=False,
+        relation_type=None,
+        full_span_promotion_execution_packet=True,
+    )
+    packet_output = capsys.readouterr().out
+
     assert response.status_code == 200
     assert response.payload["validation"]["eligible_count"] == 32
     assert response.payload["receipt"]["blocked_symbols"] == []
@@ -130,16 +209,36 @@ def test_partial_promotion_eligibility_api_and_cli_are_read_only(capsys):
     )
     assert review_response.payload["receipt"]["approval_review_allowed"] is True
     assert review_response.payload["receipt"]["seed_mutation_allowed"] is False
+    assert decision_response.status_code == 200
+    assert decision_response.payload["validation"]["approval_decision"] == (
+        "full_span_promotion_approved"
+    )
+    assert decision_response.payload["receipt"]["seed_mutation_authorized"] is True
+    assert decision_response.payload["receipt"]["seed_mutation_applied"] is False
+    assert decision_response.payload["receipt"]["approved_symbols"][0] == "Cs"
+    assert packet_response.status_code == 200
+    assert packet_response.payload["validation"]["execution_status"] == (
+        "execution_packet_ready_not_applied"
+    )
+    assert packet_response.payload["packet"]["seed_mutation_authorized"] is True
+    assert packet_response.payload["packet"]["seed_mutation_applied"] is False
+    assert packet_response.payload["packet"]["planned_seed_append_symbols"][0] == "Cs"
     assert '"partial_review_allowed": true' in partial_output
     assert '"seed_mutation_allowed": false' in partial_output
     assert '"approval_review_allowed": true' in review_output
     assert '"seed_mutation_allowed": false' in review_output
+    assert '"approval_decision": "full_span_promotion_approved"' in decision_output
+    assert '"seed_mutation_applied": false' in decision_output
+    assert '"execution_status": "execution_packet_ready_not_applied"' in packet_output
+    assert '"planned_operation": "append_level_1_seed_records_cs_through_rn"' in packet_output
 
 
 def test_local_api_index_exposes_full_span_approval_review():
     response = handle_api_request("GET", "/")
     assert response.status_code == 200
     assert "GET /promotion/full-span-approval-review" in response.payload["routes"]
+    assert "GET /promotion/full-span-approval-decision" in response.payload["routes"]
+    assert "GET /promotion/full-span-execution-packet" in response.payload["routes"]
 
 
 def test_promotion_decision_rejects_out_of_span_lookup():

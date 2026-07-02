@@ -92,6 +92,7 @@ M8 = production-engineering-ready
 28f. Oxygen isotope candidate admission receipt for canonical evidence closure
 28g. Element readiness scoring for evidence completeness, source confidence, behavior readiness, gap priority, and constraint tension
 28h. Technetium-99 radioisotope evidence admitted into canonical isotope evidence
+28i. Evidence console read model for per-element lifecycle state
 29. Source-drift checker for physical-property evidence
 30. Unresolved physical-property evidence receipts for incomplete PubChem rows
 31. Unresolved isotope and common-ion evidence receipts
@@ -105,6 +106,8 @@ M8 = production-engineering-ready
 39. Cs-Rn full-span approval-review batch policy
 39a. Cs-Rn partial promotion eligibility receipt with zero seed mutation authority
 39b. Cs-Rn full-span approval-review receipt with zero seed mutation authority
+39c. Cs-Rn full-span approval-decision receipt approved for execution packet with seed mutation not applied
+39d. Cs-Rn governed seed-promotion execution packet ready, seed mutation not applied
 40. Physical-property gap audit receipts
 41. Physical-property secondary-source admission policy
 42. Physical-property secondary evidence receipt workflow
@@ -141,7 +144,7 @@ M8 = production-engineering-ready
 ## Next Build Order
 
 ```text
-1. Issue explicit full-span Cs-Rn approval or rejection receipt
+1. Apply the Cs-Rn seed append through a separate governed seed-update receipt
 2. Resolve measured-property gaps as authoritative complete values become available
 3. Resolve At boiling-point conflict receipt with a higher-precedence field source
 4. Execute continued-evidence plans or convert deferred operator decisions into explicit approvals/rejections
