@@ -80,7 +80,7 @@ def test_physical_property_drift_report_has_no_drift_for_fixture_rows():
     assert report["drift_status"] == "physical_property_evidence_no_drift"
     assert report["drift_count"] == 0
     assert report["source_count"] == 2
-    assert report["local_count"] == 93
+    assert report["local_count"] == 94
 
 
 def test_physical_property_drift_report_detects_changed_fields():
@@ -131,5 +131,5 @@ def test_physical_property_drift_report_requires_complete_source_when_enabled():
 
     assert report["drift_status"] == "physical_property_evidence_drift_detected"
     assert report["source_count"] == 1
-    assert report["drift_count"] == 92
+    assert report["drift_count"] == 93
     assert missing_fields == {"missing_source_record"}

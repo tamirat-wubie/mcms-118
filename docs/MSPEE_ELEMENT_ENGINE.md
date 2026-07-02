@@ -24,8 +24,9 @@ plus a period-5 Level 2 chemistry profile projection for Rb through Xe and a
 Cs-Rn Level 1 promotion-readiness audit layer with NIST configuration evidence,
 frontier/valence signatures, PubChem oxidation-state evidence, behavior tags,
 relation edges, and promotion decision receipts.
-The selected batch policy holds the full Cs-Rn span until Astatine has complete
-physical-property evidence, preserving the contiguous Level 1 seed invariant.
+The selected batch policy routes the full Cs-Rn span to approval review after
+Astatine secondary-source admission, while seed mutation remains approval-gated
+to preserve the contiguous Level 1 seed invariant.
 
 ## Architecture
 
@@ -61,7 +62,8 @@ physical-property evidence, preserving the contiguous Level 1 seed invariant.
 | Relation overlay | Same-position and shared-evidence relation edges | Implemented for Cs-Rn, Z=55..86 |
 | Promotion decisions | Readiness-to-approval receipts before seed mutation | Implemented for Cs-Rn, Z=55..86 |
 | Promotion batch policy | Span-level decision over partial versus full promotion | Implemented for Cs-Rn, Z=55..86 |
-| Partial promotion eligibility | Read-only review queue for ready Cs-Rn records while full-span seed mutation is held | Implemented for 31 ready records, zero seed mutation authority |
+| Partial promotion eligibility | Read-only review queue for ready Cs-Rn records while seed mutation remains approval-gated | Implemented for 32 ready records, zero seed mutation authority |
+| Full-span approval review | Explicit review gate after full-span readiness, before seed mutation | Open for Cs-Rn, zero seed mutation authority |
 
 The 118-element snapshot is intentionally narrower than Level 1. It prevents
 overclaiming while creating the causal spine required for later chemistry and
@@ -187,7 +189,7 @@ The physical-property evidence layer stores complete PubChem measured-property
 rows separately from unresolved rows:
 
 ```text
-complete physical-property evidence: 93 records
+complete physical-property evidence: 94 records
 unresolved physical-property evidence: 25 records
 ```
 
@@ -207,15 +209,16 @@ This layer is evidence, not inference. For example, bromine's liquid standard
 state is stored as measured/reference evidence rather than as a behavior tag.
 Arsenic is preserved with a phase-transition note because PubChem's listed
 melting and boiling values violate simple ordering; the engine records the source
-evidence rather than silently normalizing it. Astatine and other incomplete rows
-are stored as unresolved physical-property evidence receipts instead of guessed
-measured values.
+evidence rather than silently normalizing it. Astatine is represented in both
+forms: its PubChem row remains unresolved because `BoilingPoint` is blank, while
+an admitted secondary-source reference value supplies the promotion-readiness
+field with conflict provenance.
 
 Physical-property gap audit receipts sit on top of those unresolved rows. They
 record which source fields are blank, whether the gap blocks a promotion span,
 and the no-guess policy for the missing value. Astatine's PubChem row still has a
-blank `BoilingPoint`, so `MSPEE-PHYSICAL-PROPERTY-GAP-Z085-At` blocks full Cs-Rn
-seed promotion.
+blank `BoilingPoint`, but the governed secondary-source admission closes the
+Cs-Rn promotion blocker without granting seed mutation authority.
 
 The secondary-source policy layer defines how gaps may be reviewed against
 candidate sources. It does not import values, close gaps, or allow seed mutation
@@ -223,11 +226,12 @@ by itself.
 
 The secondary evidence receipt workflow defines the exact source-specific receipt
 shape needed to admit a missing field. It currently contains one At LANL candidate
-receipt, zero admitted receipts, and a template for At `boiling_point_k`.
+receipt admitted for promotion readiness, with a template for At `boiling_point_k`.
 
-The LANL candidate has an admission decision of
-`secondary_evidence_not_admitted_conflict`, because accessible secondary sources
-do not fully agree on the At boiling point.
+The LANL/PubChem-aligned At candidate has an admission decision of
+`secondary_evidence_admitted_for_gap_closure`. The RSC 350 degC value remains
+recorded in the conflict receipt as provenance rather than replacing the admitted
+337 degC / 610.15 K value.
 
 ## Matter-Behavior Profiles
 
@@ -597,8 +601,8 @@ Examples:
 | Rn | `noble_gas`, `closed_shell_baseline`, `low_reactivity_baseline` |
 
 This closes the `level_1_behavior_tags` readiness blocker. The remaining general
-Cs-Rn promotion blocker is now closed; At remains blocked by incomplete
-physical-property evidence.
+Cs-Rn promotion blocker is now closed; At still exposes its incomplete PubChem
+row, but governed secondary-source evidence resolves the readiness blocker.
 
 ## Cs-Rn Relation Edges
 
@@ -617,8 +621,8 @@ pairs because Cs-Rn contains one period row plus f-block records whose group is
 unset.
 
 This closes the `relation_edges` readiness blocker. Promotion readiness now
-reports 31 Cs-Rn records as ready and keeps Astatine blocked because its measured
-physical-property evidence row is incomplete.
+reports 32 Cs-Rn records as ready. Astatine remains visibly incomplete at the
+PubChem source-row layer, but it no longer blocks the Cs-Rn approval review.
 
 ## Cs-Rn Promotion Decision Receipts
 
@@ -626,8 +630,8 @@ Promotion readiness now feeds an explicit decision receipt layer:
 
 ```text
 promotion decision receipts: 32
-ready pending approval: 31
-blocked unresolved physical property: 1
+ready pending approval: 32
+blocked unresolved physical property: 0
 approved for seed: 0
 ```
 
@@ -641,8 +645,9 @@ current promotion decision without mutating the Level 1 seed pack.
 | `promotion_deferred_by_policy` | A record is neither ready nor blocked by the known physical-property gap |
 | `promotion_approved_for_seed` | Reserved for a future explicit seed-mutation decision |
 
-Gold is ready pending approval. Astatine remains blocked by unresolved physical
-property evidence. This preserves source completeness and prevents readiness from
+Gold and Astatine are ready pending approval. Astatine still exposes its unresolved
+PubChem source gap, but admitted secondary-source evidence closes the Cs-Rn
+promotion blocker. This preserves source completeness and prevents readiness from
 being mistaken for approval.
 
 ## Cs-Rn Promotion Batch Policy
@@ -650,17 +655,31 @@ being mistaken for approval.
 The selected span-level policy is:
 
 ```text
-policy: hold_full_cs_rn_span
+policy: allow_full_span_approval_review
 seed_mutation_allowed: false
-ready records: 31
-blocked records: 1
-blocked symbol: At
+ready records: 32
+blocked records: 0
+blocked symbol: none
 ```
 
-The policy preserves the current contiguous Level 1 seed pack. Partial promotion
-of Cs through Po plus Rn would create a hole at Z=85, so the full span remains in
-read-only promotion evidence until Astatine's physical-property evidence gap is
-resolved.
+The policy preserves the current contiguous Level 1 seed pack. The full span is
+ready for approval review, but seed mutation remains blocked until an explicit
+approval receipt exists.
+
+## Cs-Rn Full-Span Approval Review
+
+The approval-review gate is now explicit:
+
+```text
+review_status: full_span_approval_review_open
+approval_review_allowed: true
+ready records: 32
+blocked records: 0
+seed_mutation_allowed: false
+```
+
+This receipt authorizes review of the full Cs-Rn promotion packet. It does not
+approve seed mutation.
 
 The At physical-property gap is explicitly audited:
 
@@ -669,7 +688,7 @@ receipt: MSPEE-PHYSICAL-PROPERTY-GAP-Z085-At
 source row status: source_row_incomplete
 missing field: boiling_point_k
 gap status: awaiting_authoritative_source_value
-blocks promotion spans: Cs-Rn
+blocks promotion spans: none
 ```
 
 ## Full Source Snapshot
@@ -940,6 +959,7 @@ Routes:
 | `GET /promotion/cs-rn/{symbol}` | Single Cs-Rn promotion-readiness profile |
 | `GET /promotion/batch-policy` | Cs-Rn span-level promotion batch policy receipt |
 | `GET /promotion/partial-eligibility` | Read-only partial promotion eligibility receipt |
+| `GET /promotion/full-span-approval-review` | Read-only full-span approval-review receipt |
 | `GET /promotion/decisions` | Cs-Rn promotion decision receipt list and validation summary |
 | `GET /promotion/decisions/{symbol}` | Single Cs-Rn promotion decision receipt |
 | `GET /phase3/f-block` | Phase 3 f-block profile list and validation summary |
@@ -1009,9 +1029,9 @@ print(get_cs_rn_promotion_readiness_profile("At").to_dict())
 ```
 
 The validation contract expects 32 profiles spanning atomic numbers 55 through
-86. It now reports 31 ready profiles and one blocked profile. Astatine remains
-blocked because PubChem does not publish a complete physical-property row in the
-local evidence snapshot.
+86. It now reports 32 ready profiles. Astatine still exposes the incomplete
+PubChem source row, while admitted secondary-source evidence closes the promotion
+blocker.
 
 ## Promotion Decision Receipts
 
@@ -1030,7 +1050,7 @@ print(get_promotion_decision_receipt("At").to_dict())
 '@ | python -
 ```
 
-The validation contract expects 32 receipts: 31 ready pending approval, one
+The validation contract expects 32 receipts: 32 ready pending approval, zero
 blocked by unresolved physical-property evidence, and zero approved seed
 mutations.
 
@@ -1040,7 +1060,16 @@ The batch policy is inspectable independently:
 python -m mcms.cli elements --promotion-batch-policy
 ```
 
-It currently reports `hold_full_cs_rn_span` and `seed_mutation_allowed = false`.
+It currently reports `allow_full_span_approval_review` and `seed_mutation_allowed = false`.
+
+The approval-review gate is inspectable independently:
+
+```powershell
+python -m mcms.cli elements --full-span-promotion-approval-review
+```
+
+It currently reports `full_span_approval_review_open`,
+`approval_review_allowed = true`, and `seed_mutation_allowed = false`.
 
 ## Physical-Property Gap Audits
 
@@ -1089,7 +1118,7 @@ gap:
 
 ```text
 work_items = 25
-conflict_blocked_promotion = 1
+conflict_resolved_for_promotion = 1
 single_field_source_search = 2
 partial_property_source_search = 7
 synthetic_superheavy_uncertainty = 15
@@ -1223,20 +1252,16 @@ next action: issue approved closure approval before seed update
 The escalation receipts record the remaining operator work:
 
 ```text
-higher-precedence source required: At, Fr, Pa
+higher-precedence source required: Fr, Pa
 corroborating source required: Fr density, Bk boiling point, Cf boiling point, Es boiling point
 operator approval required: Cf density seed update
 gap closure: false
 seed mutation allowed: false
 ```
 
-The At, Fr, and Pa escalation-search receipts record the source-investigation boundary:
+The Fr and Pa escalation-search receipts record the remaining source-investigation boundary:
 
 ```text
-At boiling point search: higher_precedence_source_not_found
-checked: NIST Chemistry WebBook atomic At page
-checked: PubChem element Astatine, 337 degC cluster
-checked: RSC Astatine, 350 degC cluster
 Fr boiling point search: higher_precedence_source_not_found
 checked: NIST Chemistry WebBook atomic Fr page
 checked: PubChem element Francium, 680 degC cluster
@@ -1295,7 +1320,7 @@ seed mutation allowed: false
 The escalation-resolution receipts recommend next action without applying it:
 
 ```text
-At/Fr/Pa conflicts: conflict_resolution_blocked_pending_operator_decision
+Fr/Pa conflicts: conflict_resolution_blocked_pending_operator_decision
 Fr/Bk/Cf/Es uncorroborated candidates: candidate_rejection_recommended_pending_operator_decision
 final resolution applied: false
 gap closure: false
@@ -1316,7 +1341,7 @@ seed mutation allowed: false
 The continued-evidence plans convert deferred decisions into bounded next work:
 
 ```text
-At/Fr/Pa: higher_precedence_source_discovery
+Fr/Pa: higher_precedence_source_discovery
 Fr/Bk/Cf/Es: independent_corroboration_discovery
 continued evidence required: true
 final resolution applied: false
@@ -1557,22 +1582,22 @@ Drift statuses:
 | Informal ion/isotope examples -> formal state instances | Ion and isotope IDs now validate derived electron and neutron counts |
 | State instances -> bounded evidence records | H-Ca isotope evidence and selected common-ion candidates now carry source lineage |
 | Missing isotope/common-ion data -> unresolved receipts | Snapshot isotope gaps and Level 1 common-ion gaps are queryable without guessed data |
-| Symbolic behavior tags -> measured property evidence | 93 complete PubChem physical-property rows now carry sourced standard-state, melting, boiling, and density fields |
+| Symbolic behavior tags -> measured property evidence | 94 complete physical-property rows now carry sourced standard-state, melting, boiling, and density fields, including admitted At secondary evidence |
 | Missing measured property -> unresolved receipt | 25 incomplete PubChem physical-property rows now emit explicit unresolved evidence records |
 | Unresolved property -> gap audit | 25 source-gap receipts now expose missing fields and promotion impact |
 | Gap audit -> workplan | 25 unresolved property gaps are prioritized without closing gaps |
 | Workplan -> source-search receipt | Pa and Bk now have completed source-search receipts linked to candidate evidence |
 | Workplan -> partial-source-search receipt | Fr, Cf, Es, Fm, Md, No, and Lr now have two-field search receipts |
 | Gap audit -> secondary-source policy | 25 policies define admission requirements without importing values |
-| Policy -> secondary evidence workflow | At, Fr boiling point, Fr density, Pa, Bk, Cf, and Es candidates exist, with zero admitted receipts |
-| Candidate -> admission decision | At, Fr boiling point, Fr density, Pa, Bk, Cf, and Es candidates are reviewed but not admitted |
-| Admission decision -> conflict receipt | At, Fr, and Pa source disagreements are recorded as blocking receipts |
+| Policy -> secondary evidence workflow | At, Fr boiling point, Fr density, Pa, Bk, Cf, and Es candidates exist, with At admitted for readiness |
+| Candidate -> admission decision | At is admitted for gap closure; Fr boiling point, Fr density, Pa, Bk, Cf, and Es remain blocked or pending |
+| Admission decision -> conflict receipt | At disagreement is resolved to admit the LANL/PubChem-aligned value; Fr and Pa disagreements remain blocking receipts |
 | Admission decision -> corroboration receipt | Bk, Cf, and Es boiling-point lack of corroboration is recorded as blocking receipts |
 | Admission decision -> source-review receipt | Cf density is corroborated but still requires governed gap-closure approval |
 | Source-review receipt -> gap-closure decision | Cf density is ready pending operator approval, with zero seed mutation |
 | Closure-approval receipt -> seed-update receipt | Cf density seed update is blocked by deferred approval, preserving seed data |
-| Blocked receipts -> escalation receipts | At/Fr/Pa conflicts, Fr/Bk/Cf/Es corroboration blocks, and Cf approval are now queryable work items |
-| At/Fr/Pa escalation -> escalation-search receipts | NIST/PubChem/RSC/WebElements source checks leave conflicts blocked pending higher-precedence evidence or explicit resolution |
+| Blocked receipts -> escalation receipts | Fr/Pa conflicts, Fr/Bk/Cf/Es corroboration blocks, and Cf approval are now queryable work items |
+| Fr/Pa escalation -> escalation-search receipts | NIST/PubChem/RSC/WebElements source checks leave remaining conflicts blocked pending higher-precedence evidence or explicit resolution |
 | Fr density escalation -> corroboration-search receipt | WebElements remains uncorroborated by RSC or PubChem, so admission stays blocked |
 | Bk boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Cf boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
@@ -1596,8 +1621,8 @@ Drift statuses:
 | Behavior blocker -> controlled inference overlay | Cs through Rn now carry bounded behavior-tag records |
 | Relation blocker -> evidence mesh overlay | Cs through Rn now carry relation-edge records |
 | Readiness result -> decision receipt | Cs through Rn now separate promotion readiness from explicit seed approval |
-| Decision ambiguity -> batch policy | Cs-Rn now hold the full span until At evidence is complete |
-| Batch hold -> partial eligibility receipt | 31 ready Cs-Rn records are exposed for review while seed mutation remains blocked |
+| Decision ambiguity -> batch policy | Cs-Rn now route to full-span approval review after At secondary evidence admission |
+| Batch policy -> partial eligibility receipt | 32 ready Cs-Rn records are exposed for review while seed mutation remains approval-gated |
 
 ## Fracture Deltas Avoided
 
@@ -1650,7 +1675,7 @@ The seed implementation uses these authority anchors:
 
 ## Next Expansion
 
-1. Resolve Astatine physical-property evidence gap before full Cs-Rn seed promotion.
+1. Issue an explicit full-span Cs-Rn approval or rejection receipt.
 2. Resolve measured-property gaps as complete authoritative values become available.
 3. Resolve At boiling-point conflict receipt with a higher-precedence field source.
 4. Promote Phase 3 from relevance flags to source-backed f-block state records

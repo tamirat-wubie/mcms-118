@@ -20,6 +20,15 @@ from mcms.elements.physical_property_source_policy import (
 )
 
 PARTIAL_PHYSICAL_PROPERTY_SEARCH_SYMBOLS = ("Fr", "Cf", "Es", "Fm", "Md", "No", "Lr")
+PARTIAL_PHYSICAL_PROPERTY_SEARCH_ATOMIC_NUMBERS = {
+    "87": "Fr",
+    "98": "Cf",
+    "99": "Es",
+    "100": "Fm",
+    "101": "Md",
+    "102": "No",
+    "103": "Lr",
+}
 VALID_PARTIAL_SOURCE_SEARCH_STATUSES = {
     "partial_source_search_open",
     "partial_source_search_blocked",
@@ -189,6 +198,17 @@ def get_partial_physical_property_source_search_receipt(
     identifier: str | int,
 ) -> PartialPhysicalPropertySourceSearchReceipt:
     identifier_text = str(identifier).strip()
+    identifier_symbol = identifier_text.upper()
+    numeric_symbol = PARTIAL_PHYSICAL_PROPERTY_SEARCH_ATOMIC_NUMBERS.get(
+        identifier_text
+    )
+    for symbol in PARTIAL_PHYSICAL_PROPERTY_SEARCH_SYMBOLS:
+        if (
+            identifier_symbol == symbol.upper()
+            or numeric_symbol == symbol
+            or f"-{symbol}" in identifier_text
+        ):
+            return _build_partial_source_search_receipt(symbol)
     for receipt in list_partial_physical_property_source_search_receipts():
         if (
             identifier_text == str(receipt.atomic_number)

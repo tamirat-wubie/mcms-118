@@ -45,11 +45,11 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /evidence/physical-properties/gap-closure/Cf" in index["routes"]
     assert "GET /evidence/physical-properties/closure-approval/Cf" in index["routes"]
     assert "GET /evidence/physical-properties/seed-update/Cf" in index["routes"]
-    assert "GET /evidence/physical-properties/escalations/At" in index["routes"]
-    assert "GET /evidence/physical-properties/escalation-search/At" in index["routes"]
-    assert "GET /evidence/physical-properties/escalation-resolution/At" in index["routes"]
-    assert "GET /evidence/physical-properties/operator-decisions/At" in index["routes"]
-    assert "GET /evidence/physical-properties/continued-evidence/At" in index["routes"]
+    assert "GET /evidence/physical-properties/escalations/Fr" in index["routes"]
+    assert "GET /evidence/physical-properties/escalation-search/Fr" in index["routes"]
+    assert "GET /evidence/physical-properties/escalation-resolution/Fr" in index["routes"]
+    assert "GET /evidence/physical-properties/operator-decisions/Fr" in index["routes"]
+    assert "GET /evidence/physical-properties/continued-evidence/Fr" in index["routes"]
     assert "GET /evidence/physical-properties/no-candidate/Fm" in index["routes"]
     assert "GET /evidence/physical-properties/secondary-evidence/template/At" in index["routes"]
     assert "GET /evidence/physical-properties/secondary-source-policy/At" in index["routes"]
@@ -60,6 +60,7 @@ def test_local_api_health_and_index_routes_are_read_only_contracts():
     assert "GET /promotion/cs-rn/At" in index["routes"]
     assert "GET /promotion/batch-policy" in index["routes"]
     assert "GET /promotion/partial-eligibility" in index["routes"]
+    assert "GET /promotion/full-span-approval-review" in index["routes"]
     assert "GET /promotion/decisions/At" in index["routes"]
     assert "GET /phase3/f-block/U" in index["routes"]
     assert "GET /level2/period-5/Xe" in index["routes"]
@@ -179,16 +180,14 @@ def test_local_api_exposes_cs_rn_promotion_readiness_profiles():
     astatine = _payload(handle_api_request("GET", "/promotion/cs-rn/At"))
     xenon = handle_api_request("GET", "/promotion/cs-rn/Xe")
     assert profiles["validation"]["profile_count"] == 32
-    assert profiles["validation"]["blocked_count"] == 1
-    assert profiles["validation"]["ready_count"] == 31
-    assert profiles["validation"]["physical_property_evidence_count"] == 31
+    assert profiles["validation"]["blocked_count"] == 0
+    assert profiles["validation"]["ready_count"] == 32
+    assert profiles["validation"]["physical_property_evidence_count"] == 32
     assert profiles["validation"]["unresolved_physical_property_evidence_count"] == 1
     assert profiles["profiles"][0]["symbol"] == "Cs"
     assert astatine["profile"]["symbol"] == "At"
-    assert astatine["profile"]["readiness_status"] == (
-        "promotion_blocked_missing_source_evidence"
-    )
-    assert "complete_physical_property_evidence" in astatine["profile"]["required_missing_evidence"]
+    assert astatine["profile"]["readiness_status"] == "promotion_ready"
+    assert astatine["profile"]["required_missing_evidence"] == ()
     assert xenon.status_code == 404
 
 
@@ -198,12 +197,10 @@ def test_local_api_exposes_cs_rn_promotion_decision_receipts():
     astatine = _payload(handle_api_request("GET", "/promotion/decisions/At"))
     xenon = handle_api_request("GET", "/promotion/decisions/Xe")
     assert receipts["validation"]["receipt_count"] == 32
-    assert receipts["validation"]["ready_pending_approval_count"] == 31
-    assert receipts["validation"]["blocked_unresolved_physical_property_count"] == 1
+    assert receipts["validation"]["ready_pending_approval_count"] == 32
+    assert receipts["validation"]["blocked_unresolved_physical_property_count"] == 0
     assert gold["receipt"]["decision_status"] == "promotion_ready_pending_approval"
-    assert astatine["receipt"]["decision_status"] == (
-        "promotion_blocked_unresolved_physical_property"
-    )
+    assert astatine["receipt"]["decision_status"] == "promotion_ready_pending_approval"
     assert xenon.status_code == 404
 
 
@@ -212,9 +209,9 @@ def test_local_api_exposes_cs_rn_promotion_batch_policy():
     assert policy["validation"]["validation_status"] == (
         "promotion_batch_policy_receipt_validated"
     )
-    assert policy["receipt"]["policy_decision"] == "hold_full_cs_rn_span"
+    assert policy["receipt"]["policy_decision"] == "allow_full_span_approval_review"
     assert policy["receipt"]["seed_mutation_allowed"] is False
-    assert policy["receipt"]["blocked_symbols"] == ["At"]
+    assert policy["receipt"]["blocked_symbols"] == []
 
 
 def test_local_api_exposes_partial_promotion_eligibility():
@@ -223,9 +220,9 @@ def test_local_api_exposes_partial_promotion_eligibility():
     assert receipt["validation"]["validation_status"] == (
         "partial_promotion_eligibility_receipt_validated"
     )
-    assert receipt["validation"]["eligible_count"] == 31
-    assert receipt["validation"]["blocked_count"] == 1
-    assert receipt["receipt"]["blocked_symbols"] == ["At"]
+    assert receipt["validation"]["eligible_count"] == 32
+    assert receipt["validation"]["blocked_count"] == 0
+    assert receipt["receipt"]["blocked_symbols"] == []
     assert receipt["receipt"]["partial_review_allowed"] is True
     assert receipt["receipt"]["seed_mutation_allowed"] is False
 

@@ -103,9 +103,11 @@ class ElementPromotionReadinessProfile:
         if (
             self.physical_property_evidence_available
             and self.unresolved_physical_property_evidence_available
+            and "secondary_physical_property_evidence_resolves_source_gap" not in self.notes
         ):
             errors.append(
-                "physical-property evidence cannot be both complete and unresolved."
+                "complete and unresolved physical-property evidence requires an "
+                "explicit secondary-evidence resolution note."
             )
         if self.readiness_status not in VALID_PROMOTION_READINESS_STATUSES:
             errors.append("promotion readiness status is unknown.")
@@ -250,7 +252,7 @@ def _profile_from_snapshot(
             for evidence_name in required_missing_evidence
             if evidence_name != "relation_edges"
         ]
-    if unresolved_physical_property_evidence_available:
+    if unresolved_physical_property_evidence_available and not physical_property_evidence_available:
         required_missing_evidence.append("complete_physical_property_evidence")
     if level_1_seed_available:
         required_missing_evidence = []
@@ -281,6 +283,12 @@ def _profile_from_snapshot(
         notes=(
             "Profile is a promotion audit, not a promoted element seed.",
             "Source-backed configuration and behavior evidence must be added before promotion.",
+            *(
+                ("secondary_physical_property_evidence_resolves_source_gap",)
+                if physical_property_evidence_available
+                and unresolved_physical_property_evidence_available
+                else ()
+            ),
         ),
     )
 

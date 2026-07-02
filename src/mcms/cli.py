@@ -38,6 +38,7 @@ from mcms.elements import (
     get_atom_behavior_gap_work_item,
     get_cs_rn_promotion_readiness_profile,
     get_element_readiness_score,
+    get_full_span_promotion_approval_review_receipt,
     get_isotope_candidate_admission_receipt,
     get_isotope_candidate_evidence_receipt,
     get_isotope_source_policy,
@@ -203,6 +204,7 @@ def cmd_elements(
     promotion_decision: bool = False,
     promotion_batch_policy: bool = False,
     partial_promotion_eligibility: bool = False,
+    full_span_promotion_approval_review: bool = False,
     atom_behavior: bool = False,
     atom_charge: int = 0,
     atom_behavior_gap: bool = False,
@@ -670,6 +672,16 @@ def cmd_elements(
         return
     if partial_promotion_eligibility:
         receipt = get_partial_promotion_eligibility_receipt()
+        print(
+            json.dumps(
+                {"receipt": receipt.to_dict()},
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
+    if full_span_promotion_approval_review:
+        receipt = get_full_span_promotion_approval_review_receipt()
         print(
             json.dumps(
                 {"receipt": receipt.to_dict()},
@@ -1215,6 +1227,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print the read-only Cs-Rn partial promotion eligibility receipt",
     )
     elements_parser.add_argument(
+        "--full-span-promotion-approval-review",
+        action="store_true",
+        help="Print the read-only Cs-Rn full-span promotion approval-review receipt",
+    )
+    elements_parser.add_argument(
         "--configuration-evidence",
         action="store_true",
         help="Print Cs-Rn NIST configuration evidence, optionally filtered by --symbol",
@@ -1293,6 +1310,7 @@ def main(argv: list[str] | None = None) -> None:
             args.promotion_decision,
             args.promotion_batch_policy,
             args.partial_promotion_eligibility,
+            args.full_span_promotion_approval_review,
             args.atom_behavior,
             args.atom_charge,
             args.atom_behavior_gap,

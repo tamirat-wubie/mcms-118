@@ -13,7 +13,11 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from mcms.elements.evidence import list_unresolved_physical_property_evidence_records
+from mcms.elements.evidence import (
+    find_physical_property_evidence_record,
+    find_unresolved_physical_property_evidence_record,
+    list_unresolved_physical_property_evidence_records,
+)
 from mcms.elements.physical_property_conflict import (
     get_physical_property_conflict_resolution_receipt,
 )
@@ -21,6 +25,7 @@ from mcms.elements.physical_property_gap import get_physical_property_gap_audit_
 
 VALID_PHYSICAL_PROPERTY_GAP_WORK_STATUSES = {
     "conflict_blocked_promotion",
+    "conflict_resolved_for_promotion",
     "single_field_source_search",
     "partial_property_source_search",
     "synthetic_superheavy_uncertainty",
@@ -73,10 +78,16 @@ class PhysicalPropertyGapWorkItem:
             errors.append("gap work item requires a next action.")
         if self.symbol == "At":
             conflict = get_physical_property_conflict_resolution_receipt("At")
-            if conflict.resolution_decision != "blocked_pending_higher_precedence_source":
-                errors.append("At work item must align with active conflict receipt.")
-            if self.work_status != "conflict_blocked_promotion":
-                errors.append("At work item must remain conflict-blocked.")
+            if conflict.resolution_decision not in {
+                "blocked_pending_higher_precedence_source",
+                "resolved_admit_candidate",
+            }:
+                errors.append("At work item must align with conflict receipt.")
+            if (
+                "Cs-Rn" in gap_receipt.blocks_promotion_spans
+                and self.work_status != "conflict_blocked_promotion"
+            ):
+                errors.append("At promotion-blocking work item must remain conflict-blocked.")
         return errors
 
     def to_dict(self) -> dict[str, Any]:
@@ -101,6 +112,19 @@ def _present_field_count(record: Any) -> int:
 
 def _classify_work_item(record: Any) -> tuple[int, str, str, str]:
     if record.symbol == "At":
+        try:
+            find_physical_property_evidence_record("At")
+        except KeyError:
+            has_admitted_astatine_evidence = False
+        else:
+            has_admitted_astatine_evidence = True
+        if has_admitted_astatine_evidence:
+            return (
+                0,
+                "conflict_resolved_for_promotion",
+                "PubChem source gap remains, but Cs-Rn promotion blocker is closed",
+                "monitor PubChem for a complete At row while retaining admitted secondary evidence",
+            )
         return (
             0,
             "conflict_blocked_promotion",
@@ -167,6 +191,12 @@ def get_physical_property_gap_work_item(
     identifier: str | int,
 ) -> PhysicalPropertyGapWorkItem:
     identifier_text = str(identifier).strip()
+    try:
+        return _build_gap_work_item(
+            find_unresolved_physical_property_evidence_record(identifier_text)
+        )
+    except KeyError:
+        pass
     for item in list_physical_property_gap_work_items():
         if (
             identifier_text == str(item.atomic_number)
@@ -191,6 +221,11 @@ def validate_physical_property_gap_work_items(
         "work_item_count": len(checked_items),
         "conflict_blocked_count": sum(
             1 for item in checked_items if item.work_status == "conflict_blocked_promotion"
+        ),
+        "conflict_resolved_for_promotion_count": sum(
+            1
+            for item in checked_items
+            if item.work_status == "conflict_resolved_for_promotion"
         ),
         "single_field_source_search_count": sum(
             1 for item in checked_items if item.work_status == "single_field_source_search"

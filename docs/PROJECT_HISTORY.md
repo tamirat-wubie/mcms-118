@@ -361,15 +361,15 @@ Cf density source review = resolved candidate after WebElements corroborates the
 Cf density gap-closure decision = ready pending operator approval, no seed mutation
 Cf density closure approval = deferred, no gap closure, no seed mutation
 Cf density seed update = blocked by deferred approval, no gap closure, no seed mutation
-physical-property escalations = 8 conflict/corroboration/approval receipts, no gap closure
-At/Fr/Pa escalation search = no higher-precedence boiling-point source found, no gap closure
+physical-property escalations = 7 remaining conflict/corroboration/approval receipts, no seed mutation
+Fr/Pa escalation search = no higher-precedence boiling-point source found, no gap closure
 Fr density corroboration search = no independent source found, no gap closure
 Bk boiling-point corroboration search = no independent source found, no gap closure
 Cf boiling-point corroboration search = no independent source found, no gap closure
 Es boiling-point corroboration search = no independent source found, no gap closure
-escalation-resolution recommendations = 7 receipts, no final resolution applied
-operator decisions = 7 deferred receipts, no final resolution applied
-continued-evidence plans = 7 plans, no final resolution applied
+escalation-resolution recommendations = 6 receipts, no final resolution applied
+operator decisions = 6 deferred receipts, no final resolution applied
+continued-evidence plans = 6 plans, no final resolution applied
 Es boiling-point corroboration review = blocked pending corroborating source
 Fm no-candidate review = blocked because checked sources provide no admissible boiling-point or density value
 Md no-candidate review = blocked because checked sources provide no admissible boiling-point or density value
@@ -504,22 +504,22 @@ profile does not replace measured condition-specific data
 | Informal state examples -> validated state instances | Ion and isotope IDs now derive electron and neutron counts |
 | Derived state IDs -> bounded evidence records | H-Ca isotope evidence and common-ion candidates carry source lineage |
 | Missing isotope/common-ion data -> unresolved receipts | Evidence gaps are queryable without guessed values |
-| Behavior-only matter profile -> measured evidence seed | 93 complete PubChem rows expose physical-property evidence |
+| Behavior-only matter profile -> measured evidence seed | 94 complete physical-property rows expose evidence, including admitted At secondary evidence |
 | Missing measured property -> unresolved receipt | 25 incomplete PubChem rows are explicit unresolved evidence |
 | Unresolved property -> gap audit | 25 source-gap receipts now separate missing source fields from promotion impact |
 | Gap audit -> workplan | 25 unresolved property gaps are prioritized without closing gaps |
 | Workplan -> source-search receipt | Pa and Bk now have completed source-search receipts linked to candidate evidence |
 | Workplan -> partial-source-search receipt | Fr, Cf, Es, Fm, Md, No, and Lr now have two-field search receipts |
 | Gap audit -> secondary-source policy | 25 policies define admission requirements without closing gaps |
-| Policy -> secondary evidence workflow | At, Fr, Pa, Bk, Cf, Es, and Fr density candidates exist, with zero admitted receipts |
-| Candidate -> admission decision | At, Fr, Pa, Bk, Cf, Es, and Fr density candidates are reviewed but not admitted |
-| Admission decision -> conflict receipt | At, Fr, and Pa source disagreements are recorded as blocking receipts |
+| Policy -> secondary evidence workflow | At, Fr, Pa, Bk, Cf, Es, and Fr density candidates exist, with At admitted for readiness |
+| Candidate -> admission decision | At is admitted for gap closure; Fr, Pa, Bk, Cf, Es, and Fr density remain blocked or pending |
+| Admission decision -> conflict receipt | At disagreement is resolved to admit the LANL/PubChem-aligned value; Fr and Pa disagreements remain blocking receipts |
 | Admission decision -> corroboration receipt | Bk, Cf, and Es boiling-point lack of corroboration is recorded as blocking receipts |
 | Admission decision -> source-review receipt | Cf density is corroborated but still requires governed gap-closure approval |
 | Source-review receipt -> gap-closure decision | Cf density is ready pending operator approval, with zero seed mutation |
 | Closure-approval receipt -> seed-update receipt | Cf density seed update is blocked by deferred approval, preserving seed data |
-| Blocked receipts -> escalation receipts | At/Fr/Pa conflicts, Fr/Bk/Cf/Es corroboration blocks, and Cf approval are now queryable work items |
-| At/Fr/Pa escalation -> escalation-search receipts | NIST/PubChem/RSC/WebElements source checks leave conflicts blocked pending higher-precedence evidence or explicit resolution |
+| Blocked receipts -> escalation receipts | Fr/Pa conflicts, Fr/Bk/Cf/Es corroboration blocks, and Cf approval are now queryable work items |
+| Fr/Pa escalation -> escalation-search receipts | NIST/PubChem/RSC/WebElements source checks leave remaining conflicts blocked pending higher-precedence evidence or explicit resolution |
 | Fr density escalation -> corroboration-search receipt | WebElements remains uncorroborated by RSC or PubChem, so admission stays blocked |
 | Bk boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
 | Cf boiling-point escalation -> corroboration-search receipt | LANL candidate remains uncorroborated by independent RSC/WebElements evidence |
@@ -597,11 +597,11 @@ physical_property_review_receipts=1
 physical_property_gap_closure_decisions=1
 physical_property_closure_approval_receipts=1
 physical_property_seed_update_receipts=1
-physical_property_escalation_receipts=8
-physical_property_escalation_search_receipts=7
-physical_property_escalation_resolution_receipts=7
-physical_property_operator_decision_receipts=7
-physical_property_continued_evidence_plans=7
+physical_property_escalation_receipts=7
+physical_property_escalation_search_receipts=6
+physical_property_escalation_resolution_receipts=6
+physical_property_operator_decision_receipts=6
+physical_property_continued_evidence_plans=6
 physical_property_no_candidate_review_receipts=4
 isotope_candidate_evidence_receipts=0
 isotope_candidate_admission_receipts=1

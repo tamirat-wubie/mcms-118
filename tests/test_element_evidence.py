@@ -244,18 +244,16 @@ def test_evidence_lookup_rejects_unknown_records():
     with pytest.raises(KeyError, match="unknown physical-property evidence record"):
         find_physical_property_evidence_record("Og")
 
-    with pytest.raises(KeyError, match="unknown physical-property evidence record"):
-        find_physical_property_evidence_record("At")
-
 
 def test_physical_property_evidence_records_validate_measured_boundaries():
     records = list_physical_property_evidence_records()
     validation = validate_physical_property_evidence_records(records)
     bromine = find_physical_property_evidence_record("Br")
     krypton = find_physical_property_evidence_record("Kr")
+    astatine = find_physical_property_evidence_record("At")
 
     assert validation["validation_status"] == "physical_property_evidence_records_validated"
-    assert validation["record_count"] == 93
+    assert validation["record_count"] == 94
     assert validation["standard_states"] == ("Gas", "Liquid", "Solid")
     assert bromine.standard_state == "Liquid"
     assert bromine.melting_point_k == 265.95
@@ -276,6 +274,10 @@ def test_physical_property_evidence_records_validate_measured_boundaries():
     assert arsenic.melting_point_k > arsenic.boiling_point_k
     assert arsenic.phase_transition_note is not None
     assert arsenic.validate() == []
+    assert astatine.boiling_point_k == 610.15
+    assert "lanl_periodic_table_candidate" in astatine.source_keys
+    assert astatine.phase_transition_note is not None
+    assert astatine.validate() == []
 
 
 def test_unresolved_physical_property_evidence_records_validate_missing_fields():
@@ -307,11 +309,11 @@ def test_physical_property_gap_audit_receipts_preserve_no_guess_boundary():
 
     assert validation["validation_status"] == "physical_property_gap_audit_receipts_validated"
     assert validation["receipt_count"] == 25
-    assert validation["cs_rn_blocking_gap_count"] == 1
+    assert validation["cs_rn_blocking_gap_count"] == 0
     assert validation["boiling_point_gap_count"] == 25
     assert astatine.source_row_status == "source_row_incomplete"
     assert astatine.gap_status == "awaiting_authoritative_source_value"
-    assert astatine.blocks_promotion_spans == ("Cs-Rn",)
+    assert astatine.blocks_promotion_spans == ()
     assert astatine.no_guess_policy is True
     assert astatine.validate() == []
 
@@ -401,12 +403,12 @@ def test_physical_property_secondary_evidence_admission_blocks_conflict():
         "physical_property_secondary_evidence_admission_decisions_validated"
     )
     assert validation["decision_count"] == 8
-    assert validation["admitted_gap_closure_count"] == 0
-    assert validation["conflict_blocked_count"] == 3
+    assert validation["admitted_gap_closure_count"] == 1
+    assert validation["conflict_blocked_count"] == 2
     assert validation["corroboration_blocked_count"] == 4
     assert validation["pending_review_count"] == 1
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.decision_status == "secondary_evidence_not_admitted_conflict"
+    assert astatine.decision_status == "secondary_evidence_admitted_for_gap_closure"
     assert francium.decision_status == "secondary_evidence_not_admitted_conflict"
     assert francium_density.decision_status == (
         "secondary_evidence_not_admitted_needs_corroboration"
@@ -424,7 +426,7 @@ def test_physical_property_secondary_evidence_admission_blocks_conflict():
     assert einsteinium.decision_status == (
         "secondary_evidence_not_admitted_needs_corroboration"
     )
-    assert astatine.closes_gap is False
+    assert astatine.closes_gap is True
     assert francium.closes_gap is False
     assert francium_density.closes_gap is False
     assert protactinium.closes_gap is False
@@ -454,13 +456,13 @@ def test_physical_property_conflict_resolution_receipt_blocks_gap_closure():
         "physical_property_conflict_resolution_receipts_validated"
     )
     assert validation["receipt_count"] == 3
-    assert validation["blocked_pending_higher_precedence_source_count"] == 3
-    assert validation["gap_closure_count"] == 0
+    assert validation["blocked_pending_higher_precedence_source_count"] == 2
+    assert validation["gap_closure_count"] == 1
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.resolution_decision == "blocked_pending_higher_precedence_source"
+    assert astatine.resolution_decision == "resolved_admit_candidate"
     assert francium.resolution_decision == "blocked_pending_higher_precedence_source"
     assert protactinium.resolution_decision == "blocked_pending_higher_precedence_source"
-    assert astatine.closes_gap is False
+    assert astatine.closes_gap is True
     assert francium.closes_gap is False
     assert protactinium.closes_gap is False
     assert astatine.seed_mutation_allowed is False
@@ -598,26 +600,26 @@ def test_physical_property_seed_update_receipt_blocks_deferred_approval():
 def test_physical_property_escalation_receipts_prioritize_blocked_work():
     receipts = list_physical_property_escalation_receipts()
     validation = validate_physical_property_escalation_receipts(receipts)
-    astatine = get_physical_property_escalation_receipt("At")
+    francium = get_physical_property_escalation_receipt("Fr")
     berkelium = get_physical_property_escalation_receipt("Bk")
     californium = get_physical_property_escalation_receipt(
         "MSPEE-PHYSICAL-PROPERTY-SEED-UPDATE-Z098-Cf-density_value"
     )
 
     assert validation["validation_status"] == "physical_property_escalation_receipts_validated"
-    assert validation["receipt_count"] == 8
-    assert validation["higher_precedence_source_required_count"] == 3
+    assert validation["receipt_count"] == 7
+    assert validation["higher_precedence_source_required_count"] == 2
     assert validation["corroborating_source_required_count"] == 4
     assert validation["operator_approval_required_count"] == 1
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.escalation_class == "higher_precedence_source_required"
-    assert astatine.priority_rank == 0
+    assert francium.escalation_class == "higher_precedence_source_required"
+    assert francium.priority_rank == 1
     assert berkelium.escalation_class == "corroborating_source_required"
     assert californium.escalation_class == "operator_approval_required"
     assert californium.closes_gap is False
     assert californium.seed_mutation_allowed is False
-    assert astatine.validate() == []
+    assert francium.validate() == []
     assert berkelium.validate() == []
     assert californium.validate() == []
 
@@ -625,7 +627,6 @@ def test_physical_property_escalation_receipts_prioritize_blocked_work():
 def test_physical_property_escalation_search_records_at_source_attempt():
     receipts = list_physical_property_escalation_search_receipts()
     validation = validate_physical_property_escalation_search_receipts(receipts)
-    astatine = get_physical_property_escalation_search_receipt("At")
     francium = get_physical_property_escalation_search_receipt("Fr")
     francium_density = get_physical_property_escalation_search_receipt(
         "MSPEE-PHYSICAL-PROPERTY-ESCALATION-SEARCH-Z087-Fr-density_value"
@@ -638,19 +639,11 @@ def test_physical_property_escalation_search_records_at_source_attempt():
     assert validation["validation_status"] == (
         "physical_property_escalation_search_receipts_validated"
     )
-    assert validation["search_receipt_count"] == 7
-    assert validation["higher_precedence_source_not_found_count"] == 3
+    assert validation["search_receipt_count"] == 6
+    assert validation["higher_precedence_source_not_found_count"] == 2
     assert validation["corroborating_source_not_found_count"] == 4
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.search_status == "higher_precedence_source_not_found"
-    assert {source_check.source_key for source_check in astatine.source_checks} == {
-        "nist_chemistry_webbook_atomic_astatine",
-        "pubchem_element_astatine",
-        "rsc_periodic_table_astatine",
-    }
-    assert astatine.closes_gap is False
-    assert astatine.seed_mutation_allowed is False
     assert francium.search_status == "higher_precedence_source_not_found"
     assert {source_check.source_key for source_check in francium.source_checks} == {
         "nist_chemistry_webbook_atomic_francium",
@@ -703,7 +696,6 @@ def test_physical_property_escalation_search_records_at_source_attempt():
     }
     assert protactinium.closes_gap is False
     assert protactinium.seed_mutation_allowed is False
-    assert astatine.validate() == []
     assert francium.validate() == []
     assert francium_density.validate() == []
     assert berkelium.validate() == []
@@ -715,81 +707,64 @@ def test_physical_property_escalation_search_records_at_source_attempt():
 def test_physical_property_escalation_resolution_recommends_without_applying():
     receipts = list_physical_property_escalation_resolution_receipts()
     validation = validate_physical_property_escalation_resolution_receipts(receipts)
-    astatine = get_physical_property_escalation_resolution_receipt("At")
     californium = get_physical_property_escalation_resolution_receipt("Cf")
 
     assert validation["validation_status"] == (
         "physical_property_escalation_resolution_receipts_validated"
     )
-    assert validation["receipt_count"] == 7
-    assert validation["conflict_resolution_blocked_count"] == 3
+    assert validation["receipt_count"] == 6
+    assert validation["conflict_resolution_blocked_count"] == 2
     assert validation["candidate_rejection_recommended_count"] == 4
     assert validation["final_resolution_applied_count"] == 0
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.resolution_status == (
-        "conflict_resolution_blocked_pending_operator_decision"
-    )
     assert californium.resolution_status == (
         "candidate_rejection_recommended_pending_operator_decision"
     )
-    assert astatine.final_resolution_applied is False
     assert californium.final_resolution_applied is False
-    assert astatine.closes_gap is False
     assert californium.seed_mutation_allowed is False
-    assert astatine.validate() == []
     assert californium.validate() == []
 
 
 def test_physical_property_operator_decisions_are_deferred():
     receipts = list_physical_property_operator_decision_receipts()
     validation = validate_physical_property_operator_decision_receipts(receipts)
-    astatine = get_physical_property_operator_decision_receipt("At")
     californium = get_physical_property_operator_decision_receipt("Cf")
 
     assert validation["validation_status"] == (
         "physical_property_operator_decision_receipts_validated"
     )
-    assert validation["receipt_count"] == 7
-    assert validation["deferred_decision_count"] == 7
+    assert validation["receipt_count"] == 6
+    assert validation["deferred_decision_count"] == 6
     assert validation["approved_resolution_count"] == 0
     assert validation["rejected_resolution_count"] == 0
     assert validation["final_resolution_applied_count"] == 0
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.operator_decision_status == "operator_decision_deferred"
     assert californium.operator_decision_status == "operator_decision_deferred"
-    assert astatine.final_resolution_applied is False
     assert californium.final_resolution_applied is False
-    assert astatine.closes_gap is False
     assert californium.seed_mutation_allowed is False
-    assert astatine.validate() == []
     assert californium.validate() == []
 
 
 def test_physical_property_continued_evidence_plans_keep_search_open():
     plans = list_physical_property_continued_evidence_plans()
     validation = validate_physical_property_continued_evidence_plans(plans)
-    astatine = get_physical_property_continued_evidence_plan("At")
     californium = get_physical_property_continued_evidence_plan("Cf")
 
     assert validation["validation_status"] == (
         "physical_property_continued_evidence_plans_validated"
     )
-    assert validation["plan_count"] == 7
-    assert validation["continued_evidence_required_count"] == 7
-    assert validation["higher_precedence_source_discovery_count"] == 3
+    assert validation["plan_count"] == 6
+    assert validation["continued_evidence_required_count"] == 6
+    assert validation["higher_precedence_source_discovery_count"] == 2
     assert validation["independent_corroboration_discovery_count"] == 4
     assert validation["final_resolution_applied_count"] == 0
     assert validation["gap_closure_count"] == 0
     assert validation["seed_mutation_allowed_count"] == 0
-    assert astatine.plan_class == "higher_precedence_source_discovery"
     assert californium.plan_class == "independent_corroboration_discovery"
-    assert astatine.final_resolution_applied is False
     assert californium.final_resolution_applied is False
-    assert astatine.closes_gap is False
     assert californium.seed_mutation_allowed is False
-    assert astatine.validate() == []
     assert californium.validate() == []
 
 
@@ -852,7 +827,8 @@ def test_physical_property_gap_workplan_prioritizes_without_closing_gaps():
 
     assert validation["validation_status"] == "physical_property_gap_work_items_validated"
     assert validation["work_item_count"] == 25
-    assert validation["conflict_blocked_count"] == 1
+    assert validation["conflict_blocked_count"] == 0
+    assert validation["conflict_resolved_for_promotion_count"] == 1
     assert validation["single_field_source_search_count"] == 2
     assert validation["partial_property_source_search_count"] == 7
     assert validation["synthetic_superheavy_uncertainty_count"] == 15
@@ -860,7 +836,7 @@ def test_physical_property_gap_workplan_prioritizes_without_closing_gaps():
     assert validation["seed_mutation_allowed_count"] == 0
     assert items[0].symbol == "At"
     assert astatine.priority_rank == 0
-    assert astatine.work_status == "conflict_blocked_promotion"
+    assert astatine.work_status == "conflict_resolved_for_promotion"
     assert protactinium.work_status == "single_field_source_search"
     assert oganesson.work_status == "synthetic_superheavy_uncertainty"
     assert astatine.validate() == []
@@ -983,23 +959,23 @@ def test_local_api_exposes_evidence_routes():
     )
     physical_property_escalation = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalations/At",
+        "/evidence/physical-properties/escalations/Fr",
     )
     physical_property_escalation_search = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalation-search/At",
+        "/evidence/physical-properties/escalation-search/Fr",
     )
     physical_property_escalation_resolution = handle_api_request(
         "GET",
-        "/evidence/physical-properties/escalation-resolution/At",
+        "/evidence/physical-properties/escalation-resolution/Fr",
     )
     physical_property_operator_decision = handle_api_request(
         "GET",
-        "/evidence/physical-properties/operator-decisions/At",
+        "/evidence/physical-properties/operator-decisions/Fr",
     )
     physical_property_continued_evidence = handle_api_request(
         "GET",
-        "/evidence/physical-properties/continued-evidence/At",
+        "/evidence/physical-properties/continued-evidence/Fr",
     )
     physical_property_no_candidate = handle_api_request(
         "GET",
@@ -1028,7 +1004,7 @@ def test_local_api_exposes_evidence_routes():
     assert oxygen_common_ion.status_code == 200
     assert oxygen_common_ion.payload["record"]["evidence_domain"] == "common_ion_evidence"
     assert physical_properties.status_code == 200
-    assert physical_properties.payload["validation"]["record_count"] == 93
+    assert physical_properties.payload["validation"]["record_count"] == 94
     assert bromine.status_code == 200
     assert bromine.payload["record"]["standard_state"] == "Liquid"
     assert bromine.payload["record"]["density_value"] == 3.11
@@ -1037,10 +1013,12 @@ def test_local_api_exposes_evidence_routes():
     assert astatine.status_code == 200
     assert astatine.payload["record"]["missing_fields"] == ("boiling_point_k",)
     assert astatine_gap.status_code == 200
-    assert astatine_gap.payload["receipt"]["blocks_promotion_spans"] == ["Cs-Rn"]
+    assert astatine_gap.payload["receipt"]["blocks_promotion_spans"] == []
     assert astatine_gap.payload["receipt"]["no_guess_policy"] is True
     assert astatine_workplan.status_code == 200
-    assert astatine_workplan.payload["item"]["work_status"] == "conflict_blocked_promotion"
+    assert astatine_workplan.payload["item"]["work_status"] == (
+        "conflict_resolved_for_promotion"
+    )
     assert protactinium_source_search.status_code == 200
     assert protactinium_source_search.payload["receipt"]["search_status"] == (
         "source_search_complete_candidate_receipt_created"
@@ -1055,10 +1033,10 @@ def test_local_api_exposes_evidence_routes():
     assert secondary_receipts.payload["validation"]["receipt_count"] == 8
     assert secondary_receipts.payload["validation"]["admitted_count"] == 0
     assert secondary_admission.status_code == 200
-    assert secondary_admission.payload["decision"]["closes_gap"] is False
+    assert secondary_admission.payload["decision"]["closes_gap"] is True
     assert physical_property_conflict.status_code == 200
     assert physical_property_conflict.payload["receipt"]["resolution_decision"] == (
-        "blocked_pending_higher_precedence_source"
+        "resolved_admit_candidate"
     )
     assert physical_property_corroboration.status_code == 200
     assert physical_property_corroboration.payload["receipt"]["review_decision"] == (
@@ -1269,7 +1247,7 @@ def test_element_cli_prints_evidence_records(capsys):
     seed_update_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="At",
+        symbol="Fr",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -1281,7 +1259,7 @@ def test_element_cli_prints_evidence_records(capsys):
     escalation_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="At",
+        symbol="Fr",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -1293,7 +1271,7 @@ def test_element_cli_prints_evidence_records(capsys):
     escalation_search_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="At",
+        symbol="Fr",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -1305,7 +1283,7 @@ def test_element_cli_prints_evidence_records(capsys):
     escalation_resolution_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="At",
+        symbol="Fr",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -1317,7 +1295,7 @@ def test_element_cli_prints_evidence_records(capsys):
     operator_decision_output = json.loads(capsys.readouterr().out)
 
     cmd_elements(
-        symbol="At",
+        symbol="Fr",
         list_only=False,
         full_snapshot=False,
         schema_name=None,
@@ -1399,9 +1377,7 @@ def test_element_cli_prints_evidence_records(capsys):
     assert property_output["records"][0]["boiling_point_k"] == 331.95
     assert unresolved_output["records"][0]["symbol"] == "At"
     assert unresolved_output["records"][0]["missing_fields"] == ["boiling_point_k"]
-    assert conflict_output["receipts"][0]["resolution_decision"] == (
-        "blocked_pending_higher_precedence_source"
-    )
+    assert conflict_output["receipts"][0]["resolution_decision"] == "resolved_admit_candidate"
     assert corroboration_output["receipts"][0]["review_decision"] == (
         "blocked_pending_corroborating_source"
     )
@@ -1443,7 +1419,7 @@ def test_element_cli_prints_evidence_records(capsys):
     assert no_candidate_output["receipts"][0]["review_decision"] == (
         "blocked_no_admissible_candidate_found"
     )
-    assert workplan_output["items"][0]["work_status"] == "conflict_blocked_promotion"
+    assert workplan_output["items"][0]["work_status"] == "conflict_resolved_for_promotion"
     assert source_search_output["receipts"][0]["search_status"] == (
         "source_search_complete_candidate_receipt_created"
     )

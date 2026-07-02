@@ -102,8 +102,9 @@ M8 = production-engineering-ready
 36. Cs-Rn bounded behavior-tag overlay
 37. Cs-Rn relation-edge overlay
 38. Cs-Rn promotion decision receipts
-39. Cs-Rn full-span hold batch policy
+39. Cs-Rn full-span approval-review batch policy
 39a. Cs-Rn partial promotion eligibility receipt with zero seed mutation authority
+39b. Cs-Rn full-span approval-review receipt with zero seed mutation authority
 40. Physical-property gap audit receipts
 41. Physical-property secondary-source admission policy
 42. Physical-property secondary evidence receipt workflow
@@ -140,7 +141,7 @@ M8 = production-engineering-ready
 ## Next Build Order
 
 ```text
-1. Resolve Astatine physical-property evidence gap before full Cs-Rn seed promotion
+1. Issue explicit full-span Cs-Rn approval or rejection receipt
 2. Resolve measured-property gaps as authoritative complete values become available
 3. Resolve At boiling-point conflict receipt with a higher-precedence field source
 4. Execute continued-evidence plans or convert deferred operator decisions into explicit approvals/rejections

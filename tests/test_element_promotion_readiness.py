@@ -14,8 +14,8 @@ def test_cs_rn_promotion_readiness_profiles_cover_atomic_span():
     assert result.validation_status == "cs_rn_promotion_readiness_profiles_validated"
     assert result.profile_count == 32
     assert result.atomic_number_span == (55, 86)
-    assert result.blocked_count == 1
-    assert result.ready_count == 31
+    assert result.blocked_count == 0
+    assert result.ready_count == 32
     assert [profile.symbol for profile in profiles[:3]] == ["Cs", "Ba", "La"]
     assert [profile.symbol for profile in profiles[-3:]] == ["Po", "At", "Rn"]
 
@@ -63,16 +63,18 @@ def test_cs_rn_readiness_marks_lanthanide_profile_without_promotion():
     assert lanthanum.promotion_blockers == ()
 
 
-def test_cs_rn_readiness_keeps_unresolved_physical_property_blocker_visible():
+def test_cs_rn_readiness_keeps_resolved_source_gap_visible():
     astatine = get_cs_rn_promotion_readiness_profile("At")
     assert astatine.atomic_number == 85
-    assert astatine.physical_property_evidence_available is False
+    assert astatine.physical_property_evidence_available is True
     assert astatine.unresolved_physical_property_evidence_available is True
+    assert "physical_property_evidence" in astatine.available_evidence
     assert "unresolved_physical_property_evidence" in astatine.available_evidence
     assert "relation_edges" in astatine.available_evidence
-    assert "complete_physical_property_evidence" in astatine.required_missing_evidence
-    assert "missing:complete_physical_property_evidence" in astatine.promotion_blockers
-    assert astatine.readiness_status == "promotion_blocked_missing_source_evidence"
+    assert astatine.required_missing_evidence == ()
+    assert astatine.promotion_blockers == ()
+    assert astatine.readiness_status == "promotion_ready"
+    assert "secondary_physical_property_evidence_resolves_source_gap" in astatine.notes
     assert astatine.validate() == []
 
 
